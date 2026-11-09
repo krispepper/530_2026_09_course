@@ -3,13 +3,19 @@ import os
 from dotenv import load_dotenv
 from flask import Flask 
 
-from database import getUAT, getDB
+from database import getDB
 
 app = Flask(__name__) 
 
 load_dotenv()
 
 PORT = os.getenv("PORT")
+DB = os.getenv("DB")
+UAT = os.getenv("UAT")
+
+@app.route("/")
+def index():
+    return "route options:/home /student /instructor /admin /database-check"
 
 @app.route("/homepage")
 def home(): 
@@ -31,7 +37,7 @@ def admin():
 # just to test if app can connect to DBs
 @app.route("/database-check")
 def dbCheck(): 
-    testUATdb = getUAT()
+    testUATdb = getDB(UAT)
     testUATcursor = testUATdb.cursor()
     query = "SELECT * FROM smithing"
     print(query)
@@ -40,7 +46,7 @@ def dbCheck():
     testUATcursor.close()
     testUATdb.close()
 
-    testdb = getDB()
+    testdb = getDB(DB)
     testcursor = testdb.cursor()
     query = "SELECT * FROM smithing"
     print(query)
