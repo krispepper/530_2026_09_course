@@ -10,8 +10,6 @@ app = Flask(__name__)
 load_dotenv()
 
 PORT = os.getenv("PORT")
-DB = os.getenv("DB")
-UAT = os.getenv("UAT")
 
 @app.route("/")
 def index():
@@ -37,16 +35,7 @@ def admin():
 # just to test if app can connect to DBs
 @app.route("/database-check")
 def dbCheck(): 
-    testUATdb = getDB(UAT)
-    testUATcursor = testUATdb.cursor()
-    query = "SELECT * FROM smithing"
-    print(query)
-    testUATcursor.execute(query)
-    UATresult_dict = testUATcursor.fetchall()
-    testUATcursor.close()
-    testUATdb.close()
-
-    testdb = getDB(DB)
+    testdb = getDB()
     testcursor = testdb.cursor()
     query = "SELECT * FROM smithing"
     print(query)
@@ -55,7 +44,7 @@ def dbCheck():
     testcursor.close()
     testdb.close()
 
-    return f"DB: {DBresult_dict[0][0]} || UAT: {UATresult_dict[0][0]}"
+    return f"DB: {DBresult_dict[0][0]}"
 
 if __name__ == "__main__": 
     app.run(debug=True, use_reloader=False, port=PORT)

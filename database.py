@@ -6,17 +6,16 @@ from dotenv import load_dotenv
 # env variables
 load_dotenv()
 USER = os.getenv("USER")
+DB = os.getenv("DB")
 
 # Database 
-"""TODO: add db models."""
-
-def getDB(dbname):
+def getDB():
     """Connects to the db or if connection is unsuccessful prints error message."""
     try:
         db = mysql.connector.connect(
             host="localhost",
             user=USER,
-            database=dbname,
+            database=DB,
         )
 
         return db
