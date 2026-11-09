@@ -1,6 +1,15 @@
+import os
+
+from dotenv import load_dotenv
 from flask import Flask 
 
+from database import getUAT, getDB
+
 app = Flask(__name__) 
+
+load_dotenv()
+
+PORT = os.getenv("PORT")
 
 @app.route("/homepage")
 def home(): 
@@ -18,8 +27,32 @@ def instructor():
 def admin(): 
     return "Who's doing well ಠ_ಠ"
 
+
+# just to test if app can connect to DBs
+@app.route("/database-check")
+def dbCheck(): 
+    testUATdb = getUAT()
+    testUATcursor = testUATdb.cursor()
+    query = "SELECT * FROM smithing"
+    print(query)
+    testUATcursor.execute(query)
+    UATresult_dict = testUATcursor.fetchall()
+    testUATcursor.close()
+    testUATdb.close()
+
+    testdb = getDB()
+    testcursor = testdb.cursor()
+    query = "SELECT * FROM smithing"
+    print(query)
+    testcursor.execute(query)
+    DBresult_dict = testcursor.fetchall()
+    testcursor.close()
+    testdb.close()
+
+    return f"DB: {DBresult_dict[0][0]} || UAT: {UATresult_dict[0][0]}"
+
 if __name__ == "__main__": 
-    app.run(debug=True, use_reloader=False)
+    app.run(debug=True, use_reloader=False, port=PORT)
 
 '''
 I believe y'all just need to run the following in the terminal of your cloned repository to access the virtual environment: 
