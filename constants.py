@@ -9,4 +9,4 @@ class ROLE(enum.Enum):
     student = "stu"
     instructor = "ins"
     deptChair = "dc"
-    schoolAdmin = "aca"
+    schoolAdmin = "sca"
