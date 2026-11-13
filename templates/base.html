@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <div style="text-align: center;">
+    <title>{% block title %}Course Eval{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link 
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" 
+        rel="stylesheet" 
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" 
+        crossorigin="anonymous"
+    >
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"> -->
+
+    <!-- font awesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+
+    <!-- font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"> 
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    {% block additional_head_links %}{% endblock %}
+
+</head>
+
+<body>
+<!-- Navbar -->
+<nav class="my-5">
+    <a href="/homepage"> HOME </a> 
+    {% if userID %}
+    |<a href="{{ url_for('viewEvaluationsList', userID=userID) }}"> VIEW EVALUATION LIST </a>
+    {% endif %}
+</nav>
+
+<body>
+<!-- body -->
+<div class="card border-0 px-5">
+    <div class="card-body border-0">
+        <main class="content">
+        <header>
+            {% block header %}{% endblock %}
+        </header>
+            {% block content %}
+            <h1> Wooo it's running! </h1> 
+            {% endblock %}
+        </main>
+    </div>
+</div>
+
+<script 
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-..."
+    crossorigin="anonymous">
+</script>
+
+</body>
+</html>

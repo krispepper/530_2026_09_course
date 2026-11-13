@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %} View Evaluation {% endblock %}
+
+{% block content %}
+
+<h1>{{ evalID }} for {{ studentID }} </h1>
+
+{% for field in eval %}
+<div class="d-flex justify-content-center align-items-center">
+    <div class="card mb-2" style="max-width: 320px;">
+        <div class="card-header">
+            {{ field.title }}
+        </div>
+    <div class="card-body">
+        <p class="card-text">{{ field.response }}</p>
+    </div>
+    </div>
+</div>
+{% endfor %}
+
+<div class="mt-5"><b>created</b>: {{ created_at }} || <b>last_modified</b>: {{ last_modified }}</div>
+{% endblock %}
