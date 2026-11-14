@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %} Class Roster {% endblock %}
+
+{% block content %}
+
+<h1> Roster for {{ courseID }} {{ secID }} {{ term }}</h1>
+{% for student in roster %}
+{{ student }}
+{% endfor %}
+
+{% endblock %}

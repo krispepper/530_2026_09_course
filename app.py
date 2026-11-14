@@ -9,7 +9,8 @@ from database import (
         getEvalListStudent, 
         getEvalListDeptChair,  
         getUserRole,
-        getSpecEval
+        getSpecEval,
+        getRoster
     )
 from evaluation import getUniqueEvalList
 from constants import ROLE
@@ -109,6 +110,18 @@ def viewEvaluation(studentID, evalID, userID):
         studentID=studentID,
         userID=userID
         )
+
+@app.route("/view-roster/<courseID>/<secID>/<term>")
+def viewRoster(courseID, secID, term):
+    "Route for viewing class roster"
+    roster = getRoster(secID, courseID, term)
+    return render_template(
+        "viewRoster.html",
+        roster = roster,
+        courseID = courseID,
+        secID = secID,
+        term = term
+    )
 
 
 if __name__ == "__main__": 

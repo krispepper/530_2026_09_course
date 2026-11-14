@@ -173,6 +173,20 @@ def getDept(userID: str) -> int:
         # return error message
         return f"No dept found for userID '{userID}'."
 
+def getRoster(secID: int, courseID: int, term: str) -> list[dict]:
+    ''' returns a dict with students attending a given class '''
+    # open database connection
+    userDB = getDB()
+    # cursor fetch will return as dict
+    usercursor = userDB.cursor(dictionary=True)
+    query = "SELECT * FROM enrollment WHERE secID = %s AND courseID = %s AND term = %s"
+    # run query using instructorID
+    usercursor.execute(query, (secID, courseID, term))
+    # get results as dict
+    DBresult_dict = usercursor.fetchall()
+    usercursor.close()
+    userDB.close()
+    return DBresult_dict
 
 # EVALUATION FUNCTIONS
 def getEvalListInstructor(instructorID: str) -> list[dict]:
