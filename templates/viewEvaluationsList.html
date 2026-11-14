@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %} View Evaluation List {% endblock %}
+
+{% block content %}
+
+<h1>{{ userID }} Evaluations </h1>
+
+{% for eval in evals %}
+    <a href="{{ url_for('viewEvaluation', evalID=eval.evalID, studentID=eval.studentID, userID=userID) }}">{{ eval.evalID }}</a>
+{% endfor %}
+
+{% endblock %}

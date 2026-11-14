@@ -1,9 +1,18 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask 
+from flask import Flask, render_template
 
-from database import getDB
+from database import (
+        getDB, 
+        getEvalListInstructor, 
+        getEvalListStudent, 
+        getEvalListDeptChair,  
+        getUserRole,
+        getUniqueEvalList,
+        getSpecEval
+    )
+from constants import ROLE
 
 app = Flask(__name__) 
 
@@ -13,11 +22,11 @@ PORT = os.getenv("PORT")
 
 @app.route("/")
 def index():
-    return "route options:/home /student /instructor /admin /database-check"
+    return render_template('base.html')
 
 @app.route("/homepage")
 def home(): 
-    return "Wooo it's running!"
+    return render_template('base.html')
 
 @app.route("/student")
 def student(): 
@@ -45,6 +54,62 @@ def dbCheck():
     testdb.close()
 
     return f"DB: {DBresult_dict[0][0]}"
+
+@app.route("/view-evals-list/<userID>", strict_slashes=False)
+def viewEvaluationsList(userID):
+    """Route for viewing evaluation list."""
+    # check user type
+    role = getUserRole(userID)
+
+    
+    if role == ROLE.instructor.value:
+        # get eval responses
+        evals = getUniqueEvalList(getEvalListInstructor(userID))
+    elif role == ROLE.student.value:
+        # get eval responses
+        evals = getUniqueEvalList(getEvalListStudent(userID))
+        print(evals)
+    elif role == ROLE.deptChair.value:
+        # get eval responses
+        evals = getUniqueEvalList(getEvalListDeptChair(userID))
+    else:
+        return render_template(
+            "error.html", 
+            msg = ("That's weird. You have no role. " 
+            "OR you're a school admin and that access "
+            "is under construction.")
+            )
+
+    # render view for viewEvaluations
+    return render_template(
+        "viewEvaluationsList.html", 
+        evals=evals, 
+        userID=userID
+        )
+
+
+@app.route("/view-evals/<userID>/<studentID>/<evalID>", strict_slashes=False)
+def viewEvaluation(studentID, evalID, userID):
+    """Route for viewing evaluation responses."""
+    # get fields for specific eval
+    eval = getSpecEval(evalID, studentID)
+
+    # get lastest modified timestamp
+    last_modified=max([field["last_modified"] for field in eval])
+    # get created timestamp
+    created_at=eval[0]["created_at"]
+
+    # render view for viewEvaluations
+    return render_template(
+        "viewEvaluation.html", 
+        eval=eval,
+        last_modified=last_modified,
+        created_at=created_at,
+        evalID=evalID,
+        studentID=studentID,
+        userID=userID
+        )
+
 
 if __name__ == "__main__": 
     app.run(debug=True, use_reloader=False, port=PORT)
