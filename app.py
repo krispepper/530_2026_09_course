@@ -9,9 +9,9 @@ from database import (
         getEvalListStudent, 
         getEvalListDeptChair,  
         getUserRole,
-        getUniqueEvalList,
         getSpecEval
     )
+from evaluation import getUniqueEvalList
 from constants import ROLE
 
 app = Flask(__name__) 
