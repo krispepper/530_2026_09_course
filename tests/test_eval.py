@@ -16,7 +16,7 @@ class Test_getEvalListStudent:
     # variables for mutliple tests
     # IDs for userID (DB ID)
     testStudentID = "STU001"
-    testNonexistantD = "DNE000"
+    testNonexistentD = "DNE000"
     testStudentIDNone = "STU002"
     testEmptyID = ""
 
@@ -41,9 +41,9 @@ class Test_getEvalListStudent:
             """Check that function returns error message for user with no evaluations."""
             assert getEvalListStudent(self.testStudentIDNone) == "No evaluation responses found."
 
-    def test_nonexistantEval(self):
+    def test_NonexistentEval(self):
         """Check that function returns error message for a nonesistant ID."""
-        assert getEvalListStudent(self.testNonexistantD) == "No evaluation responses found."
+        assert getEvalListStudent(self.testNonexistentD) == "No evaluation responses found."
 
     def test_EmptyEval(self):
         """Check that function returns error message for empty string ID."""
@@ -59,7 +59,7 @@ class Test_getEvalListInstructor:
     # variables for mutliple tests
     # IDs for userID (DB ID)
     testInstructorID = "INS001"
-    testNonexistantD = "DNE000"
+    testNonexistentD = "DNE000"
     testInstructorIDNone = "INS002"
     testEmptyID = ""
 
@@ -84,9 +84,9 @@ class Test_getEvalListInstructor:
         """Check that function returns error message for user with no evaluations."""
         assert getEvalListInstructor(self.testInstructorIDNone) == "No evaluation responses found."
 
-    def test_nonexistantEval(self):
+    def test_NonexistentEval(self):
         """Check that function returns error message for a nonesistant ID."""
-        assert getEvalListInstructor(self.testNonexistantD) == "No evaluation responses found."
+        assert getEvalListInstructor(self.testNonexistentD) == "No evaluation responses found."
 
     def test_EmptyEval(self):
         """Check that function returns error message for empty string ID."""
@@ -101,7 +101,7 @@ class Test_getEvalListDeptChair:
     # variables for mutliple tests
     # IDs for userID (DB ID)
     testDeptChairID = "DEP001"
-    testNonexistantD = "DNE000"
+    testNonexistentD = "DNE000"
     testDeptChairIDNone = "DEP002"
     testEmptyID = ""
 
@@ -126,9 +126,9 @@ class Test_getEvalListDeptChair:
         """Check that function returns error message for user with no evaluations."""
         assert getEvalListDeptChair(self.testDeptChairIDNone) == "No evaluation responses found."
 
-    def test_nonexistantEval(self):
+    def test_NonexistentEval(self):
         """Check that function returns error message for a nonesistant ID."""
-        assert getEvalListDeptChair(self.testNonexistantD) == "No evaluation responses found."
+        assert getEvalListDeptChair(self.testNonexistentD) == "No evaluation responses found."
 
     def test_EmptyEval(self):
         """Check that function returns error message for empty string ID."""
@@ -146,7 +146,7 @@ class Test_getSpecEval:
     testEvalID = "CSC-530-050-f26"
     testStudentID = "STU001"
     testStudentIDNone = "STU002"
-    testNonexistantD = "DNE000"
+    testNonexistentD = "DNE000"
     testEmptyID = ""
 
     expectedKeys = [
@@ -168,9 +168,9 @@ class Test_getSpecEval:
         """Check that function returns evaluation responses for a specific student."""
         assert getSpecEval(self.testEvalID, self.testStudentIDNone) == "No evaluation responses found."
 
-    def test_nonexistantEval(self):
+    def test_NonexistentEval(self):
         """Check that function returns error message for a nonesistant ID."""
-        assert getEvalListDeptChair(self.testNonexistantD) == "No evaluation responses found."
+        assert getEvalListDeptChair(self.testNonexistentD) == "No evaluation responses found."
 
     def test_EmptyEval(self):
         """Check that function returns error message for empty string ID."""
