@@ -1,5 +1,4 @@
 import os
-import pandas as pd
 
 from dotenv import load_dotenv
 from flask import Flask, render_template

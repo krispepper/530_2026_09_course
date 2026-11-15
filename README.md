@@ -10,3 +10,14 @@ Steps to install & run project.
 6. Use the following command: python {python file name}.py
 
 README was written by Hugo. Carrie created the Asana Hello World task, cloned the repo into the compsci folder, & installed into UAT folder. Faith created the virtual environments. Ryan wrote the requirements.txt.
+
+***
+
+### Testing:
+
+- make sure you have requirements
+- cd to root folder (530_2026_09_course)
+- start venv
+- run ```python -m pytest``` in command line
+    - to run specific test run ```pytest path/to/test::testClass::unitTest```
+        - example: ````pytest tests/test_eval.py::Test_getEvalListStudent::test_studentEval```
