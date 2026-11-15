@@ -22,12 +22,18 @@ class Test_getRoster:
 
     def test_nonexistantSec(self):
         """Checks function returns error message for nonexistant section ID"""
-        assert getRoster(self.testNonexistantSec, self.testCourseID, self.testTerm) == "No enrollment found for course '{courseID}-{secID}-{term}'."
+        assert getRoster(self.testNonexistantSec, self.testCourseID, self.testTerm) == (
+            f"No enrollment found for course '{self.testCourseID}-{self.testNonexistantSec}-{self.testTerm}'."
+            )
     
     def test_nonexistantCourse(self):
         """Checks function returns error message for nonexistant course ID"""
-        assert getRoster(self.testSecID, self.testNonexistantCourse, self.testTerm) == "No enrollment found for course '{courseID}-{secID}-{term}'."
+        assert getRoster(self.testSecID, self.testNonexistantCourse, self.testTerm) == (
+            f"No enrollment found for course '{self.testNonexistantCourse}-{self.testSecID}-{self.testTerm}'."
+            )
     
     def test_nonexistantTerm(self):
         """Checks function returns error message for nonexistant term"""
-        assert getRoster(self.testSecID, self.testCourseID, self.testNonexistantTerm) == "No enrollment found for course '{courseID}-{secID}-{term}'."
+        assert getRoster(self.testSecID, self.testCourseID, self.testNonexistantTerm) == (
+            f"No enrollment found for course '{self.testCourseID}-{self.testSecID}-{self.testNonexistantTerm}'."
+            )
