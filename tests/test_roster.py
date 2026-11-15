@@ -9,6 +9,9 @@ class Test_getRoster:
     testSecID = 50
     testCourseID = 530
     testTerm = "F26"
+    testNonexistantSec = 69
+    testNonexistantCourse = 420
+    testNonexistantTerm = "S23"
     expectedKeys = ["studentID", "firstName", "lastName", "email"]
 
     def test_getRoster(self): # written by Carrie
@@ -17,4 +20,14 @@ class Test_getRoster:
         keys = [key for key in getRoster(self.testSecID, self.testCourseID, self.testTerm)[0].keys()]
         assert keys == self.expectedKeys
 
-    """TODO: @Ryan- write some unit test for alt paths for getRoster."""
+    def test_nonexistantSec(self):
+        """Checks function returns error message for nonexistant section ID"""
+        assert getRoster(self.testNonexistantSec) == "No enrollment found for course '{courseID}-{secID}-{term}'."
+    
+    def test_nonexistantCourse(self):
+        """Checks function returns error message for nonexistant course ID"""
+        assert getRoster(self.testNonexistantCourse) == "No enrollment found for course '{courseID}-{secID}-{term}'."
+    
+    def test_nonexistantTerm(self):
+        """Checks function returns error message for nonexistant term"""
+        assert getRoster(self.testNonexistantTerm) == "No enrollment found for course '{courseID}-{secID}-{term}'."
