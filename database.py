@@ -209,22 +209,23 @@ def getRoster(secID: int, courseID: int, term: str) -> list[dict]:
     # get results as dict
     DBresult_dict = usercursor.fetchall()
 
-    # check user was found
-    if DBresult_dict is not None:
+    # check if any students were found
+    if all(student == {} for student in DBresult_dict):
 
         # close DB and cursor
         usercursor.close() 
         userDB.close()
-
-        # return role
-        return DBresult_dict
-    else:
-        # close DB and cursor
-        usercursor.close() 
-        userDB.close()
+        
 
         # return error message
         return f"No enrollment found for course '{courseID}-{secID}-{term}'."
+
+    # close DB and cursor
+    usercursor.close() 
+    userDB.close()
+
+    # return role
+    return DBresult_dict
 
 # EVALUATION FUNCTIONS
 def getEvalListInstructor(instructorID: str) -> list[dict]:
