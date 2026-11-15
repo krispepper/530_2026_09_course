@@ -174,19 +174,57 @@ def getDept(userID: str) -> int:
         return f"No dept found for userID '{userID}'."
 
 def getRoster(secID: int, courseID: int, term: str) -> list[dict]:
-    ''' returns a dict with students attending a given class '''
+    """
+    Function returns a dict with students attending a given class.
+        
+    attrs: 
+        secID (int): id of section for class
+        courseID (int): id of course for class
+        term (int): term for class (format: F or S followed by last two digits of year ex: F26)
+    return: 
+        roster (list[dict]): list of students in a class.
+    """
     # open database connection
     userDB = getDB()
     # cursor fetch will return as dict
     usercursor = userDB.cursor(dictionary=True)
-    query = "SELECT * FROM enrollment WHERE secID = %s AND courseID = %s AND term = %s"
+
+    # query to get list of student information for a specific class
+    query = (
+        'With enrollStudents as ('
+        'SELECT u.userID, u.firstName, u.lastName, u.email '
+        'FROM user AS u '
+        'JOIN enrollment AS e '
+        'ON e.studentID = u.userID '
+        'WHERE secID = %s '
+        'AND courseID = %s '
+        'AND term = %s) '
+        'SELECT s.studentID, es.firstName, es.lastName, es.email '
+        'FROM enrollStudents as es '
+        'JOIN student as s '
+        'ON es.userID = s.userID'
+        )
     # run query using instructorID
     usercursor.execute(query, (secID, courseID, term))
     # get results as dict
     DBresult_dict = usercursor.fetchall()
-    usercursor.close()
-    userDB.close()
-    return DBresult_dict
+
+    # check user was found
+    if DBresult_dict is not None:
+
+        # close DB and cursor
+        usercursor.close() 
+        userDB.close()
+
+        # return role
+        return DBresult_dict
+    else:
+        # close DB and cursor
+        usercursor.close() 
+        userDB.close()
+
+        # return error message
+        return f"No enrollment found for course '{courseID}-{secID}-{term}'."
 
 # EVALUATION FUNCTIONS
 def getEvalListInstructor(instructorID: str) -> list[dict]:
