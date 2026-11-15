@@ -62,23 +62,35 @@ def viewEvaluationsList(userID):
     # check user type
     role = getUserRole(userID)
 
-    
     if role == ROLE.instructor.value:
         # get eval responses
-        evals = getUniqueEvalList(getEvalListInstructor(userID))
+        evals = getEvalListInstructor(userID)
     elif role == ROLE.student.value:
         # get eval responses
-        evals = getUniqueEvalList(getEvalListStudent(userID))
+        evals = getEvalListStudent(userID)
     elif role == ROLE.deptChair.value:
         # get eval responses
-        evals = getUniqueEvalList(getEvalListDeptChair(userID))
+        evals = getEvalListDeptChair(userID)
     else:
+        # render view for error
         return render_template(
             "error.html", 
             msg = ("That's weird. You have no role. " 
             "OR you're a school admin and that access "
             "is under construction.")
             )
+
+    # check if evals returned error message 
+    if isinstance(evals, str):
+        # render view for viewEvaluations with error msg
+        return render_template(
+            "viewEvaluationsList.html",  
+            userID=userID,
+            msg=evals
+            )
+    
+    # get unique evaluations
+    evals = getUniqueEvalList(evals)
 
     # render view for viewEvaluations
     return render_template(
@@ -94,6 +106,16 @@ def viewEvaluation(studentID, evalID, userID):
     # get fields for specific eval
     eval = getSpecEval(evalID, studentID)
 
+    if isinstance(eval, str):
+        # render view for viewEvaluations with error message
+        return render_template(
+            "viewEvaluation.html", 
+            msg=eval,
+            evalID=evalID,
+            studentID=studentID,
+            userID=userID
+            )
+    
     # get lastest modified timestamp
     last_modified=max([field["last_modified"] for field in eval])
     # get created timestamp

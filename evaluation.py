@@ -2,7 +2,7 @@
 EVALUATION RELATED FUNCTIONS.
 """
 
-def getUniqueEvalList(evalResponse: list[dict]) -> list[dict]:
+def getUniqueEvalList(evalResponse: list[dict]) -> list[dict] | str:
 
     if all(eval == {} for eval in evalResponse):
         return "No evaluations found."

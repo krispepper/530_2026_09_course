@@ -114,7 +114,7 @@ def getRoleID(userID: str) -> str:
     usercursor.execute(query, (userID,))
     # get results as dict
     DBresult_dict = usercursor.fetchone()
-    
+
     if DBresult_dict is not None:
         # get instructorID
         roleID = DBresult_dict[id]
@@ -274,10 +274,12 @@ def getEvalListInstructor(instructorID: str) -> list[dict]:
     evalcursor.close() 
     evalDB.close()
 
-    if evalResponses:
-        return evalResponses
-    else:
-        return "No evaluation responses found."
+    # if empty return error message
+    if all(evalResponse == {} for evalResponse in evalResponses):
+            return "No evaluation responses found."
+
+    # else return eval responses
+    return evalResponses
 
 def getEvalListStudent(studentID: str) -> list[dict]:
     """ 
@@ -308,10 +310,13 @@ def getEvalListStudent(studentID: str) -> list[dict]:
     # close DB and cursor
     evalcursor.close() 
     evalDB.close()
-    if evalResponses:
-        return evalResponses
-    else:
-        return "No evaluation responses found."
+
+    # if empty return error message
+    if all(evalResponse == {} for evalResponse in evalResponses):
+            return "No evaluation responses found."
+
+    # else return eval responses
+    return evalResponses
 
 def getEvalListDeptChair(deptChairID: str) -> list[dict]:
     """ 
@@ -374,10 +379,12 @@ def getEvalListDeptChair(deptChairID: str) -> list[dict]:
     evalcursor.close() 
     evalDB.close()
 
-    if evalResponses:
-        return evalResponses
-    else:
-        return "No evaluation responses found."
+    # if empty return error message
+    if all(evalResponse == {} for evalResponse in evalResponses):
+            return "No evaluation responses found."
+
+    # else return eval responses
+    return evalResponses
 
 
 def getSpecEval(evalID: str, studentID: str) -> list[dict]:
@@ -414,7 +421,10 @@ def getSpecEval(evalID: str, studentID: str) -> list[dict]:
     # close DB and cursor
     evalcursor.close() 
     evalDB.close()
-    if evalResponses:
-        return evalResponses
-    else:
-        return "No evaluation responses found."
+    
+    # if empty return error message
+    if all(evalResponse == {} for evalResponse in evalResponses):
+            return "No evaluation responses found."
+
+    # else return eval responses
+    return evalResponses

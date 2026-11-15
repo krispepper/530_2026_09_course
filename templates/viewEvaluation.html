@@ -5,7 +5,9 @@
 {% block content %}
 
 <h1>{{ evalID }} for {{ studentID }} </h1>
-
+{% if msg %}
+    <p>{{ msg }}</p>
+{% else %}
 {% for field in eval %}
 <div class="d-flex justify-content-center align-items-center">
     <div class="card mb-2" style="max-width: 320px;">
@@ -20,4 +22,5 @@
 {% endfor %}
 
 <div class="mt-5"><b>created</b>: {{ created_at }} || <b>last_modified</b>: {{ last_modified }}</div>
+{% endif %}
 {% endblock %}
