@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 
 from dotenv import load_dotenv
 from flask import Flask, render_template
@@ -113,8 +114,11 @@ def viewEvaluation(studentID, evalID, userID):
 
 @app.route("/view-roster/<courseID>/<secID>/<term>")
 def viewRoster(courseID, secID, term):
-    "Route for viewing class roster"
+    """Route for viewing class roster."""
+    # get the roster
     roster = getRoster(secID, courseID, term)
+
+    # render view of class roster
     return render_template(
         "viewRoster.html",
         roster = roster,
