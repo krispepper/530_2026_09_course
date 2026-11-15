@@ -70,7 +70,6 @@ def viewEvaluationsList(userID):
     elif role == ROLE.student.value:
         # get eval responses
         evals = getUniqueEvalList(getEvalListStudent(userID))
-        print(evals)
     elif role == ROLE.deptChair.value:
         # get eval responses
         evals = getUniqueEvalList(getEvalListDeptChair(userID))

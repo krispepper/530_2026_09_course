@@ -114,7 +114,7 @@ def getRoleID(userID: str) -> str:
     usercursor.execute(query, (userID,))
     # get results as dict
     DBresult_dict = usercursor.fetchone()
-    print(DBresult_dict)
+    
     if DBresult_dict is not None:
         # get instructorID
         roleID = DBresult_dict[id]

@@ -1,11 +1,18 @@
+"""
+Test functions related to evaluations.
+"""
+
 import datetime
-import pytest
 
 from database import getEvalListStudent, getEvalListInstructor, getEvalListDeptChair, getSpecEval
 from evaluation import getUniqueEvalList
 
 class Test_getEvalListStudent:
-    """Tests for function getEvalListStudent."""
+    """
+    Tests for function getEvalListStudent.
+
+    written by Carrie.
+    """
     # variables for mutliple tests
     # IDs for userID (DB ID)
     testStudentID = "STU001"
@@ -44,7 +51,11 @@ class Test_getEvalListStudent:
 
 
 class Test_getEvalListInstructor:
-    """Tests for function getEvalListInstructor."""
+    """
+    Tests for function getEvalListInstructor.
+
+    written by Carrie.
+    """
     # variables for mutliple tests
     # IDs for userID (DB ID)
     testInstructorID = "INS001"
@@ -82,7 +93,11 @@ class Test_getEvalListInstructor:
         assert getEvalListInstructor(self.testEmptyID) == "No evaluation responses found."
 
 class Test_getEvalListDeptChair:
-    """Tests for function getEvalListDeptChair."""
+    """
+    Tests for function getEvalListDeptChair.
+
+    written by Carrie.
+    """
     # variables for mutliple tests
     # IDs for userID (DB ID)
     testDeptChairID = "DEP001"
@@ -121,7 +136,11 @@ class Test_getEvalListDeptChair:
 
 
 class Test_getSpecEval:
-    """Tests for function getSpecEval."""
+    """
+    Tests for function getSpecEval.
+    
+    written by Carrie.
+    """
     # variables for mutliple tests
     # IDs for userID (DB ID)
     testEvalID = "CSC-530-050-f26"
@@ -159,7 +178,11 @@ class Test_getSpecEval:
 
 
 class Test_getUniqueEvalList:
-    """Tests for function getUniqueEvalList."""
+    """
+    Tests for function getUniqueEvalList.
+
+    written by Carrie.
+    """
     # variables for mutliple tests
     TestEvalReponse = [
         {

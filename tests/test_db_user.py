@@ -1,9 +1,16 @@
-import pytest
+"""
+Test functions related to users.
+"""
+
 from database import getUserRole, getRoleID, getDept
 from constants import ROLE
 
 class Test_getUserRole:
-    """Tests for function getUserRole."""
+    """
+    Tests for function getUserRole.
+    
+    written by Carrie.
+    """
     # variables for mutliple tests
     # IDs for userID (DB ID)
     testStudentID = "STU001"
@@ -39,7 +46,11 @@ class Test_getUserRole:
 
 
 class Test_getRoleID:
-    """Tests for function getUserRole."""
+    """
+    Tests for function getUserRole.
+
+    written by Carrie.
+    """
     # variables for mutliple tests
     testStudentID = "STU001"
     testInstructorID = "INS001"
@@ -79,7 +90,11 @@ class Test_getRoleID:
         assert getRoleID(self.testEmptyID) == f"No specialized role ID for userID '{self.testEmptyID}'."
 
 class Test_getDept:
-    """Tests for function getDept."""
+    """
+    Tests for function getDept.
+
+    written by Carrie.
+    """
     # variables for tests
     testInstructorID = "INS001"
     testDeptChairID = "DEP001"
