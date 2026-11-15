@@ -1,15 +1,18 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, render_template
+from flask import Flask, render_template, session, request, redirect, url_for
 
 from database import (
         getDB, 
+        getUsersInfo, 
+        getUserNameFromId, 
         getEvalListInstructor, 
         getEvalListStudent, 
         getEvalListDeptChair,  
         getUserRole,
-        getSpecEval,
+        #getUniqueEvalList, Hugo: commented this out bc otherwise i would get errors
+        getSpecEval
         getRoster
     )
 from evaluation import getUniqueEvalList
@@ -26,8 +29,40 @@ def index():
     return render_template('base.html')
 
 @app.route("/homepage")
-def home(): 
-    return render_template('base.html')
+def homepage():
+    return render_template("base.html")
+
+# routes to the login page. dynamically generates user options for the dropdown
+@app.route("/login")
+def login():
+    userData = getUsersInfo()
+    return render_template("login.html", userData = userData)
+
+# intermediary between /login & /home for proper handling of form data.
+@app.route("/login-handler", strict_slashes = False, methods=['POST'])
+def loginHandler():
+    userID = request.form.get("userID")
+    return redirect(url_for('home', userID=userID))
+
+# where a user is brought to after a login attempt
+@app.route("/home/<userID>")
+def home(userID):
+
+    # get all of the valid IDs
+    userData = getUsersInfo()
+    validUserIDS = [userData[i]["userID"] for i in range(len(userData))]
+    
+    # checks if userID specified is valid
+    if userID in validUserIDS:
+
+        #get full name for displaying to the user
+        userName = getUserNameFromId(userID)
+        firstName = userName["firstName"]
+        lastName = userName["lastName"]
+        return render_template('homepage.html', userID = userID, firstName = firstName, lastName = lastName)
+    else:
+        # return error message; will appear if user attempts to type in url with an invalid userID
+        return render_template("error.html", msg = "Error reaching homepage. User ID specified does not exist.")
 
 @app.route("/student")
 def student(): 
@@ -47,7 +82,7 @@ def admin():
 def dbCheck(): 
     testdb = getDB()
     testcursor = testdb.cursor()
-    query = "SELECT * FROM smithing"
+    query = "SELECT * FROM smithing;"
     print(query)
     testcursor.execute(query)
     DBresult_dict = testcursor.fetchall()

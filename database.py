@@ -29,6 +29,46 @@ def getDB():
         return f"Database connections failed: {e}"
 
 # USER FUNCTIONS
+
+# Gets firstName, lastName, & userID from the user table.
+def getUsersInfo() -> str:
+    # establish DB connection & define cursor
+    userDB = getDB()
+    usercursor = userDB.cursor(dictionary=True)
+
+    query = "SELECT firstName, lastName, userID FROM user;"
+
+    usercursor.execute(query)
+    DBresult_array = usercursor.fetchall() # get all the data
+
+    # close everything
+    usercursor.close() 
+    userDB.close()
+
+    return DBresult_array # array of JSON
+
+# Gets firstName & lastName from user table given a specified userID
+def getUserNameFromId(userID) -> str:
+
+    # establish DB connection
+    userDB = getDB()
+    usercursor = userDB.cursor(dictionary=True)
+
+    query = 'select firstName, lastName from user where userID = %s;'
+    usercursor.execute(query, (userID,))
+    DBresult_dict = usercursor.fetchone()
+
+    # close DB and cursor
+    usercursor.close() 
+    userDB.close()
+
+    # ensure the user was actually found
+    if DBresult_dict is not None:
+        return DBresult_dict
+    else:
+        # return error message
+        return f"User not found with userID of: '{userID}'."
+
 def getUserRole(userID: str) -> str:
     """ 
     Given a user ID returns the role (instructor, student, department chair or school admin).

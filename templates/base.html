@@ -32,7 +32,8 @@
 <body>
 <!-- Navbar -->
 <nav class="my-5">
-    <a href="/homepage"> HOME </a> 
+    <a href="/homepage"> HOME </a>
+    |<a href="/login"> LOGIN </a> 
     {% if userID %}
     |<a href="{{ url_for('viewEvaluationsList', userID=userID) }}"> VIEW EVALUATION LIST </a>
     {% endif %}
