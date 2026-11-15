@@ -9,9 +9,9 @@ class Test_getRoster:
     testSecID = 50
     testCourseID = 530
     testTerm = "F26"
-    testNonexistantSec = 69
-    testNonexistantCourse = 420
-    testNonexistantTerm = "S23"
+    testNonexistentSec = 69
+    testNonexistentCourse = 420
+    testNonexistentTerm = "S23"
     expectedKeys = ["studentID", "firstName", "lastName", "email"]
 
     def test_getRoster(self): # written by Carrie
@@ -21,19 +21,19 @@ class Test_getRoster:
         assert keys == self.expectedKeys
 
     def test_nonexistantSec(self): # written by Ryan
-        """Checks function returns error message for nonexistant section ID"""
-        assert getRoster(self.testNonexistantSec, self.testCourseID, self.testTerm) == (
-            f"No enrollment found for course '{self.testCourseID}-{self.testNonexistantSec}-{self.testTerm}'."
+        """Checks function returns error message for nonexistent section ID"""
+        assert getRoster(self.testNonexistentSec, self.testCourseID, self.testTerm) == (
+            f"No enrollment found for course '{self.testCourseID}-{self.testNonexistentSec}-{self.testTerm}'."
             )
     
     def test_nonexistantCourse(self): # written by Ryan
-        """Checks function returns error message for nonexistant course ID"""
-        assert getRoster(self.testSecID, self.testNonexistantCourse, self.testTerm) == (
-            f"No enrollment found for course '{self.testNonexistantCourse}-{self.testSecID}-{self.testTerm}'."
+        """Checks function returns error message for nonexistent course ID"""
+        assert getRoster(self.testSecID, self.testNonexistentCourse, self.testTerm) == (
+            f"No enrollment found for course '{self.testNonexistentCourse}-{self.testSecID}-{self.testTerm}'."
             )
     
     def test_nonexistantTerm(self): # written by Ryan
-        """Checks function returns error message for nonexistant term"""
-        assert getRoster(self.testSecID, self.testCourseID, self.testNonexistantTerm) == (
-            f"No enrollment found for course '{self.testCourseID}-{self.testSecID}-{self.testNonexistantTerm}'."
+        """Checks function returns error message for nonexistent term"""
+        assert getRoster(self.testSecID, self.testCourseID, self.testNonexistentTerm) == (
+            f"No enrollment found for course '{self.testCourseID}-{self.testSecID}-{self.testNonexistentTerm}'."
             )
