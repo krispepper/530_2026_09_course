@@ -11,8 +11,7 @@ from database import (
         getEvalListStudent, 
         getEvalListDeptChair,  
         getUserRole,
-        #getUniqueEvalList, Hugo: commented this out bc otherwise i would get errors
-        getSpecEval
+        getSpecEval,
         getRoster
     )
 from evaluation import getUniqueEvalList
