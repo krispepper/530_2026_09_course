@@ -1,0 +1,13 @@
+td {
+    text-align: center;
+    padding: 10px;
+    overflow-wrap: break-word;
+    }
+
+thead, th {
+  --bs-table-bg: var(--bs-primary-bg-subtle);
+  --bs-table-color: var(--bs-primary-text-emphasis);
+  text-align: center;
+  padding: 10px;
+  overflow-wrap: break-word;
+}

@@ -5,8 +5,28 @@
 {% block content %}
 
 <h1> Roster for {{ courseID }} {{ secID }} {{ term }}</h1>
-{% for student in roster %}
-{{ student }}
-{% endfor %}
-
+<div class="d-flex justify-content-center">
+{% if roster %}
+<table class="table table-striped table-bordered table-hover table-sm">
+  <thead>
+    <tr>
+        <th scope="col">Student ID</th>
+        <th scope="col">First Name</th>
+        <th scope="col">Last Name</th>
+        <th scope="col">Email</th>
+    </tr>
+  </thead>  
+  <tbody>
+  {% for student in roster %}
+  <tr>
+    <td>{{ student.studentID }}</td>
+    <td>{{ student.firstName }}</td>
+    <td>{{ student.lastName }}</td>
+    <td>{{ student.email }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+</div>
 {% endblock %}
