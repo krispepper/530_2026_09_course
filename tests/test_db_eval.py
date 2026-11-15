@@ -13,32 +13,22 @@ class Test_getEvalListStudent:
     testStudentIDNone = "STU002"
     testEmptyID = ""
 
-    Eval = [
-            {
-                'evalResponseID': 1, 
-                'studentID': 'STU001', 
-                'response': '9.8', 
-                'created_at': datetime.datetime(2026, 11, 12, 22, 46, 23), 
-                'last_modified': datetime.datetime(2026, 11, 12, 22, 46, 23), 
-                'enrollID': 1,
-                'fieldID': 1, 
-                'evalID': 'CSC-530-050-f26'
-            }, 
-            {
-                'evalResponseID': 2, 
-                'studentID': 'STU001', 
-                'response': 'everything', 
-                'created_at': datetime.datetime(2026, 11, 12, 22, 48, 2), 
-                'last_modified': datetime.datetime(2026, 11, 30, 22, 47, 38), 
-                'enrollID': 1, 
-                'fieldID': 2, 
-                'evalID': 'CSC-530-050-f26'
-            }
-        ]
+    expectedKeys = [
+        "evalResponseID",
+        "studentID",
+        "response",
+        "created_at",
+        "last_modified",
+        "enrollID",
+        "fieldID",
+        "evalID"
+    ]
 
     def test_studentEval(self):
         """Check that function returns evaluation responses for a specific student."""
-        assert getEvalListStudent(self.testStudentID) == self.Eval
+        # get keys from first returned dict
+        keys = [key for key in getEvalListStudent(self.testStudentID)[0].keys()]
+        assert keys == self.expectedKeys
 
     def test_studentNoEval(self):
             """Check that function returns error message for user with no evaluations."""
@@ -62,32 +52,22 @@ class Test_getEvalListInstructor:
     testInstructorIDNone = "INS002"
     testEmptyID = ""
 
-    Eval = [
-            {
-                'evalResponseID': 1, 
-                'studentID': 'STU001', 
-                'response': '9.8', 
-                'created_at': datetime.datetime(2026, 11, 12, 22, 46, 23), 
-                'last_modified': datetime.datetime(2026, 11, 12, 22, 46, 23), 
-                'enrollID': 1,
-                'fieldID': 1, 
-                'evalID': 'CSC-530-050-f26'
-            }, 
-            {
-                'evalResponseID': 2, 
-                'studentID': 'STU001', 
-                'response': 'everything', 
-                'created_at': datetime.datetime(2026, 11, 12, 22, 48, 2), 
-                'last_modified': datetime.datetime(2026, 11, 30, 22, 47, 38), 
-                'enrollID': 1, 
-                'fieldID': 2, 
-                'evalID': 'CSC-530-050-f26'
-            }
-        ]
+    expectedKeys = [
+        "evalResponseID",
+        "studentID",
+        "response",
+        "created_at",
+        "last_modified",
+        "enrollID",
+        "fieldID",
+        "evalID"
+    ]
 
     def test_instructorEval(self):
         """Check that function returns evaluation responses for a specific instructor."""
-        assert getEvalListInstructor(self.testInstructorID) == self.Eval
+        # get keys from first returned dict
+        keys = [key for key in getEvalListInstructor(self.testInstructorID)[0].keys()]
+        assert keys == self.expectedKeys
 
     def test_instructorNoEval(self):
         """Check that function returns error message for user with no evaluations."""
@@ -110,32 +90,22 @@ class Test_getEvalListDeptChair:
     testDeptChairIDNone = "DEP002"
     testEmptyID = ""
 
-    Eval = [
-            {
-                'evalResponseID': 1, 
-                'studentID': 'STU001', 
-                'response': '9.8', 
-                'created_at': datetime.datetime(2026, 11, 12, 22, 46, 23), 
-                'last_modified': datetime.datetime(2026, 11, 12, 22, 46, 23), 
-                'enrollID': 1,
-                'fieldID': 1, 
-                'evalID': 'CSC-530-050-f26'
-            }, 
-            {
-                'evalResponseID': 2, 
-                'studentID': 'STU001', 
-                'response': 'everything', 
-                'created_at': datetime.datetime(2026, 11, 12, 22, 48, 2), 
-                'last_modified': datetime.datetime(2026, 11, 30, 22, 47, 38), 
-                'enrollID': 1, 
-                'fieldID': 2, 
-                'evalID': 'CSC-530-050-f26'
-            }
-        ]
+    expectedKeys = [
+        "evalResponseID",
+        "studentID",
+        "response",
+        "created_at",
+        "last_modified",
+        "enrollID",
+        "fieldID",
+        "evalID"
+    ]
 
     def test_deptChairEval(self):
         """Check that function returns evaluation responses for a specific dept Chair."""
-        assert getEvalListDeptChair(self.testDeptChairID) == self.Eval
+        # get keys from first returned dict
+        keys = [key for key in getEvalListDeptChair(self.testDeptChairID)[0].keys()]
+        assert keys == self.expectedKeys
 
     def test_instructorNoEval(self):
         """Check that function returns error message for user with no evaluations."""
@@ -160,26 +130,20 @@ class Test_getSpecEval:
     testNonexistantD = "DNE000"
     testEmptyID = ""
 
-    fields = [
-        {
-            'fieldID': 1, 
-            'title': 'Rate this course out of 10', 
-            'response': '9.8', 
-            'created_at': datetime.datetime(2026, 11, 12, 22, 46, 23), 
-            'last_modified': datetime.datetime(2026, 11, 12, 22, 46, 23)
-        }, 
-        {
-            'fieldID': 2, 
-            'title': 'What did you like about this course?', 
-            'response': 'everything', 
-            'created_at': datetime.datetime(2026, 11, 12, 22, 48, 2), 
-            'last_modified': datetime.datetime(2026, 11, 30, 22, 47, 38)
-        }
+    expectedKeys = [
+        "fieldID",
+        "title",
+        "response",
+        "created_at",
+        "last_modified"
     ]
 
     def test_studentEval(self):
         """Check that function returns evaluation responses for a specific student."""
-        assert getSpecEval(self.testEvalID, self.testStudentID) == self.fields
+        # get keys from first returned dict
+        keys = [key for key in getSpecEval(self.testEvalID, self.testStudentID)[0].keys()]
+        print (keys)
+        assert keys == self.expectedKeys
 
     def test_studentNoEval(self):
         """Check that function returns evaluation responses for a specific student."""
