@@ -6,42 +6,69 @@ Sprint 1 Tests
 
 __Student associated evaluations__
 Has evaluations
-- in URL, add "/view-evals-list/STU001" 
-    - [ ] check it goes to page with list of evaluations completed by STU001
-- click on the evaluation code presented on page 
-    - [ ] check it goes to page with evaluation information for stated evaluation
-- click on "VIEW EVALUATION LIST" in nav bar
-    - [ ] check it goes back to"/view-evals-list/STU001" 
+- if you have not already, open the application
+- click on "login" in nav bar
+- select "Test Student" or another student user with submitted evaluations (as of now it is just "Test Student")
+- click on "View evaluation list" in nav bar
+    - [ ] confirm this opens the evaluations list page
+    - [ ] confirm there is a list of evaluation IDs
+- click on one of the evaluation code 
+    - [ ] confirm this opens the evaluation view page
+    - [ ] confirm there is evaluation response information displayed (fields from response, created date, last modified, etc...)
+- click on "View evaluation list" in nav bar
+    - [ ] confirm this brings you back to the correct evaluations list page
 
 Has no evaluations
-- in URL, add "/view-evals-list/STU002"
-    - [ ] check user gets message letting them know there were no evaluations found
+- if you have not already, open the application
+- click on "login" in nav bar
+- select "Test Student2" or another student user without submitted evaluations (as of now it is just "Test Student2")
+- click on "View evaluation list" in nav bar
+    - [ ] confirm this opens the evaluations list page 
+    - [ ] confirm there is a message informing user they have no evaluations submitted
 
 __Instructor associated evaluations__
 Has evaluations
-- in URL, add "/view-evals-list/INS001" 
-    - [ ] check it goes to page with list of evaluations related to INS001
-- click on the evaluation code presented on page 
-    - [ ] check it goes to page with evaluation information for stated evaluation
-- click on "VIEW EVALUATION LIST" in nav bar
-    - [ ] check it goes back to"/view-evals-list/INS001" 
+- if you have not already, open the application
+- click on "login" in nav bar
+- select "Test Instructor" or another student user with submitted evaluations (as of now it is just "Test Instructor")
+- click on "View evaluation list" in nav bar
+    - [ ] confirm this opens the evaluations list page
+    - [ ] confirm there is a list of evaluation IDs
+- click on one of the evaluation code 
+    - [ ] confirm this opens the evaluation view page
+    - [ ] confirm there is evaluation response information displayed (fields from response, created date, last modified, etc...)
+- click on "View evaluation list" in nav bar
+    - [ ] confirm this brings you back to the correct evaluations list page
 
 Has no evaluations
-- in URL, add "/view-evals-list/INS002"
-    - [ ] check user gets message letting them know there were no evaluations found
+- if you have not already, open the application
+- click on "login" in nav bar
+- select "Test Instructor2" or another student user without submitted evaluations (as of now it is just "Test Instructor2")
+- click on "View evaluation list" in nav bar
+    - [ ] confirm this opens the evaluations list page 
+    - [ ] confirm there is a message informing user they have no evaluations submitted
 
 __Dept Chair associated evaluations__
 Has evaluations
-- in URL, add "/view-evals-list/DEP001" 
-    - [ ] check it goes to page with list of evaluations related to DEP001
-- click on the evaluation code presented on page 
-    - [ ] check it goes to page with evaluation information for stated evaluation
-- click on "VIEW EVALUATION LIST" in nav bar
-    - [ ] check it goes back to"/view-evals-list/DEP001" 
+- if you have not already, open the application
+- click on "login" in nav bar
+- select "Test DeptChair" or another student user with submitted evaluations (as of now it is just "Test DeptChair")
+- click on "View evaluation list" in nav bar
+    - [ ] confirm this opens the evaluations list page
+    - [ ] confirm there is a list of evaluation IDs
+- click on one of the evaluation code 
+    - [ ] confirm this opens the evaluation view page
+    - [ ] confirm there is evaluation response information displayed (fields from response, created date, last modified, etc...)
+- click on "View evaluation list" in nav bar
+    - [ ] confirm this brings you back to the correct evaluations list page
 
 Has no evaluations
-- in URL, add "/view-evals-list/DEP002"
-    - [ ] check user gets message letting them know there were no evaluations found
+- if you have not already, open the application
+- click on "login" in nav bar
+- select "Test DeptChair2" or another student user without submitted evaluations (as of now it is just "Test DeptChair2")
+- click on "View evaluation list" in nav bar
+    - [ ] confirm this opens the evaluations list page 
+    - [ ] confirm there is a message informing user they have no evaluations submitted
 
 __General user associated evaluations__
 Login
@@ -54,5 +81,7 @@ Login
     - [ ] Check that on the /home page there is also text displaying the user's userID
     - [ ] Check that the URL is /home/{user's userID}
 
-
-***Hi yall! please add a tiny write up of the UAT test for the professor to be able to replicate our UAT tests***
+__Check roster__
+- In url add "/view-roster/530/050/F26" 
+    - [ ] check it goes to the page with a roster for the course 530 section 050 term F26
+    *note: as of now a user must manually enter the url to get a roster, but later we will add a more convenient path for users
