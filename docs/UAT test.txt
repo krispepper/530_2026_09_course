@@ -43,5 +43,16 @@ Has no evaluations
 - in URL, add "/view-evals-list/DEP002"
     - [ ] check user gets message letting them know there were no evaluations found
 
+__General user associated evaluations__
+Login
+- In URL, go to the /login page, or click on "Login" from /homepage
+    - [ ] Check it goes to the page with a drop down menu with users & a login button
+- Click on the drop down menu & select user profile
+    - [ ] Check it selects the user you want to log in as
+- Click on the login button
+    - [ ] Check that it takes you to the /home page, displaying a Hello message to the user's first & last name.
+    - [ ] Check that on the /home page there is also text displaying the user's userID
+    - [ ] Check that the URL is /home/{user's userID}
+
 
 ***Hi yall! please add a tiny write up of the UAT test for the professor to be able to replicate our UAT tests***
