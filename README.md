@@ -20,4 +20,4 @@ README was written by Hugo. Carrie created the Asana Hello World task, cloned th
 - start venv
 - run ```python -m pytest``` in command line
     - to run specific test run ```pytest path/to/test::testClass::unitTest```
-        - example: ````pytest tests/test_eval.py::Test_getEvalListStudent::test_studentEval```
+        - example: ```pytest tests/test_eval.py::Test_getEvalListStudent::test_studentEval```
