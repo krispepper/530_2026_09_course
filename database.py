@@ -637,3 +637,142 @@ def getCourseDept(courseID: int) -> str:
     else:
         # return error message 
         return f"No dept id for course {courseID}."
+
+def getCourseListStudent(userID: str) -> list[dict]:
+    """
+    Function returns a list of course information for a given student.
+        
+    attrs: 
+        userID (str): id of user
+    return: 
+        courses (list[dict]): course information (name, course, sec, term) for courses of a student 
+    """
+    
+    # get user name
+    userName = getUserNameFromId(userID)
+
+    # open database connection
+    courseDB = getDB()
+    # cursor fetch will return as dict
+    coursecursor = courseDB.cursor(dictionary=True)
+
+    # query for db
+    query = (
+        "WITH courseInfo AS ("
+        "SELECT c.name, s.courseID, s.secID, s.term "
+        "FROM courses as c "
+        "JOIN sections as s "
+        "ON c.courseID = s.courseID) "
+        "SELECT ci.* "
+        "FROM courseInfo AS ci "
+        "JOIN enrollment AS e "
+        "ON ci.courseID = e.courseID "
+        "AND ci.secID = e.secID "
+        "AND ci.term = e.term "
+        "WHERE e.studentID = %s"
+    )
+    # run query using userID
+    coursecursor.execute(query, (userID, ))
+    # get results as dict
+    courses = coursecursor.fetchall()
+
+    # close DB and cursor
+    coursecursor.close() 
+    courseDB.close()
+
+    # check if courses were found
+    if all(course == {} for course in courses):
+        # return error message 
+        return f"No courses found for {userName["firstName"]} {userName["lastName"]}."
+    else:
+        # return list of courses
+        return courses
+        
+def getCourseListInstructor(userID: str) -> list[dict]:
+    """
+    Function returns a list of course information for a given instructor.
+        
+    attrs: 
+        userID (str): id of user
+    return: 
+        courses (list[dict]): course information (name, course, sec, term) for courses of an instructor 
+    """
+
+    # get user name
+    userName = getUserNameFromId(userID)
+
+    # open database connection
+    courseDB = getDB()
+    # cursor fetch will return as dict
+    coursecursor = courseDB.cursor(dictionary=True)
+
+    # query for db
+    query = (
+        "SELECT c.name, s.courseID, s.secID, s.term "
+        "FROM courses as c "
+        "JOIN sections as s "
+        "ON c.courseID = s.courseID "
+        "WHERE s.instructorID = %s"
+    )
+    # run query using userID
+    coursecursor.execute(query, (userID, ))
+    # get results as dict
+    courses = coursecursor.fetchall()
+
+    # close DB and cursor
+    coursecursor.close() 
+    courseDB.close()
+
+    # check if courses were found
+    if all(course == {} for course in courses):
+        # return error message 
+        return f"No courses found for {userName["firstName"]} {userName["lastName"]}."
+    else:
+        # return list of courses
+        return courses
+
+def getCourseListDeptChair(userID: str) -> list[dict]:
+    """
+    Function returns a list of course information for a given instructor.
+        
+    attrs: 
+        userID (str): id of user
+    return: 
+        courses (list[dict]): course information (name, course, sec, term) for courses of an instructor 
+    """
+
+    # get dept 
+    dept = getDept(userID)
+
+    # get user name
+    userName = getUserNameFromId(userID)
+
+    # open database connection
+    courseDB = getDB()
+    # cursor fetch will return as dict
+    coursecursor = courseDB.cursor(dictionary=True)
+
+    # query for db
+    query = (
+        "SELECT c.name, s.courseID, s.secID, s.term "
+        "FROM courses as c "
+        "JOIN sections as s "
+        "ON c.courseID = s.courseID "
+        "WHERE c.deptID = %s"
+    )
+    # run query using userID
+    coursecursor.execute(query, (dept, ))
+    # get results as dict
+    courses = coursecursor.fetchall()
+
+    # close DB and cursor
+    coursecursor.close() 
+    courseDB.close()
+
+    # check if courses were found
+    if all(course == {} for course in courses):
+        # return error message 
+        return f"No courses found for {userName["firstName"]} {userName["lastName"]}."
+    else:
+        # return list of courses
+        return courses
