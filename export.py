@@ -7,7 +7,6 @@ import pandas as pd
 from io import BytesIO
 from zipfile import ZipFile, ZIP_DEFLATED
 from datetime import datetime
-from pathlib import Path
 
 from database import (
     getInstructorByCourse, 
