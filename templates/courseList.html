@@ -16,6 +16,7 @@
             <th scope="col">Course</th>
             <th scope="col">Section</th>
             <th scope="col">Term</th>
+            <th scope="col">Export options</th>
         </tr>
     </thead>  
     <tbody>
@@ -25,6 +26,16 @@
         <td>{{ c.courseID }}</td>
         <td>{{ c.secID }}</td>
         <td>{{ c.term }}</td>
+        <td>
+            <a href="{{ url_for('exportXlsx', userID=userID, courseID=c.courseID, secID=c.secID, term=c.term) }}">
+                <i class="fa-solid fa-file-arrow-down"></i>
+                Export to xlsx 
+            </a> 
+            | <a href="{{ url_for('exportCSV', userID=userID, courseID=c.courseID, secID=c.secID, term=c.term) }}">
+                <i class="fa-solid fa-file-arrow-down"></i>
+                Export to csv
+            </a>
+        </td>
     </tr>
     {% endfor %}
     </tbody>
