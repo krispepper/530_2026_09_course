@@ -11,3 +11,20 @@ thead, th {
   padding: 10px;
   overflow-wrap: break-word;
 }
+
+.edited-eval {
+  color: red;
+  text-decoration: underline;
+}
+
+.edited-pill{
+  background-color: rgb(from red r g b / 0.5); 
+  color: white;        
+  padding: 5px 15px;     
+  border-radius: 9999px; 
+  text-align: center;
+  font-size: large;
+  font-weight: bold;     
+  margin: 2px;    
+  text-shadow: -1px -1px 0 red, 1px -1px 0 red, -1px 1px 0 red, 1px 1px 0 red;
+}
