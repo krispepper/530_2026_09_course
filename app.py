@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, session, request, redirect, url_for
+from flask import Flask, render_template, send_file, session, request, redirect, url_for
 
 from database import (
         getDB, 
@@ -18,6 +18,7 @@ from database import (
         getCourseListDeptChair
     )
 from evaluation import getUniqueEvalList
+from export import exportCSVCourse, exportXlsxCourse
 from constants import ROLE
 
 app = Flask(__name__) 
@@ -227,6 +228,30 @@ def viewCourseList(userID):
         courses=courses,
         name=name, 
         userID=userID
+    )
+
+@app.route("/<userID>/export/csv/<courseID>-<secID>-<term>/", strict_slashes=False)
+def exportCSV(userID, courseID, secID, term):
+    """export evaluation information to zip file with CSVs."""
+    output, filename = exportCSVCourse(courseID, secID, term)
+
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name=filename,
+        mimetype='application/zip'
+    )
+
+@app.route("/<userID>/export/xlsx/<courseID>-<secID>-<term>/", strict_slashes=False)
+def exportXlsx(userID, courseID, secID, term):
+    """export evaluation information to an excel file."""
+    output, filename = exportXlsxCourse(courseID, secID, term)
+
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name=filename,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
 
 if __name__ == "__main__": 
