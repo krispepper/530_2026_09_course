@@ -577,8 +577,8 @@ def getCourseName(courseID: int) -> str:
     # query for db
     query = (
         "SELECT name "
-        "FROM course "
-        "WHERE c.courseID=%s" 
+        "FROM courses "
+        "WHERE courseID=%s" 
     )
     # run query 
     coursecursor.execute(query, (courseID,))
@@ -590,13 +590,13 @@ def getCourseName(courseID: int) -> str:
     courseDB.close()
 
     # check course was found
-    if DBresult_dict[0]: 
+    if DBresult_dict: 
         # return course name
-        courseName = DBresult_dict[0]["name"]
+        courseName = DBresult_dict["name"]
         return courseName
     else:
         # return error message 
-        return f"No instructor found for {courseID}."
+        return f"No course name found for {courseID}."
 
 def getCourseDept(courseID: int) -> str:
     """

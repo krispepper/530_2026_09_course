@@ -6,7 +6,8 @@ from database import (
     getCourseDept, 
     getCourseListStudent, 
     getCourseListInstructor, 
-    getCourseListDeptChair
+    getCourseListDeptChair,
+    getCourseName
 )
 
 class Test_getCourseDept:
@@ -118,3 +119,21 @@ class Test_getCourseListDeptChair:
         # check keys are the same
         assert getCourseListDeptChair(self.testNonexistentDeptChairID) == f"No courses found for {self.testDeptChairName}."
 
+class Test_getCourseName:
+    """
+    Tests for function getCourseName.
+
+    written by Carrie.
+    """
+    # variables for tests
+    testCourseID = 530
+    testNonexistentCourseID = 0
+    expectedCourseName = "Software Engineering Methodology"
+
+    def test_courseExists(self):
+        """Checks correct course name is returned for a given course."""
+        assert getCourseName(self.testCourseID) == self.expectedCourseName
+
+    def test_courseNotExists(self):
+        """Checks error message is returned for a given course that does not exist."""
+        assert getCourseName(self.testNonexistentCourseID) == f"No course name found for {self.testNonexistentCourseID}."
