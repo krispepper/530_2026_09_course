@@ -267,6 +267,48 @@ def getRoster(secID: int, courseID: int, term: str) -> list[dict]:
     # return role
     return DBresult_dict
 
+def getInstructorByCourse(courseID: int, secID: int, term: str) -> str:
+    """
+    Function returns userID of an instructor for a given class
+       
+    attrs: 
+        secID (int): id of section for class
+        courseID (int): id of course for class
+        term (int): term for class (format: F or S followed by last two digits of year ex: F26)
+    return: 
+        userID (str): userID for instructor teaching class
+    """
+    # open database connection
+    userDB = getDB()
+    # cursor fetch will return as dict
+    usercursor = userDB.cursor(dictionary=True)
+
+    # query for db
+    query = (
+        "SELECT instructorID "
+        "FROM sections "
+        "WHERE courseID=%s AND secID=%s AND term=%s" 
+    )
+    # run query using instructorID
+    usercursor.execute(query, (courseID, secID, term))
+    # get results as dict
+    instructorInfo = usercursor.fetchone()
+
+
+    # close DB and cursor
+    usercursor.close() 
+    userDB.close()
+
+    # check user was found
+    if instructorInfo: 
+        # return instructor info
+        userID = instructorInfo["instructorID"]
+        return userID
+    else:
+        # return error message 
+        return f"No instructor found for {courseID}-{secID}-{term}."
+
+
 # EVALUATION FUNCTIONS
 def getEvalListInstructor(instructorID: str) -> list[dict]:
     """ 
