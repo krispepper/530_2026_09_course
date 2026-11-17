@@ -3,16 +3,15 @@ Test functions related to evaluations.
 """
 
 import datetime
-from unittest.mock import Mock, patch
+import pandas as pd
 
 from database import (
     getEvalListStudent, 
     getEvalListInstructor, 
     getEvalListDeptChair, 
-    getSpecEval,
-    getDB
+    getSpecEval
 )
-from evaluation import getUniqueEvalList, getAvgCourseRating
+from evaluation import getUniqueEvalList, getAvgCourseRating, organizeEval
         
 class Test_getEvalListStudent:
     """
@@ -260,3 +259,43 @@ class Test_getAvgCourseRating:
     def test_ratingColExistsMultiple(self):
         """Check a error msg is returned when the given column is found multiple times."""
         assert getAvgCourseRating(self.evalResponses2, self.rating_col) == 'There are 2 evaluation fields named "Rate this course out of 10."'
+
+class Test_organizeEval:
+    """
+    Tests for function organizeEval.
+    
+    written by Carrie.
+    """
+    evalResponses = [
+    {'evalResponseID': '5', 'studentID': 'STU003', 'response': '0.9', 'created_at': '2026-11-12 22:46:23', 'last_modified': '2026-11-12 22:46:23', 'enrollID': '3', 'fieldID': '1', 'evalID': 'CSC-530-050-f26', 'title': 'Rate this course out of 10', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'}, 
+    {'evalResponseID': '6', 'studentID': 'STU003', 'response': 'nothing', 'created_at': '2026-11-12 22:48:02', 'last_modified': '2026-11-21 22:47:38', 'enrollID': '3', 'fieldID': '2', 'evalID': 'CSC-530-050-f26', 'title': 'What did you like about this course?', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'},
+    {'evalResponseID': '3', 'studentID': 'STU002', 'response': '5.1', 'created_at': '2026-10-12 22:46:23', 'last_modified': '2026-11-12 22:46:23', 'enrollID': '2', 'fieldID': '1', 'evalID': 'CSC-530-050-f26', 'title': 'Rate this course out of 10', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'}, 
+    {'evalResponseID': '4', 'studentID': 'STU002', 'response': 'something', 'created_at': '2026-10-12 22:48:02', 'last_modified': '2026-11-30 22:47:38', 'enrollID': '2', 'fieldID': '2', 'evalID': 'CSC-530-050-f26', 'title': 'What did you like about this course?', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'},
+    {'evalResponseID': '1', 'studentID': 'STU001', 'response': '9.8', 'created_at': '2026-11-12 22:46:23', 'last_modified': '2026-11-12 22:46:23', 'enrollID': '1', 'fieldID': '1', 'evalID': 'CSC-530-050-f26', 'title': 'Rate this course out of 10', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'}, 
+    {'evalResponseID': '2', 'studentID': 'STU001', 'response': 'everything', 'created_at': '2026-11-12 22:48:02', 'last_modified': '2026-11-21 22:47:38', 'enrollID': '1', 'fieldID': '2', 'evalID': 'CSC-530-050-f26', 'title': 'What did you like about this course?', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'}
+    ]
+
+    orgEvalDict = {
+        'studentID': {0: 'STU001', 1: 'STU002', 2: 'STU003'},
+        'Rate this course out of 10': {0: '9.8', 1: '5.1', 2: '0.9'},
+        'What did you like about this course?': {0: 'everything',
+        1: 'something',
+        2: 'nothing'},
+        'Initial Submission': {0: '2026-11-12 22:46:23',
+        1: '2026-10-12 22:46:23',
+        2: '2026-11-12 22:46:23'},
+        'last Modified': {0: '2026-11-21 22:47:38',
+        1: '2026-11-30 22:47:38',
+        2: '2026-11-21 22:47:38'}
+    }
+
+
+    def test_organizeEval(self):
+        """Check evaluations are reformatted with one row per student."""
+        organized_df= organizeEval(self.evalResponses)
+        # test values are correct (comparing df is not as reliable)
+        assert organized_df.to_dict() == self.orgEvalDict
+        # test returns pandas dataframe 
+        assert isinstance(organized_df, pd.DataFrame)
+
+    
