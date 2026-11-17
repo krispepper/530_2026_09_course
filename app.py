@@ -12,7 +12,10 @@ from database import (
         getEvalListDeptChair,  
         getUserRole,
         getSpecEval,
-        getRoster
+        getRoster,
+        getCourseListInstructor,
+        getCourseListStudent,
+        getCourseListDeptChair
     )
 from evaluation import getUniqueEvalList
 from constants import ROLE
@@ -181,6 +184,50 @@ def viewRoster(courseID, secID, term):
         term = term
     )
 
+@app.route("/<userID>/view-courses", strict_slashes=False)
+def viewCourseList(userID):
+    """Route for viewing courses associated with a specific user."""
+
+    # get user name
+    name = getUserNameFromId(userID)
+
+    # check user type
+    role = getUserRole(userID)
+
+    if role == ROLE.instructor.value:
+        # get course list info
+        courses = getCourseListInstructor(userID)
+    elif role == ROLE.student.value:
+        # get course list info
+        courses = getCourseListStudent(userID)
+    elif role == ROLE.deptChair.value:
+        # get course list info
+        courses = getCourseListDeptChair(userID)
+    else:
+        # render view for error
+        return render_template(
+            "error.html", 
+            msg = ("That's weird. You have no role. " 
+            "OR you're a school admin and that access "
+            "is under construction.")
+            )
+
+    # check if courses returned error message 
+    if isinstance(courses, str):
+        # render view for courseList with error msg
+        return render_template(
+            "courseList.html",  
+            userID=userID,
+            msg=courses,
+            name=name
+            )
+    
+    return render_template(
+        "courseList.html", 
+        courses=courses,
+        name=name, 
+        userID=userID
+    )
 
 if __name__ == "__main__": 
     app.run(debug=True, use_reloader=False, port=PORT)

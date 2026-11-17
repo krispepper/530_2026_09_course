@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %} Course List {% endblock %}
+
+{% block content %}
+
+<h1> Course List for {{ name.firstName }} {{ name.lastName }}</h1>
+<div class="d-flex justify-content-center">
+{% if msg %}
+    <p>{{ msg }}</p>
+{% else %}
+    <table class="table table-striped table-bordered table-hover table-sm">
+    <thead>
+        <tr>
+            <th scope="col">Title</th>
+            <th scope="col">Course</th>
+            <th scope="col">Section</th>
+            <th scope="col">Term</th>
+        </tr>
+    </thead>  
+    <tbody>
+    {% for c in courses %}
+    <tr>
+        <td>{{ c.name }}</td>
+        <td>{{ c.courseID }}</td>
+        <td>{{ c.secID }}</td>
+        <td>{{ c.term }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+{% endif %}
+</div>
+
+{% endblock %}
