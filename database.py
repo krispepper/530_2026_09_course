@@ -469,6 +469,53 @@ def getEvalListDeptChair(deptChairID: str) -> list[dict]:
     # else return eval responses
     return evalResponses
 
+def getEvalByClass(courseID: int, secID: int, term: str) -> list[dict]:
+    """ 
+    Function returns a dict with evaluation responses associated with a given class.
+    
+    attrs: 
+        secID (int): id of section for class
+        courseID (int): id of course for class
+        term (int): term for class (format: F or S followed by last two digits of year ex: F26)
+    return: 
+        a dict of evaluation responses associated with a given dept chair.
+    """
+    # open database connection
+    evalDB = getDB()
+    # cursor fetch will return as dictionary
+    evalcursor = evalDB.cursor(dictionary=True)
+
+    # query for getting evalIDs
+    queryEvalIDs = (
+         "WITH evals AS ("
+         "SELECT e.*, f.title, f.fieldSubject "
+         "FROM evalResponse AS e "
+         "JOIN formField AS f "
+         "ON e.evalID = f.evalID "
+         "AND e.fieldID = f.fieldID), "
+         "evalCourse AS ("
+         "SELECT ev.*, e.courseID, e.secID, e.term "
+         "FROM evals AS ev "
+         "JOIN evaluation AS e "
+         "ON ev.evalID = e.evalID " 
+         "WHERE courseID = %s AND secID = %s AND term = %s) "
+         "SELECT * from evalCourse" 
+        )
+    # run query using instructorID
+    evalcursor.execute(queryEvalIDs, (courseID, secID, term))
+    # get results from query as list 
+    evalResponses = evalcursor.fetchall()
+
+    # close DB and cursor
+    evalcursor.close() 
+    evalDB.close()
+
+    # if empty return error message
+    if all(evalResponse == {} for evalResponse in evalResponses):
+         return f"No evaluation responses found for {courseID}-{secID}-{term}."
+
+    # else return eval responses
+    return evalResponses
 
 def getSpecEval(evalID: str, studentID: str) -> list[dict]:
     """ 

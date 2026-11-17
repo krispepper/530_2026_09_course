@@ -9,7 +9,8 @@ from database import (
     getEvalListStudent, 
     getEvalListInstructor, 
     getEvalListDeptChair, 
-    getSpecEval
+    getSpecEval,
+    getEvalByClass
 )
 from evaluation import getUniqueEvalList, getAvgCourseRating, organizeEval
         
@@ -299,3 +300,43 @@ class Test_organizeEval:
         assert isinstance(organized_df, pd.DataFrame)
 
     
+class Test_getEvalByClass:
+    """
+    Tests for function getEvalByClass.
+
+    written by Carrie.
+    """
+    # variables for test
+    testCourseID = 530
+    testSecID = 50
+    testTerm = 'F26'
+
+    expectedKeys = [
+        'evalResponseID',
+        'studentID', 
+        'response', 
+        'created_at', 
+        'last_modified', 
+        'enrollID', 
+        'fieldID', 
+        'evalID', 
+        'title', 
+        'fieldSubject', 
+        'courseID', 
+        'secID', 
+        'term'
+    ]
+
+
+    def test_evalsExist(self):
+        """Check function returns evaluations of a given course."""
+        # get keys from returned evalResponses
+        keys = [key for key in getEvalByClass(self.testCourseID, 
+            self.testSecID, 
+            self.testTerm)[0].keys()]
+        # check keys are the same
+        assert keys == self.expectedKeys
+
+        
+
+        
