@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %} Homepage {% endblock %}
+
+{% block content %}
+
+<h1>Homepage</h1>
+<br>
+<div class="d-flex justify-content-center align-items-center">
+    <div class="card mb-2" style="max-width: 320px;">
+        <div class="card-body">
+            <h1>Hello, {{ firstName }} {{ lastName }}</h1>
+            <p>User ID: {{ userID }}</p>
+            <p>{{ temp }}</p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,17 +1,20 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, render_template
+from flask import Flask, render_template, session, request, redirect, url_for
 
 from database import (
         getDB, 
+        getUsersInfo, 
+        getUserNameFromId, 
         getEvalListInstructor, 
         getEvalListStudent, 
         getEvalListDeptChair,  
         getUserRole,
-        getUniqueEvalList,
-        getSpecEval
+        getSpecEval,
+        getRoster
     )
+from evaluation import getUniqueEvalList
 from constants import ROLE
 
 app = Flask(__name__) 
@@ -25,8 +28,40 @@ def index():
     return render_template('base.html')
 
 @app.route("/homepage")
-def home(): 
-    return render_template('base.html')
+def homepage():
+    return render_template("base.html")
+
+# routes to the login page. dynamically generates user options for the dropdown
+@app.route("/login")
+def login():
+    userData = getUsersInfo()
+    return render_template("login.html", userData = userData)
+
+# intermediary between /login & /home for proper handling of form data.
+@app.route("/login-handler", strict_slashes = False, methods=['POST'])
+def loginHandler():
+    userID = request.form.get("userID")
+    return redirect(url_for('home', userID=userID))
+
+# where a user is brought to after a login attempt
+@app.route("/home/<userID>")
+def home(userID):
+
+    # get all of the valid IDs
+    userData = getUsersInfo()
+    validUserIDS = [userData[i]["userID"] for i in range(len(userData))]
+    
+    # checks if userID specified is valid
+    if userID in validUserIDS:
+
+        #get full name for displaying to the user
+        userName = getUserNameFromId(userID)
+        firstName = userName["firstName"]
+        lastName = userName["lastName"]
+        return render_template('homepage.html', userID = userID, firstName = firstName, lastName = lastName)
+    else:
+        # return error message; will appear if user attempts to type in url with an invalid userID
+        return render_template("error.html", msg = "Error reaching homepage. User ID specified does not exist.")
 
 @app.route("/student")
 def student(): 
@@ -46,7 +81,7 @@ def admin():
 def dbCheck(): 
     testdb = getDB()
     testcursor = testdb.cursor()
-    query = "SELECT * FROM smithing"
+    query = "SELECT * FROM smithing;"
     print(query)
     testcursor.execute(query)
     DBresult_dict = testcursor.fetchall()
@@ -61,24 +96,35 @@ def viewEvaluationsList(userID):
     # check user type
     role = getUserRole(userID)
 
-    
     if role == ROLE.instructor.value:
         # get eval responses
-        evals = getUniqueEvalList(getEvalListInstructor(userID))
+        evals = getEvalListInstructor(userID)
     elif role == ROLE.student.value:
         # get eval responses
-        evals = getUniqueEvalList(getEvalListStudent(userID))
-        print(evals)
+        evals = getEvalListStudent(userID)
     elif role == ROLE.deptChair.value:
         # get eval responses
-        evals = getUniqueEvalList(getEvalListDeptChair(userID))
+        evals = getEvalListDeptChair(userID)
     else:
+        # render view for error
         return render_template(
             "error.html", 
             msg = ("That's weird. You have no role. " 
             "OR you're a school admin and that access "
             "is under construction.")
             )
+
+    # check if evals returned error message 
+    if isinstance(evals, str):
+        # render view for viewEvaluations with error msg
+        return render_template(
+            "viewEvaluationsList.html",  
+            userID=userID,
+            msg=evals
+            )
+    
+    # get unique evaluations
+    evals = getUniqueEvalList(evals)
 
     # render view for viewEvaluations
     return render_template(
@@ -94,6 +140,16 @@ def viewEvaluation(studentID, evalID, userID):
     # get fields for specific eval
     eval = getSpecEval(evalID, studentID)
 
+    if isinstance(eval, str):
+        # render view for viewEvaluations with error message
+        return render_template(
+            "viewEvaluation.html", 
+            msg=eval,
+            evalID=evalID,
+            studentID=studentID,
+            userID=userID
+            )
+    
     # get lastest modified timestamp
     last_modified=max([field["last_modified"] for field in eval])
     # get created timestamp
@@ -109,6 +165,21 @@ def viewEvaluation(studentID, evalID, userID):
         studentID=studentID,
         userID=userID
         )
+
+@app.route("/view-roster/<courseID>/<secID>/<term>")
+def viewRoster(courseID, secID, term):
+    """Route for viewing class roster."""
+    # get the roster
+    roster = getRoster(secID, courseID, term)
+
+    # render view of class roster
+    return render_template(
+        "viewRoster.html",
+        roster = roster,
+        courseID = courseID,
+        secID = secID,
+        term = term
+    )
 
 
 if __name__ == "__main__": 

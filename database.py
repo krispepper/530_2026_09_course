@@ -29,6 +29,46 @@ def getDB():
         return f"Database connections failed: {e}"
 
 # USER FUNCTIONS
+
+# Gets firstName, lastName, & userID from the user table.
+def getUsersInfo() -> str:
+    # establish DB connection & define cursor
+    userDB = getDB()
+    usercursor = userDB.cursor(dictionary=True)
+
+    query = "SELECT firstName, lastName, userID FROM user;"
+
+    usercursor.execute(query)
+    DBresult_array = usercursor.fetchall() # get all the data
+
+    # close everything
+    usercursor.close() 
+    userDB.close()
+
+    return DBresult_array # array of JSON
+
+# Gets firstName & lastName from user table given a specified userID
+def getUserNameFromId(userID) -> str:
+
+    # establish DB connection
+    userDB = getDB()
+    usercursor = userDB.cursor(dictionary=True)
+
+    query = 'select firstName, lastName from user where userID = %s;'
+    usercursor.execute(query, (userID,))
+    DBresult_dict = usercursor.fetchone()
+
+    # close DB and cursor
+    usercursor.close() 
+    userDB.close()
+
+    # ensure the user was actually found
+    if DBresult_dict is not None:
+        return DBresult_dict
+    else:
+        # return error message
+        return f"User not found with userID of: '{userID}'."
+
 def getUserRole(userID: str) -> str:
     """ 
     Given a user ID returns the role (instructor, student, department chair or school admin).
@@ -114,7 +154,7 @@ def getRoleID(userID: str) -> str:
     usercursor.execute(query, (userID,))
     # get results as dict
     DBresult_dict = usercursor.fetchone()
-    print(DBresult_dict)
+
     if DBresult_dict is not None:
         # get instructorID
         roleID = DBresult_dict[id]
@@ -173,6 +213,59 @@ def getDept(userID: str) -> int:
         # return error message
         return f"No dept found for userID '{userID}'."
 
+def getRoster(secID: int, courseID: int, term: str) -> list[dict]:
+    """
+    Function returns a dict with students attending a given class.
+        
+    attrs: 
+        secID (int): id of section for class
+        courseID (int): id of course for class
+        term (int): term for class (format: F or S followed by last two digits of year ex: F26)
+    return: 
+        roster (list[dict]): list of students in a class.
+    """
+    # open database connection
+    userDB = getDB()
+    # cursor fetch will return as dict
+    usercursor = userDB.cursor(dictionary=True)
+
+    # query to get list of student information for a specific class
+    query = (
+        'With enrollStudents as ('
+        'SELECT u.userID, u.firstName, u.lastName, u.email '
+        'FROM user AS u '
+        'JOIN enrollment AS e '
+        'ON e.studentID = u.userID '
+        'WHERE secID = %s '
+        'AND courseID = %s '
+        'AND term = %s) '
+        'SELECT s.studentID, es.firstName, es.lastName, es.email '
+        'FROM enrollStudents as es '
+        'JOIN student as s '
+        'ON es.userID = s.userID'
+        )
+    # run query using instructorID
+    usercursor.execute(query, (secID, courseID, term))
+    # get results as dict
+    DBresult_dict = usercursor.fetchall()
+
+    # check if any students were found
+    if all(student == {} for student in DBresult_dict):
+
+        # close DB and cursor
+        usercursor.close() 
+        userDB.close()
+        
+
+        # return error message
+        return f"No enrollment found for course '{courseID}-{secID}-{term}'."
+
+    # close DB and cursor
+    usercursor.close() 
+    userDB.close()
+
+    # return role
+    return DBresult_dict
 
 # EVALUATION FUNCTIONS
 def getEvalListInstructor(instructorID: str) -> list[dict]:
@@ -222,10 +315,12 @@ def getEvalListInstructor(instructorID: str) -> list[dict]:
     evalcursor.close() 
     evalDB.close()
 
-    if evalResponses:
-        return evalResponses
-    else:
-        return "No evaluation responses found."
+    # if empty return error message
+    if all(evalResponse == {} for evalResponse in evalResponses):
+            return "No evaluation responses found."
+
+    # else return eval responses
+    return evalResponses
 
 def getEvalListStudent(studentID: str) -> list[dict]:
     """ 
@@ -256,10 +351,13 @@ def getEvalListStudent(studentID: str) -> list[dict]:
     # close DB and cursor
     evalcursor.close() 
     evalDB.close()
-    if evalResponses:
-        return evalResponses
-    else:
-        return "No evaluation responses found."
+
+    # if empty return error message
+    if all(evalResponse == {} for evalResponse in evalResponses):
+            return "No evaluation responses found."
+
+    # else return eval responses
+    return evalResponses
 
 def getEvalListDeptChair(deptChairID: str) -> list[dict]:
     """ 
@@ -322,10 +420,12 @@ def getEvalListDeptChair(deptChairID: str) -> list[dict]:
     evalcursor.close() 
     evalDB.close()
 
-    if evalResponses:
-        return evalResponses
-    else:
-        return "No evaluation responses found."
+    # if empty return error message
+    if all(evalResponse == {} for evalResponse in evalResponses):
+            return "No evaluation responses found."
+
+    # else return eval responses
+    return evalResponses
 
 
 def getSpecEval(evalID: str, studentID: str) -> list[dict]:
@@ -362,7 +462,10 @@ def getSpecEval(evalID: str, studentID: str) -> list[dict]:
     # close DB and cursor
     evalcursor.close() 
     evalDB.close()
-    if evalResponses:
-        return evalResponses
-    else:
-        return "No evaluation responses found."
+    
+    # if empty return error message
+    if all(evalResponse == {} for evalResponse in evalResponses):
+            return "No evaluation responses found."
+
+    # else return eval responses
+    return evalResponses

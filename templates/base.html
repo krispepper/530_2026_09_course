@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 
     <!-- Custom CSS -->
-    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"> -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
     <!-- font awesome icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
@@ -32,7 +32,8 @@
 <body>
 <!-- Navbar -->
 <nav class="my-5">
-    <a href="/homepage"> HOME </a> 
+    <a href="/homepage"> HOME </a>
+    |<a href="/login"> LOGIN </a> 
     {% if userID %}
     |<a href="{{ url_for('viewEvaluationsList', userID=userID) }}"> VIEW EVALUATION LIST </a>
     {% endif %}

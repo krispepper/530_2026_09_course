@@ -6,8 +6,12 @@
 
 <h1>{{ userID }} Evaluations </h1>
 
-{% for eval in evals %}
-    <a href="{{ url_for('viewEvaluation', evalID=eval.evalID, studentID=eval.studentID, userID=userID) }}">{{ eval.evalID }}</a>
-{% endfor %}
+{% if msg %}
+    <p>{{ msg }}</p>
+{% else %}
+    {% for eval in evals %}
+        <a href="{{ url_for('viewEvaluation', evalID=eval.evalID, studentID=eval.studentID, userID=userID) }}">{{ eval.evalID }}</a>
+    {% endfor %}
+{% endif %}
 
 {% endblock %}

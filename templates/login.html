@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %} Homepage {% endblock %}
+
+{% block content %}
+
+<h1>Login to your account</h1>
+
+<div class="d-flex justify-content-center align-items-center">
+    <div class="card mb-2" style="max-width: 320px;">
+        <div class="card-body">
+            <form action="{{ url_for('loginHandler') }}" method="POST">
+                <label for = "login">Choose Account</label><br>
+                <select name = "userID" id = "userID">
+                    {% for user in userData %}
+                    <option value = "{{user['userID']}}">{{user["firstName"]}} {{user["lastName"]}}</option>
+                    {% endfor %}
+                </select>
+                <button type = "submit">Login</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

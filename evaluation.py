@@ -2,8 +2,15 @@
 EVALUATION RELATED FUNCTIONS.
 """
 
-def getUniqueEvalList(evalResponse: list[dict]) -> list[dict]:
-
+def getUniqueEvalList(evalResponse: list[dict]) -> list[dict] | str:
+    """ 
+    Function returns only unique evaluations based on a list of evalResponses.
+    
+    attrs: 
+        evalResponse (list[dict]): list of dictionaries with eval responses
+    return: 
+        uniqueEvals (list[dict]): returns list of dictionary containing unique evaluations
+    """
     if all(eval == {} for eval in evalResponse):
         return "No evaluations found."
     
