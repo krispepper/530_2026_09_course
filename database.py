@@ -469,3 +469,42 @@ def getSpecEval(evalID: str, studentID: str) -> list[dict]:
 
     # else return eval responses
     return evalResponses
+
+# COURSE FUNCTIONS
+def getCourseName(courseID: int) -> str:
+    """
+    Function returns a information about an given class
+       
+    attrs: 
+        courseID (int): id of course for class
+    return: 
+        courseName (str): name of course
+    """
+    # open database connection
+    courseDB = getDB()
+    # cursor fetch will return as dict
+    coursecursor = courseDB.cursor(dictionary=True)
+
+    # query for db
+    query = (
+        "SELECT name "
+        "FROM course "
+        "WHERE c.courseID=%s" 
+    )
+    # run query 
+    coursecursor.execute(query, (courseID,))
+    # get results as dict
+    DBresult_dict = coursecursor.fetchone()
+
+    # close DB and cursor
+    coursecursor.close() 
+    courseDB.close()
+
+    # check course was found
+    if DBresult_dict[0]: 
+        # return course name
+        courseName = DBresult_dict[0]["name"]
+        return courseName
+    else:
+        # return error message 
+        return f"No instructor found for {courseID}."
