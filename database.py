@@ -597,3 +597,43 @@ def getCourseName(courseID: int) -> str:
     else:
         # return error message 
         return f"No instructor found for {courseID}."
+
+def getCourseDept(courseID: int) -> str:
+    """
+    Function returns a course's department
+        
+    attrs: 
+        courseID (int): id of course for class
+    return: 
+        dept (str): name of dept
+    """
+    # open database connection
+    courseDB = getDB()
+    # cursor fetch will return as dict
+    coursecursor = courseDB.cursor(dictionary=True)
+
+    # query for db
+    query = (
+        "SELECT code "
+        "FROM dept AS d "
+        "JOIN courses AS c "
+        "ON c.deptID = d.ID "
+        "WHERE c.courseID=%s" 
+    )
+    # run query using courseID
+    coursecursor.execute(query, (courseID, ))
+    # get results as dict
+    DBresult_dict = coursecursor.fetchone()
+
+    # close DB and cursor
+    coursecursor.close() 
+    courseDB.close()
+
+    # check course dept was found
+    if DBresult_dict: 
+        # return course dept code
+        dept = DBresult_dict["code"]
+        return dept
+    else:
+        # return error message 
+        return f"No dept id for course {courseID}."
