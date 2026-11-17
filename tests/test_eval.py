@@ -3,10 +3,17 @@ Test functions related to evaluations.
 """
 
 import datetime
+from unittest.mock import Mock, patch
 
-from database import getEvalListStudent, getEvalListInstructor, getEvalListDeptChair, getSpecEval
-from evaluation import getUniqueEvalList
-
+from database import (
+    getEvalListStudent, 
+    getEvalListInstructor, 
+    getEvalListDeptChair, 
+    getSpecEval,
+    getDB
+)
+from evaluation import getUniqueEvalList, getAvgCourseRating
+        
 class Test_getEvalListStudent:
     """
     Tests for function getEvalListStudent.
@@ -217,4 +224,39 @@ class Test_getUniqueEvalList:
     def test_studentNoEval(self):
         """Check that function returns error message for empty eval."""
         assert getUniqueEvalList(self.testEmptyEval) == "No evaluations found."
-        
+
+class Test_getAvgCourseRating:
+    """
+    Tests for function getAvgCourseRating.
+    
+    written by Carrie.
+    """
+    evalResponses = [
+    {'evalResponseID': '5', 'studentID': 'STU003', 'response': '0.9', 'created_at': '2026-11-12 22:46:23', 'last_modified': '2026-11-12 22:46:23', 'enrollID': '3', 'fieldID': '1', 'evalID': 'CSC-530-050-f26', 'title': 'Rate this course out of 10', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'}, 
+    {'evalResponseID': '6', 'studentID': 'STU003', 'response': 'nothing', 'created_at': '2026-11-12 22:48:02', 'last_modified': '2026-11-21 22:47:38', 'enrollID': '3', 'fieldID': '2', 'evalID': 'CSC-530-050-f26', 'title': 'What did you like about this course?', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'},
+    {'evalResponseID': '3', 'studentID': 'STU002', 'response': '5.1', 'created_at': '2026-10-12 22:46:23', 'last_modified': '2026-11-12 22:46:23', 'enrollID': '2', 'fieldID': '1', 'evalID': 'CSC-530-050-f26', 'title': 'Rate this course out of 10', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'}, 
+    {'evalResponseID': '4', 'studentID': 'STU002', 'response': 'something', 'created_at': '2026-10-12 22:48:02', 'last_modified': '2026-11-30 22:47:38', 'enrollID': '2', 'fieldID': '2', 'evalID': 'CSC-530-050-f26', 'title': 'What did you like about this course?', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'},
+    {'evalResponseID': '1', 'studentID': 'STU001', 'response': '9.8', 'created_at': '2026-11-12 22:46:23', 'last_modified': '2026-11-12 22:46:23', 'enrollID': '1', 'fieldID': '1', 'evalID': 'CSC-530-050-f26', 'title': 'Rate this course out of 10', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'}, 
+    {'evalResponseID': '2', 'studentID': 'STU001', 'response': 'everything', 'created_at': '2026-11-12 22:48:02', 'last_modified': '2026-11-21 22:47:38', 'enrollID': '1', 'fieldID': '2', 'evalID': 'CSC-530-050-f26', 'title': 'What did you like about this course?', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'}
+    ]
+
+    evalResponses2 = [
+    {'evalResponseID': '1', 'studentID': 'STU003', 'response': '0.9', 'created_at': '2026-11-12 22:46:23', 'last_modified': '2026-11-12 22:46:23', 'enrollID': '3', 'fieldID': '1', 'evalID': 'CSC-530-050-f26', 'title': 'Rate this course out of 10', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'}, 
+    {'evalResponseID': '2', 'studentID': 'STU003', 'response': '2.1', 'created_at': '2026-11-12 22:48:02', 'last_modified': '2026-11-21 22:47:38', 'enrollID': '3', 'fieldID': '2', 'evalID': 'CSC-530-050-f26', 'title': 'Rate this course out of 10', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'},
+    {'evalResponseID': '3', 'studentID': 'STU002', 'response': '5.1', 'created_at': '2026-10-12 22:46:23', 'last_modified': '2026-11-12 22:46:23', 'enrollID': '2', 'fieldID': '1', 'evalID': 'CSC-530-050-f26', 'title': 'Rate this course out of 10', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'}, 
+    {'evalResponseID': '4', 'studentID': 'STU002', 'response': '9.0', 'created_at': '2026-10-12 22:48:02', 'last_modified': '2026-11-30 22:47:38', 'enrollID': '2', 'fieldID': '2', 'evalID': 'CSC-530-050-f26', 'title': 'Rate this course out of 10', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'},
+   ]
+    rating_col = "Rate this course out of 10"
+    bad_rating_col = "course rating"
+
+    def test_ratingColExists(self):
+        """Check a course average is returned when the given column is found."""
+        assert getAvgCourseRating(self.evalResponses, self.rating_col) == 5.27
+
+    def test_ratingColNotExists(self):
+        """Check a error msg is returned when the given column is not found."""
+        assert getAvgCourseRating(self.evalResponses, self.bad_rating_col) == 'There are 0 evaluation fields named "course rating."'
+
+    def test_ratingColExistsMultiple(self):
+        """Check a error msg is returned when the given column is found multiple times."""
+        assert getAvgCourseRating(self.evalResponses2, self.rating_col) == 'There are 2 evaluation fields named "Rate this course out of 10."'
