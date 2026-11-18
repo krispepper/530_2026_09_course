@@ -14,11 +14,11 @@
         <div class="card-header">
             {{ field.title }}
         </div>
-    <div class="card-body">
-        <p class="card-text {% if field.created_at != field.last_modified %}edited-eval{% endif %}">{{ field.response }}</p>
+        <div class="card-body">
+            <p class="card-text {% if field.created_at != field.last_modified %}edited-eval{% endif %}">{{ field.response }}</p>
+        </div>
     </div>
-    </div>
-    <div class="col-2">{% if field.created_at != field.last_modified %}<span class="edited-pill">edited</span>{% endif %} </div>
+    {% if created_at != last_modified %}<div class="col-2">{% if field.created_at != field.last_modified %}<span class="edited-pill">edited</span>{% endif %}</div>{% endif %}
 </div>
 {% endfor %}
 
