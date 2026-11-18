@@ -18,7 +18,14 @@
             <p class="card-text {% if field.created_at != field.last_modified %}edited-eval{% endif %}">{{ field.response }}</p>
         </div>
     </div>
-    {% if created_at != last_modified %}<div class="col-2">{% if field.created_at != field.last_modified %}<span class="edited-pill">edited</span>{% endif %}</div>{% endif %}
+    {% if created_at != last_modified %}
+    <div class="col-2">
+        {% if field.created_at != field.last_modified %}
+        <span class="edited-pill">edited</span><br>
+        <p class="card-text m-1">{{ field.last_modified }}</p>
+        {% endif %}
+    </div>
+    {% endif %}
 </div>
 {% endfor %}
 
