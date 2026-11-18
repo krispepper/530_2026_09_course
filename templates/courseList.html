@@ -16,7 +16,7 @@
             <th scope="col">Course</th>
             <th scope="col">Section</th>
             <th scope="col">Term</th>
-            <th scope="col">Export options</th>
+            {% if role != "stu" %}<th scope="col">Export options</th>{% endif %}
         </tr>
     </thead>  
     <tbody>
@@ -26,6 +26,7 @@
         <td>{{ c.courseID }}</td>
         <td>{{ c.secID }}</td>
         <td>{{ c.term }}</td>
+        {% if role != "stu" %}
         <td>
             <a href="{{ url_for('exportXlsx', userID=userID, courseID=c.courseID, secID=c.secID, term=c.term) }}">
                 <i class="fa-solid fa-file-arrow-down"></i>
@@ -36,6 +37,7 @@
                 Export to csv
             </a>
         </td>
+        {% endif %}
     </tr>
     {% endfor %}
     </tbody>

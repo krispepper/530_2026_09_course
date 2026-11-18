@@ -227,7 +227,8 @@ def viewCourseList(userID):
         "courseList.html", 
         courses=courses,
         name=name, 
-        userID=userID
+        userID=userID,
+        role=role
     )
 
 @app.route("/<userID>/export/csv/<courseID>-<secID>-<term>/", strict_slashes=False)
