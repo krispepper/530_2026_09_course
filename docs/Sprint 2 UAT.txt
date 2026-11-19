@@ -19,3 +19,21 @@ RUN APPLICATION:
 Once app is running, conduct the below User Acceptance Tests: 
 
 **Sprint 2 Tests**
+
+__Show edited evaluation__ 
+(evaluation with edited value)
+- If you have not already, open the application
+- If not logged in click "LOGIN" in navbar. If logged in click "SWITCH USER" in navbar
+- Select "Test Student" and click the login button
+- Click "VIEW EVALUATION LIST" in navbar
+- Click the evaluation "CSC-530-050-f26"
+    - [ ] confirm it has indicators of edit occuring
+    - [ ] confirm it has red text for response field, badge saying "edited" and the last modified timestamp next to the question field
+
+(evaluation without edited value)
+- If you have not already, open the application
+- If not logged in as "Test Student", click "LOGIN" or "SWITCH USER" in navbar and select "Test Student" and click the login button
+- Click "VIEW EVALUATION LIST" in navbar
+- Click the evaluation "PHY-428-001-S27"
+    - [ ] confirm it has nio indicators of edit occuring (no last modified dates, no red text, no badge)
+
