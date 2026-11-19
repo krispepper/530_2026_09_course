@@ -1,0 +1,21 @@
+USER ACCEPTANCE TESTING MANUAL
+
+Folder: on compsci server home\groupprojects\fall2026_530_course
+
+RUN APPLICATION:
+- Create venv if not already created:
+    - Follow steps in read me to do so 
+- Install requirements if needed 
+    - In CLI enter the following:
+        - cd home\groupprojects\fall2026_530_course 
+        - pip install -r requirements.txt
+- If not alreay in the correct directory run the following in CLI:
+    - cd home\groupprojects\fall2026_530_course
+- Start application run the following in the CLI:
+    - python app.py
+        - Can now ctrl+click on link in terminal window or type link into URL input on webpage
+
+
+Once app is running, conduct the below User Acceptance Tests: 
+
+**Sprint 2 Tests**
