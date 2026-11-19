@@ -1,10 +1,8 @@
 UAT TESTING MANUAL
 
-README will have instructions for getting application set up and start running it.
-
 Folder: on compsci server home\groupprojects\fall2026_530_course
 
-SPRINT 1 TEST
+Sprint 1 Tests
 
 __Student associated evaluations__
 Has evaluations
@@ -87,79 +85,3 @@ __Check roster__
 - In url add "/view-roster/530/050/F26" 
     - [ ] check it goes to the page with a roster for the course 530 section 050 term F26
     *note: as of now a user must manually enter the url to get a roster, but later we will add a more convenient path for users
-
-*******************************************************
-
-SPRINT 2 TEST
-
-__View Courses List + Exports__ 
-(Student with courses)
-- if you have not already, open the application
-- If not logged in click "LOGIN" in navbar. If logged in click "SWITCH USER" in navbar
-- Select "Test Student" and click the login button
-- Click "VIEW COURSE LIST" in navbar
-    - [ ] confirm it shows a table with course title, courseID, secID, and term
-    - [ ] confirm student does not see export options in table
-
-(Student without courses)
-- if you have not already, open the application
-- If not logged in click "LOGIN" in navbar. If logged in click "SWITCH USER" in navbar
-- Select "Test Student2" and click the login button
-- Click "VIEW COURSE LIST" in navbar
-    - [ ] confirm it shows a message letting user know they have no courses
-    
-(instructor with courses)
-- if you have not already, open the application
-- If not logged in click "LOGIN" in navbar. If logged in click "SWITCH USER" in navbar
-- Select "Test Instructor" and click the login button
-- Click "VIEW COURSE LIST" in navbar
-    - [ ] confirm it shows a table with course title, courseID, secID, term and export options
-    - [ ] confirm the options are xlsx and csv
-- click "Export Xlsx" 
-    - [ ] confirm it exports a xlsx file with name including a timestamp, instructor DB ID, course ID, section ID, and term
-- open file
-    - [ ] confirm it has two sheets
-        1. "general stats" formated like the specification sheet
-        2. "feedback" containing the course evaluation feedback with one like per student
-- return to application
-- click "Export CSV" 
-    - [ ] confirm it exports a zip file with name including a timestamp, instructor DB ID, course ID, section ID, and term
-- open zip file
-    - [ ] confirm it has two files
-        1. formated like the specification sheet
-        2. containing the course evaluation feedback with one like per student
-
-(Instructor without courses)
-- if you have not already, open the application
-- If not logged in click "LOGIN" in navbar. If logged in click "SWITCH USER" in navbar
-- Select "Test Instructor2" and click the login button
-- Click "VIEW COURSE LIST" in navbar
-    - [ ] confirm it shows a message letting user know they have no courses
-
-(Dept Chair with courses)
-- if you have not already, open the application
-- If not logged in click "LOGIN" in navbar. If logged in click "SWITCH USER" in navbar
-- Select "Test DeptChair" and click the login button
-- Click "VIEW COURSE LIST" in navbar
-    - [ ] confirm it shows a table with course title, courseID, secID, term and export options
-    - [ ] confirm the options are xlsx and csv
-- click "Export Xlsx" 
-    - [ ] confirm it exports a xlsx file with name including a timestamp, instructor DB ID, course ID, section ID, and term
-- open file
-    - [ ] confirm it has two sheets
-        1. "general stats" formated like the specification sheet
-        2. "feedback" containing the course evaluation feedback with one like per student
-- return to application
-- click "Export CSV" 
-    - [ ] confirm it exports a zip file with name including a timestamp, instructor DB ID, course ID, section ID, and term
-- open zip file
-    - [ ] confirm it has two files
-        1. formated like the specification sheet
-        2. containing the course evaluation feedback with one like per student
-
-(Dept Chair without courses)
-- if you have not already, open the application
-- If not logged in click "LOGIN" in navbar. If logged in click "SWITCH USER" in navbar
-- Select "Test DeptChair2" and click the login button
-- Click "VIEW COURSE LIST" in navbar
-    - [ ] confirm it shows a message letting user know they have no courses
