@@ -10,7 +10,7 @@
     <p>{{ msg }}</p>
 {% else %}
     {% for eval in evals %}
-        <a href="{{ url_for('viewEvaluation', evalID=eval.evalID, studentID=eval.studentID, userID=userID) }}">{{ eval.evalID }}</a>
+        <a href="{{ url_for('viewEvaluation', evalID=eval.evalID, studentID=eval.studentID, userID=userID) }}">{{ eval.evalID }}</a><br>
     {% endfor %}
 {% endif %}
 

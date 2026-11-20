@@ -1,7 +1,7 @@
 # Tests for getUserNameFromId were all written by Hugo.
 # Test used for M4 Unit Test assignment submission is test_validId; written by Hugo.
-import pytest
 from database import getUserNameFromId
+
 
 # Tests the function getUserNameFromId.
 class Test_getUserNameFromId:

@@ -2,8 +2,9 @@
 Test functions related to users.
 """
 
-from database import getUserRole, getRoleID, getDept
 from constants import ROLE
+from database import getDept, getInstructorByCourse, getRoleID, getUserRole
+
 
 class Test_getUserRole:
     """
@@ -115,6 +116,32 @@ class Test_getDept:
         """Check that function returns error message for Nonexistent ID."""
         assert getDept(self.testNonexistentDt) == f"No dept found for userID '{self.testNonexistentD}'."
 
-    def test_getNonexistentIDDept(self):
+    def test_getEmptyIDDept(self):
         """Check that function returns error message for empty ID."""
         assert getDept(self.testEmptyID) == f"No dept found for userID '{self.testEmptyID}'."
+
+
+class Test_getInstructorByCourse:
+    """
+    Tests for functionget InstructorByCourse
+
+    written by Carrie.
+    """
+    # variables for tests
+    testCourseID = 530
+    testSecID = 50
+    testNoInstructorSecID = 51
+    testTerm = 'F26'
+    testInstructorID = "INS001"
+
+    def test_InstructorExists(self):
+        """Check that function returns instructor given a course."""
+        assert getInstructorByCourse(self.testCourseID, self.testSecID, self.testTerm) == self.testInstructorID
+
+    def test_NoInstructorExists(self):
+        """Check that function returns error message if no instructor exists for given a course."""
+        assert getInstructorByCourse(
+            self.testCourseID, 
+            self.testNoInstructorSecID, 
+            self.testTerm
+            ) == f"No instructor found for {self.testCourseID}-{self.testNoInstructorSecID}-{self.testTerm}."

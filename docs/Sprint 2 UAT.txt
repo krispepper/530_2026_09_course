@@ -1,0 +1,111 @@
+USER ACCEPTANCE TESTING MANUAL
+
+Folder: on compsci server home\groupprojects\fall2026_530_course
+
+RUN APPLICATION:
+- Create venv if not already created:
+    - Follow steps in read me to do so 
+- Install requirements if needed 
+    - In CLI enter the following:
+        - cd home\groupprojects\fall2026_530_course 
+        - pip install -r requirements.txt
+- If not alreay in the correct directory run the following in CLI:
+    - cd home\groupprojects\fall2026_530_course
+- Start application run the following in the CLI:
+    - python app.py
+        - Can now ctrl+click on link in terminal window or type link into URL input on webpage
+
+
+Once app is running, conduct the below User Acceptance Tests: 
+
+**Sprint 2 Tests**
+
+__View Courses List + Exports__ 
+(Student with courses)
+- if you have not already, open the application
+- If not logged in click "LOGIN" in navbar. If logged in click "SWITCH USER" in navbar
+- Select "Test Student" and click the login button
+- Click "VIEW COURSE LIST" in navbar
+    - [ ] confirm it shows a table with course title, courseID, secID, and term
+    - [ ] confirm student does not see export options in table
+
+(Student without courses)
+- if you have not already, open the application
+- If not logged in click "LOGIN" in navbar. If logged in click "SWITCH USER" in navbar
+- Select "Test Student2" and click the login button
+- Click "VIEW COURSE LIST" in navbar
+    - [ ] confirm it shows a message letting user know they have no courses
+    
+(instructor with courses)
+- if you have not already, open the application
+- If not logged in click "LOGIN" in navbar. If logged in click "SWITCH USER" in navbar
+- Select "Test Instructor" and click the login button
+- Click "VIEW COURSE LIST" in navbar
+    - [ ] confirm it shows a table with course title, courseID, secID, term and export options
+    - [ ] confirm the options are xlsx and csv
+- click "Export Xlsx" 
+    - [ ] confirm it exports a xlsx file with name including a timestamp, instructor DB ID, course ID, section ID, and term
+- open file
+    - [ ] confirm it has two sheets
+        1. "general stats" formated like the specification sheet
+        2. "feedback" containing the course evaluation feedback with one like per student
+- return to application
+- click "Export CSV" 
+    - [ ] confirm it exports a zip file with name including a timestamp, instructor DB ID, course ID, section ID, and term
+- open zip file
+    - [ ] confirm it has two files
+        1. formated like the specification sheet
+        2. containing the course evaluation feedback with one like per student
+
+(Instructor without courses)
+- if you have not already, open the application
+- If not logged in click "LOGIN" in navbar. If logged in click "SWITCH USER" in navbar
+- Select "Test Instructor2" and click the login button
+- Click "VIEW COURSE LIST" in navbar
+    - [ ] confirm it shows a message letting user know they have no courses
+
+(Dept Chair with courses)
+- if you have not already, open the application
+- If not logged in click "LOGIN" in navbar. If logged in click "SWITCH USER" in navbar
+- Select "Test DeptChair" and click the login button
+- Click "VIEW COURSE LIST" in navbar
+    - [ ] confirm it shows a table with course title, courseID, secID, term and export options
+    - [ ] confirm the options are xlsx and csv
+- click "Export Xlsx" 
+    - [ ] confirm it exports a xlsx file with name including a timestamp, instructor DB ID, course ID, section ID, and term
+- open file
+    - [ ] confirm it has two sheets
+        1. "general stats" formated like the specification sheet
+        2. "feedback" containing the course evaluation feedback with one like per student
+- return to application
+- click "Export CSV" 
+    - [ ] confirm it exports a zip file with name including a timestamp, instructor DB ID, course ID, section ID, and term
+- open zip file
+    - [ ] confirm it has two files
+        1. formated like the specification sheet
+        2. containing the course evaluation feedback with one like per student
+
+(Dept Chair without courses)
+- if you have not already, open the application
+- If not logged in click "LOGIN" in navbar. If logged in click "SWITCH USER" in navbar
+- Select "Test DeptChair2" and click the login button
+- Click "VIEW COURSE LIST" in navbar
+    - [ ] confirm it shows a message letting user know they have no courses
+    
+__Show edited evaluation__ 
+(evaluation with edited value)
+- If you have not already, open the application
+- If not logged in click "LOGIN" in navbar. If logged in click "SWITCH USER" in navbar
+- Select "Test Student" and click the login button
+- Click "VIEW EVALUATION LIST" in navbar
+- Click the evaluation "CSC-530-050-f26"
+    - [ ] confirm it has indicators of edit occuring
+    - [ ] confirm it has red text for response field, badge saying "edited" and the last modified timestamp next to the question field
+
+(evaluation without edited value)
+- If you have not already, open the application
+- If not logged in as "Test Student", click "LOGIN" or "SWITCH USER" in navbar and select "Test Student" and click the login button
+- Click "VIEW EVALUATION LIST" in navbar
+- Click the evaluation "PHY-428-001-S27"
+    - [ ] confirm it has nio indicators of edit occuring (no last modified dates, no red text, no badge)
+
