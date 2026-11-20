@@ -537,7 +537,7 @@ def getSpecEval(evalID: str, studentID: str) -> list[dict]:
         "SELECT f.fieldID, f.title, e.response, e.created_at, e.last_modified "
         "FROM evalResponse AS e "
         "JOIN formField AS f "
-        "ON e.evalID = e.evalID "
+        "ON e.evalID = f.evalID "
         "AND e.fieldID = f.fieldID "
         "WHERE e.studentID = %s " 
         "AND e.evalID = %s "
