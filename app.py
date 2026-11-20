@@ -1,21 +1,25 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, session, request, redirect, url_for
+from flask import Flask, redirect, render_template, request, send_file, url_for
 
-from database import (
-        getDB, 
-        getUsersInfo, 
-        getUserNameFromId, 
-        getEvalListInstructor, 
-        getEvalListStudent, 
-        getEvalListDeptChair,  
-        getUserRole,
-        getSpecEval,
-        getRoster
-    )
-from evaluation import getUniqueEvalList
 from constants import ROLE
+from database import (
+    getCourseListDeptChair,
+    getCourseListInstructor,
+    getCourseListStudent,
+    getDB,
+    getEvalListDeptChair,
+    getEvalListInstructor,
+    getEvalListStudent,
+    getRoster,
+    getSpecEval,
+    getUserNameFromId,
+    getUserRole,
+    getUsersInfo,
+)
+from evaluation import getUniqueEvalList
+from export import exportCSVCourse, exportXlsxCourse
 
 app = Flask(__name__) 
 
@@ -181,6 +185,75 @@ def viewRoster(courseID, secID, term):
         term = term
     )
 
+@app.route("/<userID>/view-courses", strict_slashes=False)
+def viewCourseList(userID):
+    """Route for viewing courses associated with a specific user."""
+
+    # get user name
+    name = getUserNameFromId(userID)
+
+    # check user type
+    role = getUserRole(userID)
+
+    if role == ROLE.instructor.value:
+        # get course list info
+        courses = getCourseListInstructor(userID)
+    elif role == ROLE.student.value:
+        # get course list info
+        courses = getCourseListStudent(userID)
+    elif role == ROLE.deptChair.value:
+        # get course list info
+        courses = getCourseListDeptChair(userID)
+    else:
+        # render view for error
+        return render_template(
+            "error.html", 
+            msg = ("That's weird. You have no role. " 
+            "OR you're a school admin and that access "
+            "is under construction.")
+            )
+
+    # check if courses returned error message 
+    if isinstance(courses, str):
+        # render view for courseList with error msg
+        return render_template(
+            "courseList.html",  
+            userID=userID,
+            msg=courses,
+            name=name
+            )
+    
+    return render_template(
+        "courseList.html", 
+        courses=courses,
+        name=name, 
+        userID=userID,
+        role=role
+    )
+
+@app.route("/<userID>/export/csv/<courseID>-<secID>-<term>/", strict_slashes=False)
+def exportCSV(userID, courseID, secID, term):
+    """export evaluation information to zip file with CSVs."""
+    output, filename = exportCSVCourse(courseID, secID, term)
+
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name=filename,
+        mimetype='application/zip'
+    )
+
+@app.route("/<userID>/export/xlsx/<courseID>-<secID>-<term>/", strict_slashes=False)
+def exportXlsx(userID, courseID, secID, term):
+    """export evaluation information to an excel file."""
+    output, filename = exportXlsxCourse(courseID, secID, term)
+
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name=filename,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
 
 if __name__ == "__main__": 
     app.run(debug=True, use_reloader=False, port=PORT)
