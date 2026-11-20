@@ -4,6 +4,7 @@ Test functions related to roster.
 
 from database import getRoster
 
+
 class Test_getRoster:
     """Tests for function getRoster."""
     testSecID = 50
@@ -17,7 +18,7 @@ class Test_getRoster:
     def test_getRoster(self): # written by Carrie
         """Checks function returns correct data based on retrieved dict keys."""
         # get keys from first returned dict
-        keys = [key for key in getRoster(self.testSecID, self.testCourseID, self.testTerm)[0].keys()]
+        keys = [key for key in getRoster(self.testSecID, self.testCourseID, self.testTerm)[0]]
         assert keys == self.expectedKeys
 
     def test_NonexistentSec(self): # written by Ryan

@@ -3,6 +3,7 @@ EVALUATION RELATED FUNCTIONS.
 """
 import pandas as pd
 
+
 def getUniqueEvalList(evalResponse: list[dict]) -> list[dict] | str:
     """ 
     Function returns only unique evaluations based on a list of evalResponses.

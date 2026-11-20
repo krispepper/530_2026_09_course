@@ -3,17 +3,19 @@ Test functions related to evaluations.
 """
 
 import datetime
+
 import pandas as pd
 
 from database import (
-    getEvalListStudent, 
-    getEvalListInstructor, 
-    getEvalListDeptChair, 
+    getEvalByClass,
+    getEvalListDeptChair,
+    getEvalListInstructor,
+    getEvalListStudent,
     getSpecEval,
-    getEvalByClass
 )
-from evaluation import getUniqueEvalList, getAvgCourseRating, organizeEval
-        
+from evaluation import getAvgCourseRating, getUniqueEvalList, organizeEval
+
+
 class Test_getEvalListStudent:
     """
     Tests for function getEvalListStudent.
@@ -41,7 +43,7 @@ class Test_getEvalListStudent:
     def test_studentEval(self):
         """Check that function returns evaluation responses for a specific student."""
         # get keys from first returned dict
-        keys = [key for key in getEvalListStudent(self.testStudentID)[0].keys()]
+        keys = [key for key in getEvalListStudent(self.testStudentID)[0]]
         assert keys == self.expectedKeys
 
     def test_studentNoEval(self):
@@ -84,7 +86,7 @@ class Test_getEvalListInstructor:
     def test_instructorEval(self):
         """Check that function returns evaluation responses for a specific instructor."""
         # get keys from first returned dict
-        keys = [key for key in getEvalListInstructor(self.testInstructorID)[0].keys()]
+        keys = [key for key in getEvalListInstructor(self.testInstructorID)[0]]
         assert keys == self.expectedKeys
 
     def test_instructorNoEval(self):
@@ -126,7 +128,7 @@ class Test_getEvalListDeptChair:
     def test_deptChairEval(self):
         """Check that function returns evaluation responses for a specific dept Chair."""
         # get keys from first returned dict
-        keys = [key for key in getEvalListDeptChair(self.testDeptChairID)[0].keys()]
+        keys = [key for key in getEvalListDeptChair(self.testDeptChairID)[0]]
         assert keys == self.expectedKeys
 
     def test_instructorNoEval(self):
@@ -167,7 +169,7 @@ class Test_getSpecEval:
     def test_studentEval(self):
         """Check that function returns evaluation responses for a specific student."""
         # get keys from first returned dict
-        keys = [key for key in getSpecEval(self.testEvalID, self.testStudentID)[0].keys()]
+        keys = [key for key in getSpecEval(self.testEvalID, self.testStudentID)[0]]
         print (keys)
         assert keys == self.expectedKeys
 
@@ -333,7 +335,7 @@ class Test_getEvalByClass:
         # get keys from returned evalResponses
         keys = [key for key in getEvalByClass(self.testCourseID, 
             self.testSecID, 
-            self.testTerm)[0].keys()]
+            self.testTerm)[0]]
         # check keys are the same
         assert keys == self.expectedKeys
 

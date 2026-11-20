@@ -3,12 +3,13 @@ Test functions related to courses.
 """
 
 from database import (
-    getCourseDept, 
-    getCourseListStudent, 
-    getCourseListInstructor, 
+    getCourseDept,
     getCourseListDeptChair,
-    getCourseName
+    getCourseListInstructor,
+    getCourseListStudent,
+    getCourseName,
 )
+
 
 class Test_getCourseDept:
     """
@@ -49,7 +50,7 @@ class Test_getCourseListStudent:
     def test_courseListStudent(self):
         """Checks function returns course list of a given student."""
         # get keys from returned evalResponses
-        keys = [key for key in getCourseListStudent(self.testStudentID)[0].keys()]
+        keys = [key for key in getCourseListStudent(self.testStudentID)[0]]
         # check keys are the same
         assert keys == self.expectedKeys
 
@@ -79,7 +80,7 @@ class Test_getCourseListInstructor:
     def test_courseListInstructor(self):
         """Checks function returns course list of a given instructor."""
         # get keys from returned evalResponses
-        keys = [key for key in getCourseListInstructor(self.testInstructorID)[0].keys()]
+        keys = [key for key in getCourseListInstructor(self.testInstructorID)[0]]
         # check keys are the same
         assert keys == self.expectedKeys
 
@@ -110,7 +111,7 @@ class Test_getCourseListDeptChair:
     def test_courseListDeptChair(self):
         """Checks function returns course list of a given dept chair."""
         # get keys from returned evalResponses
-        keys = [key for key in getCourseListDeptChair(self.testDeptChairID)[0].keys()]
+        keys = [key for key in getCourseListDeptChair(self.testDeptChairID)[0]]
         # check keys are the same
         assert keys == self.expectedKeys
 

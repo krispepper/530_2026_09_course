@@ -1,23 +1,23 @@
 """
 EXPORT RELATED FUNCTIONS.
 """
-import csv
-import pandas as pd  
-
-from io import BytesIO
-from zipfile import ZipFile, ZIP_DEFLATED
 from datetime import datetime
+from io import BytesIO
+from zipfile import ZIP_DEFLATED, ZipFile
+
+import pandas as pd
 
 from database import (
-    getInstructorByCourse, 
-    getRoleID, 
-    getUserNameFromId, 
-    getRoster,
     getCourseDept,
+    getCourseName,
     getEvalByClass,
-    getCourseName
+    getInstructorByCourse,
+    getRoleID,
+    getRoster,
+    getUserNameFromId,
 )
 from evaluation import getAvgCourseRating, getUniqueEvalList, organizeEval
+
 
 def getTimestamp():
     return datetime.now().strftime('%Y.%m.%d_%H.%M.%S')

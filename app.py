@@ -1,25 +1,25 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, send_file, session, request, redirect, url_for
+from flask import Flask, redirect, render_template, request, send_file, url_for
 
+from constants import ROLE
 from database import (
-        getDB, 
-        getUsersInfo, 
-        getUserNameFromId, 
-        getEvalListInstructor, 
-        getEvalListStudent, 
-        getEvalListDeptChair,  
-        getUserRole,
-        getSpecEval,
-        getRoster,
-        getCourseListInstructor,
-        getCourseListStudent,
-        getCourseListDeptChair
-    )
+    getCourseListDeptChair,
+    getCourseListInstructor,
+    getCourseListStudent,
+    getDB,
+    getEvalListDeptChair,
+    getEvalListInstructor,
+    getEvalListStudent,
+    getRoster,
+    getSpecEval,
+    getUserNameFromId,
+    getUserRole,
+    getUsersInfo,
+)
 from evaluation import getUniqueEvalList
 from export import exportCSVCourse, exportXlsxCourse
-from constants import ROLE
 
 app = Flask(__name__) 
 
