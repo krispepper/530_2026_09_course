@@ -728,6 +728,12 @@ def getCourseListInstructor(userID: str) -> list[dict]:
         # return error message 
         return f"No courses found for {userName["firstName"]} {userName["lastName"]}."
     else:
+        # add column for if evaluations exist
+        for course in courses:
+            if isinstance(getEvalByClass(course["courseID"], course["secID"], course["term"]), str):
+                course["hasEval"] = False
+            else:
+                course["hasEval"] = True
         # return list of courses
         return courses
 
@@ -774,5 +780,11 @@ def getCourseListDeptChair(userID: str) -> list[dict]:
         # return error message 
         return f"No courses found for {userName["firstName"]} {userName["lastName"]}."
     else:
+        # add column for if evaluations exist
+        for course in courses:
+            if isinstance(getEvalByClass(course["courseID"], course["secID"], course["term"]), str):
+                course["hasEval"] = False
+            else:
+                course["hasEval"] = True
         # return list of courses
         return courses

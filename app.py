@@ -115,7 +115,8 @@ def viewEvaluationsList(userID):
             "error.html", 
             msg = ("That's weird. You have no role. " 
             "OR you're a school admin and that access "
-            "is under construction.")
+            "is under construction."),
+            userID = userID
             )
 
     # check if evals returned error message 
@@ -210,7 +211,8 @@ def viewCourseList(userID):
             "error.html", 
             msg = ("That's weird. You have no role. " 
             "OR you're a school admin and that access "
-            "is under construction.")
+            "is under construction."),
+            userID = userID
             )
 
     # check if courses returned error message 
