@@ -213,6 +213,24 @@ def getDept(userID: str) -> int:
         # return error message
         return f"No dept found for userID '{userID}'."
 
+# so that course info is properly formatted
+def getDeptAbbreviation(deptID: int) -> str:
+    db = getDB()
+    cursor = db.cursor(dictionary=True)
+
+    query = "SELECT code FROM dept WHERE ID = %s"
+    cursor.execute(query, (deptID,))
+    result = cursor.fetchone()
+
+    cursor.close()
+    db.close()
+
+    if result is not None:
+        return result["code"]
+    else:
+        return f"No department abbreviation found for deptID '{deptID}'."
+
+
 def getRoster(secID: int, courseID: int, term: str) -> list[dict]:
     """
     Function returns a dict with students attending a given class.
@@ -364,42 +382,6 @@ def getEvalListInstructor(instructorID: str) -> list[dict]:
     # else return eval responses
     return evalResponses
 
-def getEvalListStudent(studentID: str) -> list[dict]:
-    """ 
-    Function returns a dict with eval responses associated with a given student.
-    
-    attrs: 
-        studentID (str): id of student
-    return: 
-        evalResponses (dict): a dict of evaluation responses associated with a given student
-    """
-    # open database connection
-    evalDB = getDB()
-    # cursor fetch will return as dict
-    evalcursor = evalDB.cursor(dictionary=True)
-
-    # query for db
-    query = (
-        "SELECT * "
-        "FROM evalResponse "
-        "WHERE studentID = %s "
-        "ORDER BY evalID, studentID, fieldID"
-    )
-    # run query using section IDs
-    evalcursor.execute(query, (studentID,))
-    # get results as dict
-    evalResponses = evalcursor.fetchall()
-
-    # close DB and cursor
-    evalcursor.close() 
-    evalDB.close()
-
-    # if empty return error message
-    if all(evalResponse == {} for evalResponse in evalResponses):
-            return "No evaluation responses found."
-
-    # else return eval responses
-    return evalResponses
 
 def getEvalListDeptChair(deptChairID: str) -> list[dict]:
     """ 
@@ -533,15 +515,16 @@ def getSpecEval(evalID: str, studentID: str) -> list[dict]:
     evalcursor = evalDB.cursor(dictionary=True)
 
     # query for db
+    # I swapped the order of formField and evalResponse because we want to ensure all questions are returned.
     query = (
         "SELECT f.fieldID, f.title, e.response, e.created_at, e.last_modified "
-        "FROM evalResponse AS e "
-        "JOIN formField AS f "
-        "ON e.evalID = f.evalID "
-        "AND e.fieldID = f.fieldID "
-        "WHERE e.studentID = %s " 
-        "AND e.evalID = %s "
-        "ORDER BY fieldID"
+        "FROM formField AS f "
+        "LEFT JOIN evalResponse AS e "
+        "ON f.evalID = e.evalID "
+        "AND f.fieldID = e.fieldID "
+        "AND e.studentID = %s " 
+        "WHERE f.evalID = %s "
+        "ORDER BY f.fieldID"
     )
     # run query using section IDs
     evalcursor.execute(query, (studentID, evalID,))
@@ -552,7 +535,7 @@ def getSpecEval(evalID: str, studentID: str) -> list[dict]:
     evalcursor.close() 
     evalDB.close()
     
-    # if empty return error message
+    # if empty return error message # may have to come back and fix this part 
     if all(evalResponse == {} for evalResponse in evalResponses):
             return "No evaluation responses found."
 
@@ -776,3 +759,282 @@ def getCourseListDeptChair(userID: str) -> list[dict]:
     else:
         # return list of courses
         return courses
+
+# Create a User (role identified ties the user to their respective table)
+def createUser(userID, firstName, lastName, email, role): 
+    db = getDB()
+    cursor = db.cursor()
+
+    query = """INSERT INTO `user` (userID, firstName, lastName, email, role) 
+    VALUES (%s, %s, %s, %s, %s)"""
+    values = (userID, firstName, lastName, email, role) 
+
+    cursor.execute(query, values)
+    db.commit()
+
+    cursor.close()
+    db.close() 
+
+# Add (like an import) 10 Standard Questions (these are on every form) to the database 
+def add_standardQuestions(eval_ID): 
+    db = getDB()
+    cursor = db.cursor()
+
+    query = """INSERT INTO formField (fieldID,evalID, title, fieldType, fieldSubject, options) 
+    VALUES (%s, %s, %s, %s, %s, %s)"""
+
+    questions = [
+        (1, eval_ID, "The instructor presents the subject matter in a clear and understandable way.", "int", "instructor", "1,2,3,4,5,NA"),
+        (2, eval_ID, "The instructor uses class time effectively and efficiently.", "int", "instructor", "1,2,3,4,5,NA"),
+        (3, eval_ID, "The instructor creates an atmosphere that encourages questions and discussion.", "int", "instructor", "1,2,3,4,5,NA"),
+        (4, eval_ID, "The instructor treats students with respect.", "int", "instructor", "1,2,3,4,5,NA"),
+        (5, eval_ID, "Exams and assignments are well connected to course objectives.", "int", "course", "1,2,3,4,5,NA"),
+        (6, eval_ID, "Assigned materials are relevant to class.", "int", "course", "1,2,3,4,5,NA"),
+        (7, eval_ID, "I would recommend this course to other students.", "int", "course", "1,2,3,4,5,NA"),
+        (8, eval_ID, "This course has improved my critical thinking skills.", "int", "learning", "1,2,3,4,5,NA"),
+        (9, eval_ID, "What did you like most about this course?", "shortText", "misc", None),
+        (10, eval_ID, "What suggestions do you have for improving this course?", "shortText", "misc", None)
+                ]
+
+    cursor.executemany(query, questions)
+    db.commit()
+
+    cursor.close()
+    db.close()
+
+def createEvaluation(evalID, creator, secID, courseID, term, customName, deadline):
+    db = getDB()
+    cursor = db.cursor()
+
+    query = """INSERT INTO evaluation (evalID, creator, secID, courseID, term, customName, deadline)
+    VALUES (%s, %s, %s, %s, %s, %s, %s)"""
+
+    cursor.execute(query, (evalID, creator, secID, courseID, term, customName, deadline))
+    db.commit()
+
+    add_standardQuestions(evalID)
+
+    cursor.close()
+    db.close()
+
+    return evalID
+
+# Pull the questions for the web app 
+def getEvalQuestions(evalID: str) -> list[dict]:
+    """ 
+    Returns all questions associated with a given evaluation.
+    attributes: 
+        evalID (str): ID of evaluation
+    return: 
+        questions 
+    (list[dict]): All questions for the evaluation.
+    """
+
+    evalDB = getDB()
+    evalcursor = evalDB.cursor(dictionary=True)
+
+    # Query for database
+    query = ( "SELECT fieldID, title, fieldType, fieldSubject, options " "FROM formField "
+        "WHERE evalID = %s " "ORDER BY fieldID")
+
+    evalcursor.execute(query, (evalID,))
+
+    # Get results as dictionaries
+    questions = evalcursor.fetchall()
+
+    evalcursor.close()
+    evalDB.close()
+
+    # Return error message if no questions found
+    if not questions:
+        return "No evaluation questions found."
+
+    return questions
+
+# Allow students to save questions they filled out 
+def saveEvalResponse(studentID, enrollID, evalID, fieldID, response):
+    """
+    Inserts a new student response or updates an existing response.
+    """
+
+    evalDB = getDB()
+    evalcursor = evalDB.cursor()
+
+    query = ( "SELECT evalResponseID FROM evalResponse " 
+    "WHERE enrollID = %s AND evalID = %s AND fieldID = %s")
+
+    evalcursor.execute(query, (enrollID, evalID, fieldID))
+    existingResponse = evalcursor.fetchone()
+
+    if existingResponse:
+        query = ("UPDATE evalResponse SET response = %s, last_modified = CURRENT_TIMESTAMP "
+            "WHERE evalResponseID = %s")
+        evalcursor.execute(query, (response, existingResponse[0]))
+
+    else:
+        query = ( "INSERT INTO evalResponse (studentID, enrollID, evalID, fieldID, response, created_at) "
+            "VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP)")
+        evalcursor.execute( query, (studentID, enrollID, evalID, fieldID, response) )
+
+    evalDB.commit()
+
+    evalcursor.close()
+    evalDB.close()
+
+# Saves the new status of the evaluation (Not Started, In Progress, Completed)
+def saveEvalStatus(enrollID: int, evalID: str, status: str):
+    """
+    Inserts or updates the status of a student's evaluation.
+    attrs:
+        enrollID (int): Student enrollment ID
+        evalID (str): Evaluation ID
+        status (str): Not Started, In Progress, or Completed
+    """
+
+    evalDB = getDB()
+    evalcursor = evalDB.cursor()
+
+    query = ( "INSERT INTO evaluationStatus (enrollID, evalID, status) VALUES (%s, %s, %s) "
+        "ON DUPLICATE KEY UPDATE status = VALUES(status)")
+
+    evalcursor.execute(query, (enrollID, evalID, status))
+    evalDB.commit()
+
+    evalcursor.close()
+    evalDB.close()
+
+def getEvalListStudent(studentID: str) -> list[dict]:
+    """
+    Returns all evaluations assigned to a student, including their current status.
+    attrs:
+        studentID (str): ID of student
+    return:
+        evalList (list[dict]): List of assigned evaluations
+    """
+
+    evalDB = getDB()
+
+    # fetch 
+    evalcursor = evalDB.cursor(dictionary=True)
+
+    query = (
+        "SELECT enrol.studentID, eval.evalID, enrol.courseID, enrol.secID, enrol.term, enrol.enrollID, eval.deadline, "
+        "COALESCE(ev_st.status, 'Not Started') AS status, CASE "
+        "WHEN eval.deadline IS NOT NULL AND eval.deadline < NOW() "
+        "AND COALESCE(ev_st.status, 'Not Started') != 'Completed' "
+        "THEN 'Past Due' "
+        "ELSE COALESCE(ev_st.status, 'Not Started') "
+        "END AS displayStatus "
+        "FROM enrollment AS enrol JOIN evaluation AS eval "
+        "ON enrol.courseID = eval.courseID AND enrol.secID = eval.secID AND enrol.term = eval.term "
+        "LEFT JOIN evaluationStatus AS ev_st ON enrol.enrollID = ev_st.enrollID AND eval.evalID = ev_st.evalID "
+        "WHERE enrol.studentID = %s ORDER BY eval.evalID"
+    )
+
+    evalcursor.execute(query, (studentID,))
+
+    # get results as dict
+    evalList = evalcursor.fetchall()
+
+    evalcursor.close()
+    evalDB.close()
+
+    # if empty return error message
+    if not evalList:
+        return "No evaluation responses found."
+    return evalList
+
+# Retrieves the evaluation status (for web app)
+def getEvalStatus(enrollID: int, evalID: str) -> str:
+    """
+    Returns the current status of a student's evaluation.
+    """
+    evalDB = getDB()
+    evalcursor = evalDB.cursor(dictionary=True)
+
+    query = ( "SELECT status " "FROM evaluationStatus " "WHERE enrollID = %s AND evalID = %s")
+
+    evalcursor.execute(query, (enrollID, evalID))
+    status = evalcursor.fetchone()
+
+    evalcursor.close()
+    evalDB.close()
+
+    if status:
+        return status["status"]
+
+    return "Not Started"
+
+
+# Pull the student responses 
+def getEvalResponses(enrollID: int, evalID: str) -> list[dict]:
+    """
+    Returns previously saved responses for a student evaluation.
+    """
+
+    evalDB = getDB()
+    evalcursor = evalDB.cursor(dictionary=True)
+
+    query = ( "SELECT fieldID, response FROM evalResponse "
+        "WHERE enrollID = %s AND evalID = %s ORDER BY fieldID")
+
+    evalcursor.execute(query, (enrollID, evalID))
+    evalResponses = evalcursor.fetchall()
+
+    evalcursor.close()
+    evalDB.close()
+
+    return evalResponses
+
+# Edit Evaluation Form 
+def edit_evaluationQuestion(eval_ID, field_ID, title, fieldType, fieldSubject, options):
+    db = getDB() 
+    cursor = db.cursor() 
+
+    query = """UPDATE formField SET title = %s, fieldType = %s, fieldSubject=%s, options = %s 
+    WHERE evalID = %s AND fieldID = %s"""
+    values = (title, fieldType, fieldSubject, options, eval_ID, field_ID)
+
+    cursor.execute(query,values)
+    db.commit()
+
+    updatedQuestion = cursor.rowcount
+
+    cursor.close()
+    db.close()
+
+    return updatedQuestion
+
+# Ensure Past Due evaluations cannot be edited. 
+def isEvaluationPastDue(evalID: str) -> bool:
+    db = getDB()
+    cursor = db.cursor(dictionary=True)
+
+    query = ( "SELECT deadline IS NOT NULL AND deadline < NOW() AS pastDue " 
+    "FROM evaluation WHERE evalID = %s" )
+
+    cursor.execute(query, (evalID,))
+    result = cursor.fetchone()
+
+    cursor.close()
+    db.close()
+
+    return bool(result["pastDue"]) if result else False
+
+def getEnrollmentByID(enrollID: int) -> dict:
+    """
+    Returns enrollment information for a given enrollment ID.
+    """
+    evalDB = getDB()
+    evalcursor = evalDB.cursor(dictionary=True)
+
+    # query for enrollment
+    query = ( "SELECT studentID, courseID, secID, term " "FROM enrollment " "WHERE enrollID = %s")
+
+    evalcursor.execute(query, (enrollID,))
+    enrollment = evalcursor.fetchone()
+
+    evalcursor.close()
+    evalDB.close()
+
+    return enrollment
