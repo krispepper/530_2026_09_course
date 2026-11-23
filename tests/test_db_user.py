@@ -114,7 +114,7 @@ class Test_getDept:
 
     def test_getNonexistentIDDept(self):
         """Check that function returns error message for Nonexistent ID."""
-        assert getDept(self.testNonexistentDt) == f"No dept found for userID '{self.testNonexistentD}'."
+        assert getDept(self.testNonexistentD) == f"No dept found for userID '{self.testNonexistentD}'."
 
     def test_getEmptyIDDept(self):
         """Check that function returns error message for empty ID."""
@@ -140,8 +140,10 @@ class Test_getInstructorByCourse:
 
     def test_NoInstructorExists(self):
         """Check that function returns error message if no instructor exists for given a course."""
-        assert getInstructorByCourse(
+        result = getInstructorByCourse(
             self.testCourseID, 
             self.testNoInstructorSecID, 
             self.testTerm
-            ) == f"No instructor found for {self.testCourseID}-{self.testNoInstructorSecID}-{self.testTerm}."
+            )
+        expected = f"No instructor found for {self.testCourseID}-{self.testNoInstructorSecID}-{self.testTerm}."
+        assert result == expected
