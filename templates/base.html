@@ -36,6 +36,7 @@
     {% if userID %}
     |<a href="{{ url_for('viewEvaluationsList', userID=userID) }}"> VIEW EVALUATION LIST </a>
     |<a href="{{ url_for('viewCourseList', userID=userID) }}"> VIEW COURSE LIST </a> 
+    |<a href = "{{url_for('student', userID=userID)}}"> students, see ur evals here!!</a>
     |<a href="/login"> SWITCH USER </a> 
     {% else %}
     |<a href="/login"> LOGIN </a> 

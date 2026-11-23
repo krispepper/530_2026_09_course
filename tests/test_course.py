@@ -74,7 +74,8 @@ class Test_getCourseListInstructor:
         "name",
         "courseID",
         "secID",
-        "term"
+        "term",
+        "hasEval"
     ]
 
     def test_courseListInstructor(self):
@@ -105,7 +106,8 @@ class Test_getCourseListDeptChair:
         "name",
         "courseID",
         "secID",
-        "term"
+        "term",
+        "hasEval"
     ]
 
     def test_courseListDeptChair(self):

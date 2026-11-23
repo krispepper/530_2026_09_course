@@ -2,6 +2,7 @@ import os
 
 from dotenv import load_dotenv
 from flask import Flask, redirect, render_template, request, send_file, url_for
+from datetime import datetime
 
 from constants import ROLE
 from database import (
@@ -27,8 +28,12 @@ from database import (
     getDept,
     getDeptAbbreviation, 
     isEvaluationPastDue,
-    )
-
+    getEvaluationFormInfo,
+    getInstructorByCourse,
+    getCourseName,
+    getEnrollmentId,
+    submitEvaluation
+)
 from evaluation import getUniqueEvalList
 from export import exportCSVCourse, exportXlsxCourse
 
@@ -65,6 +70,9 @@ def home(userID):
     # get all of the valid IDs
     userData = getUsersInfo()
     validUserIDS = [userData[i]["userID"] for i in range(len(userData))]
+
+    # Gets the role of the user.
+    userRole = getUserRole(userID)
     
     # checks if userID specified is valid
     if userID in validUserIDS:
@@ -74,18 +82,70 @@ def home(userID):
         firstName = userName["firstName"]
         lastName = userName["lastName"]
 
-        role = getUserRole(userID)
-        isDeptChair = role == ROLE.deptChair.value
+        if userRole == ROLE.deptChair.value:
+          isDeptChair = True
+        else:
+          isDeptChair = False
+  
 
-        return render_template('homepage.html', userID = userID, firstName = firstName, lastName = lastName, isDeptChair=isDeptChair)
-   
+        return render_template(
+          'homepage.html', 
+          userID = userID, 
+          firstName = firstName, 
+          lastName = lastName, 
+          isDeptChair = isDeptChair, 
+          userRole = userRole
+        )
+
     else:
         # return error message; will appear if user attempts to type in url with an invalid userID
         return render_template("error.html", msg = "Error reaching homepage. User ID specified does not exist.")
 
-@app.route("/student")
-def student(): 
-    return "Time to evaluate your Professor 0.o"
+# Student view for courses with evaluations to complete.
+@app.route("/student/<userID>")
+def student(userID):
+    funny = "Time to evaluate your Professor 0.o" # I am laughter
+    courseInfo = getCourseListStudent(userID) # gathers courses a student is in
+    return render_template("studentEvalsToDo.html", msg = funny, userID = userID, courseInfo = courseInfo)
+
+# Where students fill out an evaluation form for a selected class.
+@app.route("/student/<userID>/eval-<courseID>-<secID>-<term>")
+def evaluationPage(userID, courseID, secID, term):
+    evaluationFormData = getEvaluationFormInfo(courseID, secID, term) # Get all the data associated with the evaluation & the fields
+
+    # Gather additional information to prepare for form insertion into the database & for student viewing purposes
+    evalID = evaluationFormData[0]["evalID"]
+    instructorID = getInstructorByCourse(courseID, secID, term)
+    instructorName = getUserNameFromId(instructorID)
+    courseName = getCourseName(courseID)
+    enrollID = getEnrollmentId(userID, courseID, secID, term)["enrollID"]
+    fieldAmount = len(evaluationFormData) # The amount of fields an evaluation has
+
+    return render_template("fillEvaluationPage.html", evaluationFormData = evaluationFormData, evalID = evalID, userID = userID, instructorName = instructorName, courseName = courseName, enrollID = enrollID, fieldAmount = fieldAmount)
+
+# Evaluation submission page, regardless of whether insertion was successful or not
+@app.route("/student/<userID>/evaluation-submission-handler", strict_slashes = False, methods=['POST'])
+def evaluationSubmissionHandler(userID):
+    # Gather the form data from the form submission
+    formData = request.form.to_dict()
+
+    # Splice the form data into easier-to-manage chunks. Will be used when adding form data to database.
+    enrollID = formData["enrollID"]
+    evalID = formData["evalID"]
+    dateAndTime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    fieldAmount = int(formData["fieldAmount"]) # The amount of fields an evaluation has
+
+    submissionStatus = "" # Will display to user whether form data was successfully submitted and added to the database
+    for i in range(1, fieldAmount+1): # We look at each field in an evaluation
+        fieldID = i
+        currentField = f"field{fieldID}" # Will become "field1" for example; used to index the formData dict obtained from the form submission
+        response = formData[currentField]
+        submissionStatus = submitEvaluation(userID, response, dateAndTime, dateAndTime, enrollID, fieldID, evalID)
+        if submissionStatus != "Your course evaluation form was submitted successfully! :D": # If something went wrong, we stop immediately and return an error message
+            return render_template("studentEvalSubmission.html", formData = formData, userID = userID, submissionStatus = submissionStatus)
+
+    # If nothing went wrong, we return a success message
+    return render_template("studentEvalSubmission.html", formData = formData, userID = userID, submissionStatus = submissionStatus)
 
 @app.route("/instructor")
 def instructor(): 
@@ -156,7 +216,8 @@ def viewEvaluationsList(userID):
             "error.html", 
             msg = ("That's weird. You have no role. " 
             "OR you're a school admin and that access "
-            "is under construction.")
+            "is under construction."),
+            userID = userID
             )
 
     # check if evals returned error message 
@@ -234,13 +295,14 @@ def viewEvaluation(studentID, evalID, userID):
             userID=userID
             )
     
-    # I edited this so that we prevent crashing if there are no dates and returns None if there isn't one. 
-    # get lastest modified timestamp
-    last_modified = max( [field["last_modified"] for field in eval if field["last_modified"] is not None],
-        default=None )
     # get created timestamp
     created_at=next( (field["created_at"] for field in eval if field["created_at"] is not None),
         None )
+
+    # get latest modified timestamp
+    if [field["last_modified"] for field in eval if field["last_modified"]]:
+        last_modified=max([field["last_modified"] for field in eval if field["last_modified"] is not None])
+    else: last_modified = created_at
 
     # render view for viewEvaluations
     return render_template(
@@ -397,7 +459,8 @@ def viewCourseList(userID):
             "error.html", 
             msg = ("That's weird. You have no role. " 
             "OR you're a school admin and that access "
-            "is under construction.")
+            "is under construction."),
+            userID = userID
             )
 
     # check if courses returned error message 
