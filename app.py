@@ -33,12 +33,12 @@ load_dotenv()
 
 PORT = os.getenv("PORT")
 
-@app.route("/")
+@app.route("/",strict_slashes = False)
 def index():
     return render_template('base.html')
 
-@app.route("/homepage")
-def homepage():
+@app.route("/welcome")
+def welcome():
     return render_template("base.html")
 
 # routes to the login page. dynamically generates user options for the dropdown
@@ -71,7 +71,7 @@ def home(userID):
         userName = getUserNameFromId(userID)
         firstName = userName["firstName"]
         lastName = userName["lastName"]
-        return render_template('homepage.html', userID = userID, firstName = firstName, lastName = lastName, userRole = userRole)
+        return render_template('welcome.html', userID = userID, firstName = firstName, lastName = lastName, userRole = userRole)
     else:
         # return error message; will appear if user attempts to type in url with an invalid userID
         return render_template("error.html", msg = "Error reaching homepage. User ID specified does not exist.")
