@@ -32,8 +32,9 @@
 <body>
 <!-- Navbar -->
 <nav class="my-5">
-    <a href="/homepage"> HOME </a>
+    <a href="/homepage"> WELCOME </a>
     {% if userID %}
+    | <a href="{{ url_for ('home', userID=userID) }}"> HOME </a>
     |<a href="{{ url_for('viewEvaluationsList', userID=userID) }}"> VIEW EVALUATION LIST </a>
     |<a href="{{ url_for('viewCourseList', userID=userID) }}"> VIEW COURSE LIST </a> 
     |<a href = "{{url_for('student', userID=userID)}}"> students, see ur evals here!!</a>
@@ -52,7 +53,8 @@
             {% block header %}{% endblock %}
         </header>
             {% block content %}
-            <h1> Wooo it's running! </h1> 
+            <h1> COURSE EVALUATION </h1> 
+            <p> Let's get evaluating! Login to work with evaluations. </p>
             {% endblock %}
         </main>
     </div>
