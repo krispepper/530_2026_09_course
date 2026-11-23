@@ -145,31 +145,6 @@ def dbCheck():
 
     return f"DB: {DBresult_dict[0][0]}"
 
-# Using jsonify so there is a meaningful HTTP response
-@app.route("/users", methods=["POST"])
-def add_user():
-    data = request.get_json()
-
-    userID = data.get("userID")
-    firstName = data.get("firstName")
-    lastName = data.get("lastName")
-    email = data.get("email")
-    role = data.get("role")
-
-    if not all([userID, firstName, lastName, email, role]): 
-        return jsonify({"error":"All fields must be completed"}), 400 
-
-    if role not in ["stu", "ins", "sca", "dc"]:
-        return jsonify({"error": "Invalid role"}), 400
-
-    # Using regular expression so that we are checking for the pattern of @
-    if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
-        return jsonify({"error": "Invalid email"}), 400
-
-    createUser(userID, firstName, lastName, email, role)
-
-    return jsonify({"message": "User was successfully created"}), 201
-
 @app.route("/view-evals-list/<userID>", strict_slashes=False)
 def viewEvaluationsList(userID):
     """Route for viewing evaluation list."""
@@ -205,7 +180,7 @@ def viewEvaluationsList(userID):
             )
     
     # get unique evaluations
-    #evals = getUniqueEvalList(evals)
+    evals = getUniqueEvalList(evals)
 
     # render view for viewEvaluations
     return render_template(
@@ -214,45 +189,6 @@ def viewEvaluationsList(userID):
         userID=userID
         )
 
-@app.route("/<userID>/create-evaluation", methods=["GET", "POST"])
-def createEvaluationForm(userID):
-
-    # check if user is a department chair
-    if getUserRole(userID) != ROLE.deptChair.value:
-        return render_template("error.html", msg="Access denied.")
-
-    # get courses for the department chair
-    courses = getCourseListDeptChair(userID)
-
-    if request.method == "POST":
-        creator = userID
-
-        # get selected course information
-        selectedSection = request.form["section"]
-        courseID, secID, term = selectedSection.split("|")
-
-        # generate evaluation ID
-        # get department abbreviation
-        dept = getDept(userID)
-        deptAbbrev = getDeptAbbreviation(dept)
-
-        evalID = f"{deptAbbrev}-{courseID}-{secID}-{term}"
-
-        customName = request.form["customName"]
-        deadline = request.form["deadline"]
-
-        if deadline == "":
-            deadline = None
-
-        createEvaluation( evalID, creator, secID, courseID, term, customName, deadline)
-
-        return redirect(url_for("home", userID=userID))
-
-    return render_template(
-        "createEvaluation.html",
-        userID=userID,
-        courses=courses,
-    )
 
 @app.route("/view-evals/<userID>/<studentID>/<evalID>", strict_slashes=False)
 def viewEvaluation(studentID, evalID, userID):
@@ -288,110 +224,6 @@ def viewEvaluation(studentID, evalID, userID):
         studentID=studentID,
         userID=userID
         )
-
-# Open an evaluation 
-@app.route("/<userID>/evaluate/<enrollID>/<evalID>", methods=["GET"])
-def completeEvaluation(userID, enrollID, evalID):
-
-    # Get enrollment information
-    enrollment = getEnrollmentByID(enrollID)
-
-    if not enrollment:
-        return render_template( "completeEvaluation.html", msg="Enrollment not found.")
-
-    courseID = enrollment["courseID"]
-    studentID = enrollment["studentID"]
-
-    # Get current evaluation status
-    status = getEvalStatus(enrollID, evalID)
-    pastDue = isEvaluationPastDue(evalID) # Check whether the evaluation deadline has passed
-
-    # Update status if evaluation has not been completed
-    if status == "Not Started" and not pastDue:
-        saveEvalStatus(enrollID, evalID, "In Progress")
-        status = "In Progress"
-
-    # Get evaluation questions and saved responses
-    questions = getEvalQuestions(evalID)
-    responses = getEvalResponses(enrollID, evalID)
-
-    return render_template(
-        "completeEvaluation.html",
-        courseID=courseID,
-        studentID=studentID,
-        status=status,
-        pastDue=pastDue,
-        msg=None,
-        questions=questions,
-        responses=responses,
-        userID=userID,
-        enrollID=enrollID,
-        evalID=evalID
-    )
-
-# Save progress of evaluation 
-@app.route("/<userID>/evaluate/<enrollID>/<evalID>/save",methods=["POST"])
-def saveProgress(userID, enrollID, evalID):
-
-    if isEvaluationPastDue(evalID):
-        return redirect(url_for("viewEvaluationsList", userID=userID))
-
-    if getEvalStatus(enrollID, evalID) == "Completed":
-        return redirect(url_for("viewEvaluationsList", userID=userID))
-
-    # Get enrollment information to retrieve studentID
-    enrollment = getEnrollmentByID(enrollID)
-    if not enrollment:
-        return redirect(url_for("viewEvaluationsList", userID=userID))
-
-    studentID = enrollment["studentID"]
-
-    # Check current status before updating
-    current_status = getEvalStatus(enrollID, evalID)
-
-    # Iterate through submitted answers
-    for fieldID, response in request.form.items():
-        # Skip the action button so "save"/"submit" is not stored as an answer
-        if fieldID == "action":
-            continue
-
-        # Save each answer
-        saveEvalResponse(studentID, enrollID, evalID, fieldID, response)
-
-    # Only update status if not already completed
-    if current_status != "Completed":
-        saveEvalStatus(enrollID, evalID, "In Progress")
-
-    return redirect( url_for("completeEvaluation", userID=userID, enrollID=enrollID, evalID=evalID) )
-
-# Submit an application (marks it as complete)
-@app.route("/<userID>/evaluate/<enrollID>/<evalID>/submit",methods=["POST"])
-def submitEvaluation(userID, enrollID, evalID):
-
-    if isEvaluationPastDue(evalID):
-        return redirect(url_for("viewEvaluationsList", userID=userID))
-
-    if getEvalStatus(enrollID, evalID) == "Completed":
-        return redirect(url_for("viewEvaluationsList", userID=userID))
-
-    # Get enrollment information to retrieve studentID
-    enrollment = getEnrollmentByID(enrollID)
-    if not enrollment:
-        return redirect(url_for("viewEvaluationsList", userID=userID))
-
-    studentID = enrollment["studentID"]
-
-    # Save the latest answers
-    for fieldID, response in request.form.items():
-        # Skip the action button so "save"/"submit" is not stored as an answer
-        if fieldID == "action":
-            continue
-        saveEvalResponse(studentID, enrollID, evalID, fieldID, response)
-
-    # Mark evaluation as completed
-    saveEvalStatus(enrollID, evalID, "Completed")
-
-    return redirect( url_for("viewEvaluationsList",userID=userID) )
 
 @app.route("/view-roster/<courseID>/<secID>/<term>")
 def viewRoster(courseID, secID, term):
