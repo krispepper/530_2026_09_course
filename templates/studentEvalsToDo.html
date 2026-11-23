@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %} Homepage {% endblock %}
+
+{% block content %}
+
+<h1>Evaluations Page</h1>
+<p>{{msg}}</p>
+<br>
+<div class="d-flex justify-content-center align-items-center">
+    <div>
+        {% for course in courseInfo %}
+            <div class = "card mb-2" style = "max-width: 300px; margin: 10px;">
+                <a href="{{url_for('evaluationPage', userID=userID, courseID = course['courseID'], secID = course['secID'], term = course['term'])}}">
+                    <div class="card-body">
+                        <h1>{{course["name"]}}</h1>
+                        <p>Course: {{course["courseID"]}}</p>
+                        <p>Section: {{course["secID"]}}</p>
+                        <p>Term: {{course["term"]}}</p>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
