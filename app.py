@@ -206,10 +206,13 @@ def viewEvaluation(studentID, evalID, userID):
             userID=userID
             )
     
-    # get lastest modified timestamp
-    last_modified=max([field["last_modified"] for field in eval])
     # get created timestamp
     created_at=eval[0]["created_at"]
+
+    # get latest modified timestamp
+    if [field["last_modified"] for field in eval if field["last_modified"]]:
+        last_modified=max([field["last_modified"] for field in eval if field["last_modified"] is not None])
+    else: last_modified = created_at
 
     # render view for viewEvaluations
     return render_template(
