@@ -114,7 +114,7 @@ class Test_getDept:
 
     def test_getNonexistentIDDept(self):
         """Check that function returns error message for Nonexistent ID."""
-        assert getDept(self.testNonexistentDt) == f"No dept found for userID '{self.testNonexistentD}'."
+        assert getDept(self.testNonexistentD) == f"No dept found for userID '{self.testNonexistentD}'."
 
     def test_getEmptyIDDept(self):
         """Check that function returns error message for empty ID."""
