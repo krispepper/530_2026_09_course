@@ -300,7 +300,8 @@ def getInstructorByCourse(courseID: int, secID: int, term: str) -> str:
     userDB.close()
 
     # check user was found
-    if instructorInfo: 
+    if instructorInfo and instructorInfo["instructorID"] != None:
+    # if instructorInfo: 
         # return instructor info
         userID = instructorInfo["instructorID"]
         return userID
@@ -339,17 +340,23 @@ def getEvalListInstructor(instructorID: str) -> list[dict]:
     # get results from query as list 
     evalIDs_list = [eval['evalID'] for eval in evalcursor.fetchall()]
 
-    # convert evalIDs list to string
-    evalIDs = ', '.join(evalIDs_list)
+    # check if no evalIDs were found
+    if not evalIDs_list:
+        return "No evaluation responses found."
+
+    # make placeholders
+    placeholders = ", ".join(["%s"]*len(evalIDs_list))
+
     # query for getting evaluation responses
     queryResponses = (
         "SELECT * "
         "FROM evalResponse "
-        "WHERE evalID IN (%s) "
+        f"WHERE evalID IN ({placeholders}) "
         "ORDER BY evalID"
     )
     # run query using evalIDs
-    evalcursor.execute(queryResponses, (evalIDs,))
+    evalcursor.execute(queryResponses, tuple(evalIDs_list))
+
     # get results from query
     evalResponses = evalcursor.fetchall()
 
@@ -359,7 +366,7 @@ def getEvalListInstructor(instructorID: str) -> list[dict]:
 
     # if empty return error message
     if all(evalResponse == {} for evalResponse in evalResponses):
-            return "No evaluation responses found."
+        return "No evaluation responses found."
 
     # else return eval responses
     return evalResponses
@@ -444,17 +451,22 @@ def getEvalListDeptChair(deptChairID: str) -> list[dict]:
     # get results from query as list 
     evalIDs_list = [eval['evalID'] for eval in evalcursor.fetchall()]
 
-    # convert evalIDs list to string
-    evalIDs = ', '.join(evalIDs_list)
+    # check if no evalIDs were found
+    if not evalIDs_list:
+        return "No evaluation responses found."
+
+    # make placeholders
+    placeholders = ", ".join(["%s"]*len(evalIDs_list))
+
     # query for getting evaluation responses
     queryResponses = (
         "SELECT * "
         "FROM evalResponse "
-        "WHERE evalID IN (%s) "
+        f"WHERE evalID IN ({placeholders}) "
         "ORDER BY evalID"
     )
     # run query using evalIDs
-    evalcursor.execute(queryResponses, (evalIDs,))
+    evalcursor.execute(queryResponses, tuple(evalIDs_list))
     # get results from query
     evalResponses = evalcursor.fetchall()
 

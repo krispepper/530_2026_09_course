@@ -53,7 +53,8 @@ def getCourseInfoDict (courseID, secID, term) -> dict:
     dept = getCourseDept(courseID)
 
     # most recent eval submission 
-    lastEval=max([response["last_modified"] for response in evalResponses])
+
+    lastEval=max([response["last_modified"] for response in evalResponses if response["last_modified"] is not None])
 
     # course rating 
     courseRatingAvg = getAvgCourseRating(evalResponses, "Course Rating")
