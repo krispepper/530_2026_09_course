@@ -71,7 +71,7 @@ def home(userID):
         userName = getUserNameFromId(userID)
         firstName = userName["firstName"]
         lastName = userName["lastName"]
-        return render_template('welcome.html', userID = userID, firstName = firstName, lastName = lastName, userRole = userRole)
+        return render_template('homepage.html', userID = userID, firstName = firstName, lastName = lastName, userRole = userRole)
     else:
         # return error message; will appear if user attempts to type in url with an invalid userID
         return render_template("error.html", msg = "Error reaching homepage. User ID specified does not exist.")
