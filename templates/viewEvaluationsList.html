@@ -3,14 +3,21 @@
 {% block title %} View Evaluation List {% endblock %}
 
 {% block content %}
-
 <h1>{{ userID }} Evaluations </h1>
 
 {% if msg %}
     <p>{{ msg }}</p>
 {% else %}
     {% for eval in evals %}
-        <a href="{{ url_for('viewEvaluation', evalID=eval.evalID, studentID=eval.studentID, userID=userID) }}">{{ eval.evalID }}</a><br>
+        <div class="mb-3">
+            <strong>{{ eval.evalID }}</strong> — Status: {{ eval.displayStatus }}<br>
+            {% if eval.status == 'Not Started' %}
+                <a href="{{ url_for('completeEvaluation', userID=userID, enrollID=eval.enrollID, evalID=eval.evalID) }}">Complete Evaluation</a>
+            {% elif eval.status == 'In Progress' %}
+                <a href="{{ url_for('completeEvaluation', userID=userID, enrollID=eval.enrollID, evalID=eval.evalID) }}">Resume Evaluation</a>
+            {% endif %}
+            <a href="{{ url_for('viewEvaluation', evalID=eval.evalID, studentID=eval.studentID, userID=userID) }}">View Evaluation</a>
+        </div>
     {% endfor %}
 {% endif %}
 

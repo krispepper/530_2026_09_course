@@ -16,4 +16,13 @@
     </div>
 </div>
 
+{% if isDeptChair %}
+    <div class="d-flex justify-content-center mt-3">
+        <a href="{{ url_for('createEvaluationForm', userID=userID) }}"
+           class="btn btn-primary">
+            Create Evaluation
+        </a>
+    </div>
+{% endif %}
+
 {% endblock %}
