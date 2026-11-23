@@ -26,8 +26,9 @@
         <td>{{ c.courseID }}</td>
         <td>{{ c.secID }}</td>
         <td>{{ c.term }}</td>
-        {% if role != "stu" %}
+        {% if role != "stu"%}
         <td>
+            {% if c.hasEval  %}
             <a href="{{ url_for('exportXlsx', userID=userID, courseID=c.courseID, secID=c.secID, term=c.term) }}">
                 <i class="fa-solid fa-file-arrow-down"></i>
                 Export to xlsx 
@@ -36,6 +37,9 @@
                 <i class="fa-solid fa-file-arrow-down"></i>
                 Export to csv
             </a>
+            {% else %}
+            no evaluations submitted
+            {% endif %}
         </td>
         {% endif %}
     </tr>
