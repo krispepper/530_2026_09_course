@@ -17,7 +17,22 @@ class Test_getEvaluationFormInfo:
 
     def test_AllValid(self):
         """Check that the function returns ."""
-        assert getEvaluationFormInfo(self.validCourseId, self.validSecId, self.validTerm) == [{'evalID': 'CSC-530-050-f26', 'title': 'Rate this course out of 10', 'fieldType': 'int', 'fieldID': 1, 'options': None, 'fieldSubject':'misc'}, {'evalID': 'CSC-530-050-f26', 'title': 'What did you like about this course?', 'fieldType': 'shortText', 'fieldID': 2, 'options': None, 'fieldSubject':'misc'}]
+        expected = [
+            {'evalID': 'CSC-530-050-f26', 'title': 'Rate this course out of 10', 'fieldType': 'int', 'fieldID': 1, 'options': None, 'fieldSubject':'misc'},
+            {'evalID': 'CSC-530-050-f26', 'title': 'What did you like about this course?', 'fieldType': 'shortText', 'fieldID': 2, 'options': None, 'fieldSubject':'misc'},
+            {'evalID': 'CSC-530-50-F26', 'title': 'The instructor presents the subject matter in a clear and understandable way.', 'fieldType': 'int', 'fieldID': 1, 'options': '1,2,3,4,5,NA', 'fieldSubject':'instructor'},
+            {'evalID': 'CSC-530-50-F26', 'title': 'The instructor uses class time effectively and efficiently.', 'fieldType': 'int', 'fieldID': 2, 'options': '1,2,3,4,5,NA', 'fieldSubject':'instructor'}, 
+            {'evalID': 'CSC-530-50-F26', 'title': 'The instructor creates an atmosphere that encourages questions and discussion.', 'fieldType': 'int', 'fieldID': 3, 'options': '1,2,3,4,5,NA', 'fieldSubject':'instructor'},
+            {'evalID': 'CSC-530-50-F26', 'title': 'The instructor treats students with respect.', 'fieldType': 'int', 'fieldID': 4, 'options': '1,2,3,4,5,NA', 'fieldSubject':'instructor'}, 
+            {'evalID': 'CSC-530-50-F26', 'title': 'Exams and assignments are well connected to course objectives.', 'fieldType': 'int', 'fieldID': 5, 'options': '1,2,3,4,5,NA', 'fieldSubject':'course'},
+            {'evalID': 'CSC-530-50-F26', 'title': 'Assigned materials are relevant to class.', 'fieldType': 'int', 'fieldID': 6, 'options': '1,2,3,4,5,NA', 'fieldSubject':'course'},
+            {'evalID': 'CSC-530-50-F26', 'title': 'I would recommend this course to other students.', 'fieldType': 'int', 'fieldID': 7, 'options': '1,2,3,4,5,NA', 'fieldSubject':'course'},
+            {'evalID': 'CSC-530-50-F26', 'title': 'This course has improved my critical thinking skills.', 'fieldType': 'int', 'fieldID': 8, 'options': '1,2,3,4,5,NA', 'fieldSubject':'learning'}, 
+            {'evalID': 'CSC-530-50-F26', 'title': 'What did you like most about this course?', 'fieldType': 'shortText', 'fieldID': 9, 'options': None, 'fieldSubject':'misc'},
+            {'evalID': 'CSC-530-50-F26', 'title': 'What suggestions do you have for improving this course?', 'fieldType': 'shortText', 'fieldID': 10, 'options': None, 'fieldSubject':'misc'},
+        ]
+        results = getEvaluationFormInfo(self.validCourseId, self.validSecId, self.validTerm)
+        assert results == expected
 
     def test_invalidCourseId(self):
         """Check that the function returns that the data could not be found due to an invalid course ID."""
