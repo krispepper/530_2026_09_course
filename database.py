@@ -300,7 +300,7 @@ def getInstructorByCourse(courseID: int, secID: int, term: str) -> str:
     userDB.close()
 
     # check user was found
-    if instructorInfo: 
+    if instructorInfo and instructorInfo["instructorID"] != None: 
         # return instructor info
         userID = instructorInfo["instructorID"]
         return userID
