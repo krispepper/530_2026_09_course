@@ -10,12 +10,15 @@
 {% else %}
     {% for eval in evals %}
         <div class="mb-3">
-            <strong>{{ eval.evalID }}</strong> — Status: {{ eval.displayStatus }}<br>
-            {% if eval.status == 'Not Started' %}
-                <a href="{{ url_for('completeEvaluation', userID=userID, enrollID=eval.enrollID, evalID=eval.evalID) }}">Complete Evaluation</a>
-            {% elif eval.status == 'In Progress' %}
-                <a href="{{ url_for('completeEvaluation', userID=userID, enrollID=eval.enrollID, evalID=eval.evalID) }}">Resume Evaluation</a>
-            {% endif %}
+            <strong>{{ eval.evalID }}</strong>
+            {% if role == 'stu' %}
+                — Status: {{ eval.displayStatus }}
+                {% if eval.status == 'Not Started' %}
+                    <a href="{{ url_for('completeEvaluation', userID=userID, enrollID=eval.enrollID, evalID=eval.evalID) }}">Complete Evaluation</a>
+                {% elif eval.status == 'In Progress' %}
+                    <a href="{{ url_for('completeEvaluation', userID=userID, enrollID=eval.enrollID, evalID=eval.evalID) }}">Resume Evaluation</a>
+                {% endif %}
+            {% endif %} <br>
             <a href="{{ url_for('viewEvaluation', evalID=eval.evalID, studentID=eval.studentID, userID=userID) }}">View Evaluation</a>
         </div>
     {% endfor %}

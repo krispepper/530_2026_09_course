@@ -1,7 +1,9 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, redirect, render_template, request, send_file, url_for
+from flask import Flask, redirect, render_template, request, send_file, url_for, jsonify
+import os
+import re
 
 from constants import ROLE
 from database import (
@@ -27,6 +29,7 @@ from database import (
     getDept,
     getDeptAbbreviation, 
     isEvaluationPastDue,
+    createUser,
     )
 
 from evaluation import getUniqueEvalList
@@ -165,6 +168,7 @@ def viewEvaluationsList(userID):
         return render_template(
             "viewEvaluationsList.html",  
             userID=userID,
+            role=role,
             msg=evals
             )
     
@@ -195,8 +199,7 @@ def createEvaluationForm(userID):
         selectedSection = request.form["section"]
         courseID, secID, term = selectedSection.split("|")
 
-        # generate evaluation ID
-        # get department abbreviation
+        # generate evaluation ID + get department abbreviation
         dept = getDept(userID)
         deptAbbrev = getDeptAbbreviation(dept)
 
@@ -208,15 +211,25 @@ def createEvaluationForm(userID):
         if deadline == "":
             deadline = None
 
-        createEvaluation( evalID, creator, secID, courseID, term, customName, deadline)
+        result = createEvaluation(evalID, creator, secID, courseID, term, customName, deadline)
+
+        if result != evalID:
+            return render_template(
+            "createEvaluation.html",
+            userID=userID,
+            courses=courses,
+            msg=result,
+            selectedSection=selectedSection,
+            customName=customName,
+            deadline=deadline, )
 
         return redirect(url_for("home", userID=userID))
 
+    # handle GET requests 
     return render_template(
         "createEvaluation.html",
         userID=userID,
-        courses=courses,
-    )
+        courses=courses,)
 
 @app.route("/view-evals/<userID>/<studentID>/<evalID>", strict_slashes=False)
 def viewEvaluation(studentID, evalID, userID):
@@ -233,7 +246,7 @@ def viewEvaluation(studentID, evalID, userID):
             studentID=studentID,
             userID=userID
             )
-    
+
     # I edited this so that we prevent crashing if there are no dates and returns None if there isn't one. 
     # get lastest modified timestamp
     last_modified = max( [field["last_modified"] for field in eval if field["last_modified"] is not None],
@@ -330,8 +343,7 @@ def saveProgress(userID, enrollID, evalID):
 
 # Submit an application (marks it as complete)
 @app.route("/<userID>/evaluate/<enrollID>/<evalID>/submit",methods=["POST"])
-def submitEvaluation(userID, enrollID, evalID):
-
+def submitEvaluationForm(userID, enrollID, evalID):
     if isEvaluationPastDue(evalID):
         return redirect(url_for("viewEvaluationsList", userID=userID))
 

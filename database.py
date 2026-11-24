@@ -357,21 +357,23 @@ def getEvalListInstructor(instructorID: str) -> list[dict]:
     # get results from query as list 
     evalIDs_list = [eval['evalID'] for eval in evalcursor.fetchall()]
 
-    # convert evalIDs list to string
-    evalIDs = ', '.join(evalIDs_list)
-    # query for getting evaluation responses
+    if not evalIDs_list:
+        evalcursor.close()
+        evalDB.close()
+        return "No evaluation responses found."
+
+    placeholders = ", ".join(["%s"] * len(evalIDs_list))
+
     queryResponses = (
-        "SELECT * "
-        "FROM evalResponse "
-        "WHERE evalID IN (%s) "
-        "ORDER BY evalID"
-    )
-    # run query using evalIDs
-    evalcursor.execute(queryResponses, (evalIDs,))
-    # get results from query
+            "SELECT * "
+            "FROM evalResponse "
+            f"WHERE evalID IN ({placeholders}) "
+            "ORDER BY evalID"
+        )
+
+    evalcursor.execute(queryResponses, tuple(evalIDs_list))
     evalResponses = evalcursor.fetchall()
 
-    # close DB and cursor
     evalcursor.close() 
     evalDB.close()
 
@@ -379,7 +381,6 @@ def getEvalListInstructor(instructorID: str) -> list[dict]:
     if all(evalResponse == {} for evalResponse in evalResponses):
             return "No evaluation responses found."
 
-    # else return eval responses
     return evalResponses
 
 
@@ -397,7 +398,7 @@ def getEvalListDeptChair(deptChairID: str) -> list[dict]:
     dept = getDept(deptChairID)
 
     # open database connection
-    evalDB = getDB()
+    evalDB = getDB() 
     # cursor fetch will return as dictionary
     evalcursor = evalDB.cursor(dictionary=True)
 
@@ -426,22 +427,24 @@ def getEvalListDeptChair(deptChairID: str) -> list[dict]:
     # get results from query as list 
     evalIDs_list = [eval['evalID'] for eval in evalcursor.fetchall()]
 
-    # convert evalIDs list to string
-    evalIDs = ', '.join(evalIDs_list)
-    # query for getting evaluation responses
+    if not evalIDs_list:
+        evalcursor.close()
+        evalDB.close()
+        return "No evaluation responses found."
+
+    placeholders = ", ".join(["%s"] * len(evalIDs_list))
+
     queryResponses = (
         "SELECT * "
         "FROM evalResponse "
-        "WHERE evalID IN (%s) "
+        f"WHERE evalID IN ({placeholders}) "
         "ORDER BY evalID"
     )
-    # run query using evalIDs
-    evalcursor.execute(queryResponses, (evalIDs,))
-    # get results from query
+
+    evalcursor.execute(queryResponses, tuple(evalIDs_list))
     evalResponses = evalcursor.fetchall()
 
-    # close DB and cursor
-    evalcursor.close() 
+    evalcursor.close()
     evalDB.close()
 
     # if empty return error message
@@ -805,6 +808,20 @@ def add_standardQuestions(eval_ID):
 def createEvaluation(evalID, creator, secID, courseID, term, customName, deadline):
     db = getDB()
     cursor = db.cursor()
+
+    # Check if an evaluation already exists
+    checkQuery = """
+        SELECT evalID
+        FROM evaluation
+        WHERE secID = %s AND courseID = %s AND term = %s
+    """
+    cursor.execute(checkQuery, (secID, courseID, term))
+    existingEvaluation = cursor.fetchone()
+
+    if existingEvaluation:
+        cursor.close()
+        db.close()
+        return "An evaluation already exists for this course section and term."
 
     query = """INSERT INTO evaluation (evalID, creator, secID, courseID, term, customName, deadline)
     VALUES (%s, %s, %s, %s, %s, %s, %s)"""

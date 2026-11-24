@@ -4,14 +4,23 @@ Test functions related to evaluations.
 
 import datetime
 
+from app import app
 import pandas as pd
 
 from database import (
+    getDB,
+    createEvaluation,
     getEvalByClass,
     getEvalListDeptChair,
     getEvalListInstructor,
     getEvalListStudent,
-    getSpecEval,
+    getEvalQuestions,
+    getEvalResponses,
+    getEvalStatus,
+    getSpecEval, 
+    saveEvalResponse, 
+    saveEvalStatus, 
+    isEvaluationPastDue, 
 )
 from evaluation import getAvgCourseRating, getUniqueEvalList, organizeEval
 
@@ -30,14 +39,15 @@ class Test_getEvalListStudent:
     testEmptyID = ""
 
     expectedKeys = [
-        "evalResponseID",
         "studentID",
-        "response",
-        "created_at",
-        "last_modified",
+        "evalID",
+        "courseID",
+        "secID",
+        "term",
         "enrollID",
-        "fieldID",
-        "evalID"
+        "deadline",
+        "status",
+        "displayStatus"
     ]
 
     def test_studentEval(self):
@@ -57,7 +67,6 @@ class Test_getEvalListStudent:
     def test_EmptyEval(self):
         """Check that function returns error message for empty string ID."""
         assert getEvalListStudent(self.testEmptyID) == "No evaluation responses found."
-
 
 class Test_getEvalListInstructor:
     """
@@ -173,9 +182,11 @@ class Test_getSpecEval:
         print (keys)
         assert keys == self.expectedKeys
 
-    def test_studentNoEval(self):
-        """Check that function returns evaluation responses for a specific student."""
-        assert getSpecEval(self.testEvalID, self.testStudentIDNone) == "No evaluation responses found."
+    # This test won't work anymore because we are not returning nothing, we are returning the 
+    # questions even if they were not completed. I made a new test for this! 
+    # def test_studentNoEval(self):
+    #     """Check that function returns evaluation responses for a specific student."""
+    #     assert getSpecEval(self.testEvalID, self.testStudentIDNone) == "No evaluation responses found."
 
     def test_NonexistentEval(self):
         """Check that function returns error message for a nonesistant ID."""
@@ -339,6 +350,80 @@ class Test_getEvalByClass:
         # check keys are the same
         assert keys == self.expectedKeys
 
+
+class Test_EvaluationFeatures: 
+    """Tests for new evaluation features. - Faith"""
+
+    testStudentID = "STU002"
+    testEnrollID = "428"
+    testEvalID = "CSC-530-050-F26"
+
+    def test_standardQuestions(self): 
+        """Check that all 10 standard questions were created with a new evaluation."""
+        # This will fail until we remove prior made evaluations from the database. 
+
+        questions = getEvalQuestions(self.testEvalID)
+
+        assert len(questions) == 10
+
+    def test_standardQuestionsNoResponse(self):
+        """Check that standard questions still appear even when a student has not answered them."""
+        # This will fail until we remove prior made evaluations from the database. 
+
+        questions = getSpecEval(self.testEvalID, self.testStudentID)
+
+        assert len(questions) == 10
+
+    def test_standardQuestionNone(self): 
+        """Check that questions with no response (unanswered fields) have 'None' values."""
+
+        questions = getSpecEval(self.testEvalID, self.testStudentID)
+
+        assert all(question["response"] is None for question in questions)
+    
+    # def test_savedProgressPartial(self):
+    #     """Check that students are able to save progress when the evaluation is only partially completed."""
+
+    #     saveEvalResponse(self.testStudentID, self.testEnrollID, self.testEvalID, 1, "8")
+    #     responses = getEvalResponses(self.testEnrollID, self.testEvalID)
+
+    #     assert len(responses) > 0
+
+    # def test_savedProgressStay(self):
+    #     """Check that when students re-open a saved evaluation, their work is still saved."""
+
+    #     responses = getEvalResponses(self.testEnrollID, self.testEvalID)
+
+    #     assert responses[0]["response"] == "8"
+
+    # def test_evaluationStatus(self):
+    #     """Check that saving an evaluation saves status."""
+
+    #     saveEvalStatus(self.testEnrollID, self.testEvalID, "In Progress")
+    #     status = getEvalStatus(self.testEnrollID, self.testEvalID)
+
+    #     assert status == "In Progress"
+
+    def test_deadline(self):
+        """Check that past due evaluations cannot be saved or submitted."""
+
+        pastDue = isEvaluationPastDue(self.testEvalID)
+
+        assert pastDue == True
+
+    # def test_blockDuplicate(self):
+    #     """Check that only one evaluation can be made (making a second one is blocked)"""
         
+    #     result = createEvaluation(
+    #         self.testEvalID,
+    #         "DEP001",
+    #         "428",
+    #         "PHY",
+    #         "S27",
+    #         "Test Evaluation",
+    #         None
+    #     )
+
+    #     assert result != self.testEvalID
 
         
