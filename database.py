@@ -213,24 +213,6 @@ def getDept(userID: str) -> int:
         # return error message
         return f"No dept found for userID '{userID}'."
 
-# so that course info is properly formatted
-def getDeptAbbreviation(deptID: int) -> str:
-    db = getDB()
-    cursor = db.cursor(dictionary=True)
-
-    query = "SELECT code FROM dept WHERE ID = %s"
-    cursor.execute(query, (deptID,))
-    result = cursor.fetchone()
-
-    cursor.close()
-    db.close()
-
-    if result is not None:
-        return result["code"]
-    else:
-        return f"No department abbreviation found for deptID '{deptID}'."
-
-
 def getRoster(secID: int, courseID: int, term: str) -> list[dict]:
     """
     Function returns a dict with students attending a given class.
@@ -388,6 +370,42 @@ def getEvalListInstructor(instructorID: str) -> list[dict]:
     # else return eval responses
     return evalResponses
 
+def getEvalListStudent(studentID: str) -> list[dict]:
+    """ 
+    Function returns a dict with eval responses associated with a given student.
+    
+    attrs: 
+        studentID (str): id of student
+    return: 
+        evalResponses (dict): a dict of evaluation responses associated with a given student
+    """
+    # open database connection
+    evalDB = getDB()
+    # cursor fetch will return as dict
+    evalcursor = evalDB.cursor(dictionary=True)
+
+    # query for db
+    query = (
+        "SELECT * "
+        "FROM evalResponse "
+        "WHERE studentID = %s "
+        "ORDER BY evalID, studentID, fieldID"
+    )
+    # run query using section IDs
+    evalcursor.execute(query, (studentID,))
+    # get results as dict
+    evalResponses = evalcursor.fetchall()
+
+    # close DB and cursor
+    evalcursor.close() 
+    evalDB.close()
+
+    # if empty return error message
+    if all(evalResponse == {} for evalResponse in evalResponses):
+            return "No evaluation responses found."
+
+    # else return eval responses
+    return evalResponses
 
 def getEvalListDeptChair(deptChairID: str) -> list[dict]:
     """ 
@@ -526,16 +544,15 @@ def getSpecEval(evalID: str, studentID: str) -> list[dict]:
     evalcursor = evalDB.cursor(dictionary=True)
 
     # query for db
-    # I swapped the order of formField and evalResponse because we want to ensure all questions are returned.
     query = (
         "SELECT f.fieldID, f.title, e.response, e.created_at, e.last_modified "
-        "FROM formField AS f "
-        "LEFT JOIN evalResponse AS e "
-        "ON f.evalID = e.evalID "
-        "AND f.fieldID = e.fieldID "
-        "AND e.studentID = %s " 
-        "WHERE f.evalID = %s "
-        "ORDER BY f.fieldID"
+        "FROM evalResponse AS e "
+        "JOIN formField AS f "
+        "ON e.evalID = f.evalID "
+        "AND e.fieldID = f.fieldID "
+        "WHERE e.studentID = %s " 
+        "AND e.evalID = %s "
+        "ORDER BY fieldID"
     )
     # run query using section IDs
     evalcursor.execute(query, (studentID, evalID,))
@@ -546,7 +563,7 @@ def getSpecEval(evalID: str, studentID: str) -> list[dict]:
     evalcursor.close() 
     evalDB.close()
     
-    # if empty return error message # may have to come back and fix this part 
+    # if empty return error message
     if all(evalResponse == {} for evalResponse in evalResponses):
             return "No evaluation responses found."
 
