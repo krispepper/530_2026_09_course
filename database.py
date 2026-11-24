@@ -267,6 +267,51 @@ def getRoster(secID: int, courseID: int, term: str) -> list[dict]:
     # return role
     return DBresult_dict
 
+def canViewRoster(userID: str, secID: int, courseID: int, term: str) -> list:
+    """
+    Function returns a list with the userIDs of the class instructor and dept chair
+        
+    args: 
+        userID (str): id in app of user who wants to view roster
+        secID (int): id of section for class
+        courseID (int): id of course for class
+        term (int): term for class (format: F or S followed by last two digits of year ex: F26)
+    return: 
+        allowedAccess(list): list of userID of instructor of course and dept chair 
+    """
+    # open database connection
+    userDB = getDB()
+    # cursor fetch will return as dict
+    usercursor = userDB.cursor()
+
+    # query for instructor and dept chair related to a class
+    query = (
+        "WITH courseSec AS ("
+        "SELECT s.instructorID, s.courseID, s.secID, s.term, c.deptID "
+        "FROM sections AS s "
+        "JOIN courses AS c "
+        "ON c.courseID = s.courseID" 
+        ") "
+        "SELECT d.chair, cs.instructorID "
+        "FROM courseSec AS cs "
+        "JOIN dept AS d "
+        "ON d.ID = cs.deptID "
+        "WHERE cs.courseID = %s " 
+        "AND cs.secID = %s " 
+        "AND cs.term = %s"
+    )
+    # run query using userID
+    usercursor.execute(query, (courseID, secID, term))
+
+    # get results as dict
+    allowedAccess_DB= usercursor.fetchall()
+
+    # turn into list
+    allowedAccess = [s for s in allowedAccess_DB] 
+
+    # list of instructor and dept chair userIDs what can view roster
+    return allowedAccess
+
 def getSubmittedStudents(roster: list[dict], evalID: str) -> list:
     """
     Function gets list of students who have submitted IDs
@@ -289,7 +334,7 @@ def getSubmittedStudents(roster: list[dict], evalID: str) -> list:
     # make placeholders
     placeholders = ", ".join(["%s"]*len(roster))
 
-    # add column with if student submitted eval
+    # query
     query = (
         "SELECT studentID "
         "FROM evalResponse "
