@@ -267,7 +267,7 @@ def getRoster(secID: int, courseID: int, term: str) -> list[dict]:
     # return role
     return DBresult_dict
 
-def canViewRoster(userID: str, secID: int, courseID: int, term: str) -> list:
+def canViewRoster(userID: str, courseID: int, secID: int, term: str) -> tuple:
     """
     Function returns a list with the userIDs of the class instructor and dept chair
         
@@ -277,7 +277,7 @@ def canViewRoster(userID: str, secID: int, courseID: int, term: str) -> list:
         courseID (int): id of course for class
         term (int): term for class (format: F or S followed by last two digits of year ex: F26)
     return: 
-        allowedAccess(list): list of userID of instructor of course and dept chair 
+        allowedAccess(tuple): list of userID of instructor of course and dept chair 
     """
     # open database connection
     userDB = getDB()
@@ -304,13 +304,15 @@ def canViewRoster(userID: str, secID: int, courseID: int, term: str) -> list:
     usercursor.execute(query, (courseID, secID, term))
 
     # get results as dict
-    allowedAccess_DB= usercursor.fetchall()
+    allowedAccess_DB= usercursor.fetchone()
 
-    # turn into list
-    allowedAccess = [s for s in allowedAccess_DB] 
+    # check if none returned
+    if not allowedAccess_DB:
+        # return empty list if no instructors found
+        return []
 
-    # list of instructor and dept chair userIDs what can view roster
-    return allowedAccess
+    # tuple of instructor and dept chair userIDs what can view roster
+    return allowedAccess_DB
 
 def getSubmittedStudents(roster: list[dict], evalID: str) -> list:
     """
