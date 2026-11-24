@@ -239,12 +239,12 @@ def getRoster(secID: int, courseID: int, term: str) -> list[dict]:
         'WHERE secID = %s '
         'AND courseID = %s '
         'AND term = %s) '
-        'SELECT s.studentID, es.firstName, es.lastName, es.email '
+        'SELECT s.userID, s.studentID, es.firstName, es.lastName, es.email '
         'FROM enrollStudents as es '
         'JOIN student as s '
         'ON es.userID = s.userID'
         )
-    # run query using instructorID
+    # run query
     usercursor.execute(query, (secID, courseID, term))
     # get results as dict
     DBresult_dict = usercursor.fetchall()

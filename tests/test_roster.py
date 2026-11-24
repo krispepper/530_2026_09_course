@@ -13,7 +13,7 @@ class Test_getRoster:
     testNonexistentSec = 69
     testNonexistentCourse = 420
     testNonexistentTerm = "S23"
-    expectedKeys = ["studentID", "firstName", "lastName", "email"]
+    expectedKeys = ["userID", "studentID", "firstName", "lastName", "email"]
 
     def test_getRoster(self): # written by Carrie
         """Checks function returns correct data based on retrieved dict keys."""
