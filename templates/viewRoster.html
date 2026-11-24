@@ -6,27 +6,37 @@
 
 <h1> Roster for {{ courseID }} {{ secID }} {{ term }}</h1>
 <div class="d-flex justify-content-center">
-{% if roster %}
-<table class="table table-striped table-bordered table-hover table-sm">
-  <thead>
+{% if msg %}
+  <p>{{ msg }}</p>
+{% else %}
+  {% if roster %}
+  <table class="table table-striped table-bordered table-hover table-sm">
+    <thead>
+      <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Name</th>
+          <th scope="col">Email</th>
+          <th scope="col">View Evaluation</th>
+      </tr>
+    </thead>  
+    <tbody>
+    {% for student in roster %}
     <tr>
-        <th scope="col">Student ID</th>
-        <th scope="col">First Name</th>
-        <th scope="col">Last Name</th>
-        <th scope="col">Email</th>
+      <td>{{ student.studentID }}</td>
+      <td>{{ student.firstName }} {{ student.lastName }}</td>
+      <td>{{ student.email }}</td>
+      <td>
+        {% if student.userID in submittedStudents %}
+          <a href="{{ url_for ('viewEvaluation', studentID=student.userID, evalID=evalID, userID=userID) }}">View feedback</a>
+        {% else %}
+          Not submitted
+        {% endif %}
+      </td>
     </tr>
-  </thead>  
-  <tbody>
-  {% for student in roster %}
-  <tr>
-    <td>{{ student.studentID }}</td>
-    <td>{{ student.firstName }}</td>
-    <td>{{ student.lastName }}</td>
-    <td>{{ student.email }}</td>
-  </tr>
-  {% endfor %}
-  </tbody>
-</table>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
 {% endif %}
 </div>
 {% endblock %}

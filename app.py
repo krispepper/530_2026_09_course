@@ -14,6 +14,7 @@ from database import (
     getEvalListInstructor,
     getEvalListStudent,
     getRoster,
+    getSubmittedStudents,
     getSpecEval,
     getUserNameFromId,
     getUserRole,
@@ -22,7 +23,8 @@ from database import (
     getInstructorByCourse,
     getCourseName,
     getEnrollmentId,
-    submitEvaluation
+    submitEvaluation,
+    getCourseDept
 )
 from evaluation import getUniqueEvalList
 from export import exportCSVCourse, exportXlsxCourse
@@ -225,11 +227,25 @@ def viewEvaluation(studentID, evalID, userID):
         userID=userID
         )
 
-@app.route("/view-roster/<courseID>/<secID>/<term>")
-def viewRoster(courseID, secID, term):
+@app.route("/<userID>/view-roster/<courseID>/<secID>/<term>")
+def viewRoster(userID, courseID, secID, term):
     """Route for viewing class roster."""
     # get the roster
     roster = getRoster(secID, courseID, term)
+
+    # check if roster returned error message
+    if isinstance(roster, str):
+        return render_template(
+            "viewRoster.html",
+            userID = userID,
+            msg = roster,
+            courseID = courseID,
+            secID = secID,
+            term = term
+        )
+    
+    evalID = f"{getCourseDept(courseID)}-{courseID}-{secID}-{term}"
+    submittedStudents = getSubmittedStudents(roster, evalID)
 
     # render view of class roster
     return render_template(
@@ -237,7 +253,10 @@ def viewRoster(courseID, secID, term):
         roster = roster,
         courseID = courseID,
         secID = secID,
-        term = term
+        term = term,
+        submittedStudents = submittedStudents,
+        evalID = evalID,
+        userID = userID
     )
 
 @app.route("/<userID>/view-courses", strict_slashes=False)
