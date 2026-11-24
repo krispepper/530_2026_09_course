@@ -276,6 +276,8 @@ def getSubmittedStudents(roster: list[dict], evalID: str) -> list:
         evalID (str): evaluation ID for the class
     return: 
         submittedStudents (list): list of students in a class who have submitted an evaluation.
+
+    TODO: get eval status in order to only link to complete evals 
     """
     # open database connection
     userDB = getDB()
