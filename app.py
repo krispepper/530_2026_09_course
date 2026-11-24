@@ -28,7 +28,7 @@ from database import (
     getCourseName,
     getEnrollmentId,
     submitEvaluation,
-    getCourseDept
+    getCourseDept,
     submitEvaluation,
 )
 from evaluation import getUniqueEvalList
