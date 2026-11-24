@@ -1,16 +1,16 @@
 # All tests were all written by Hugo.
-from database import getEvaluationFormInfo, getEnrollmentId, submitEvaluation
+from database import getEnrollmentId, getEvaluationFormInfo
 
 
 # Tests the function getEvaluationFormInfo.
 class Test_getEvaluationFormInfo:
-    validCourseId = "530"
+    validCourseId = "428"
     invalidCourseId = "999"
     emptyCourseId = ""
-    validSecId = "50"
+    validSecId = "1"
     invalidSecId = "999"
     emptySecId = ""
-    validTerm = "F26"
+    validTerm = "S27"
     invalidTerm = "XYZ"
     emptyTerm = ""
 
@@ -18,18 +18,22 @@ class Test_getEvaluationFormInfo:
     def test_AllValid(self):
         """Check that the function returns ."""
         expected = [
-            {'evalID': 'CSC-530-050-f26', 'title': 'Rate this course out of 10', 'fieldType': 'int', 'fieldID': 1, 'options': None, 'fieldSubject':'misc'},
-            {'evalID': 'CSC-530-050-f26', 'title': 'What did you like about this course?', 'fieldType': 'shortText', 'fieldID': 2, 'options': None, 'fieldSubject':'misc'},
-            {'evalID': 'CSC-530-50-F26', 'title': 'The instructor presents the subject matter in a clear and understandable way.', 'fieldType': 'int', 'fieldID': 1, 'options': '1,2,3,4,5,NA', 'fieldSubject':'instructor'},
-            {'evalID': 'CSC-530-50-F26', 'title': 'The instructor uses class time effectively and efficiently.', 'fieldType': 'int', 'fieldID': 2, 'options': '1,2,3,4,5,NA', 'fieldSubject':'instructor'}, 
-            {'evalID': 'CSC-530-50-F26', 'title': 'The instructor creates an atmosphere that encourages questions and discussion.', 'fieldType': 'int', 'fieldID': 3, 'options': '1,2,3,4,5,NA', 'fieldSubject':'instructor'},
-            {'evalID': 'CSC-530-50-F26', 'title': 'The instructor treats students with respect.', 'fieldType': 'int', 'fieldID': 4, 'options': '1,2,3,4,5,NA', 'fieldSubject':'instructor'}, 
-            {'evalID': 'CSC-530-50-F26', 'title': 'Exams and assignments are well connected to course objectives.', 'fieldType': 'int', 'fieldID': 5, 'options': '1,2,3,4,5,NA', 'fieldSubject':'course'},
-            {'evalID': 'CSC-530-50-F26', 'title': 'Assigned materials are relevant to class.', 'fieldType': 'int', 'fieldID': 6, 'options': '1,2,3,4,5,NA', 'fieldSubject':'course'},
-            {'evalID': 'CSC-530-50-F26', 'title': 'I would recommend this course to other students.', 'fieldType': 'int', 'fieldID': 7, 'options': '1,2,3,4,5,NA', 'fieldSubject':'course'},
-            {'evalID': 'CSC-530-50-F26', 'title': 'This course has improved my critical thinking skills.', 'fieldType': 'int', 'fieldID': 8, 'options': '1,2,3,4,5,NA', 'fieldSubject':'learning'}, 
-            {'evalID': 'CSC-530-50-F26', 'title': 'What did you like most about this course?', 'fieldType': 'shortText', 'fieldID': 9, 'options': None, 'fieldSubject':'misc'},
-            {'evalID': 'CSC-530-50-F26', 'title': 'What suggestions do you have for improving this course?', 'fieldType': 'shortText', 'fieldID': 10, 'options': None, 'fieldSubject':'misc'},
+            {
+                'evalID': 'PHY-428-001-S27', 
+                'title': 'Course Rating', 
+                'fieldType': 'int', 
+                'fieldID': 1, 
+                'options': None, 
+                'fieldSubject': 'misc'
+            }, 
+            {
+                'evalID': 'PHY-428-001-S27', 
+                'title': 'Would you recommend this course?', 
+                'fieldType': 'shortText', 
+                'fieldID': 2, 
+                'options': None, 
+                'fieldSubject': 'misc'
+            }
         ]
         results = getEvaluationFormInfo(self.validCourseId, self.validSecId, self.validTerm)
         assert results == expected
