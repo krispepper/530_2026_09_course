@@ -267,6 +267,45 @@ def getRoster(secID: int, courseID: int, term: str) -> list[dict]:
     # return role
     return DBresult_dict
 
+def getSubmittedStudents(roster: list[dict], evalID: str) -> list:
+    """
+    Function gets list of students who have submitted IDs
+        
+    attrs: 
+        roster (list[dict]): roster of students in a class (from getRoster)
+        evalID (str): evaluation ID for the class
+    return: 
+        submittedStudents (list): list of students in a class who have submitted an evaluation.
+    """
+    # open database connection
+    userDB = getDB()
+    # cursor fetch will return as dict
+    usercursor = userDB.cursor()
+    
+    # get list of studentIDs
+    studentIDs = [s["userID"] for s in roster]
+    # make placeholders
+    placeholders = ", ".join(["%s"]*len(roster))
+
+    # add column with if student submitted eval
+    query = (
+        "SELECT studentID "
+        "FROM evalResponse "
+        f"WHERE evalID = '{evalID}' "
+        f"AND studentID in ({placeholders})"
+    )
+    # run query using instructorID
+    usercursor.execute(query, tuple(studentIDs))
+
+    # get results as dict
+    subEvals = usercursor.fetchall()
+
+    # turn into list
+    submittedStudents = [s[0] for s in subEvals] 
+
+    # list of students userIDs that have submitted evals
+    return submittedStudents
+
 def getInstructorByCourse(courseID: int, secID: int, term: str) -> str:
     """
     Function returns userID of an instructor for a given class
