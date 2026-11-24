@@ -122,3 +122,15 @@ __Students submit evaluation forms__
     - [] Ensure you are brought to a new screen that displays if your submission was successful.
 - On the screen, there should be a message displaying if the submission was successful or not.
 - Regardless of success or failure of form submission, there is a link to click that will take the user back to the page with their courses that they can evaluate.
+
+__Welcome page__
+- open application
+    - [ ] confirm you see the title of the app (Course evaluation)
+    - [ ] confirm the nav bar looks correct (WELCOME | LOGIN )
+- click login and select any user
+    - [ ] confirm you are brought to your user home page
+    - [ ] confirm welcome is still in nav bar
+- click HOME 
+    - [ ] confirm it just brings you right back to the user home page
+- click WELCOME
+    - [ ] confirm it brings you back to the initial page

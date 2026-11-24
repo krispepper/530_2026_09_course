@@ -33,12 +33,12 @@ load_dotenv()
 
 PORT = os.getenv("PORT")
 
-@app.route("/")
+@app.route("/",strict_slashes = False)
 def index():
     return render_template('base.html')
 
-@app.route("/homepage")
-def homepage():
+@app.route("/welcome")
+def welcome():
     return render_template("base.html")
 
 # routes to the login page. dynamically generates user options for the dropdown
