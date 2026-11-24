@@ -8,7 +8,7 @@ def getUniqueEvalList(evalResponse: list[dict]) -> list[dict] | str:
     """ 
     Function returns only unique evaluations based on a list of evalResponses.
     
-    attrs: 
+    argss: 
         evalResponse (list[dict]): list of dictionaries with eval responses
     return: 
         uniqueEvals (list[dict]): returns list of dictionary containing unique evaluations
@@ -31,7 +31,7 @@ def getAvgCourseRating(evalResponses: list[dict], rating_title: str) -> float | 
     """ 
     Function returns average course rating based on a list of evalResponses if course rating is included.
     
-    attrs: 
+    argss: 
         evalResponses (list[dict]): list of dictionaries with eval responses
         rating_title (str): name for form field being used for course rating
     return: 
@@ -58,7 +58,7 @@ def organizeEval(evalResponse: list[dict]) -> pd.DataFrame:
     """ 
     Function returns evaluations responses condensed into one line per evaluation.
     
-    attrs: 
+    argss: 
         evalResponses (list[dict]): list of dictionaries with eval responses
             - right now can only process evalResponses returned by getEvalByClass 
     return: 

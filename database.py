@@ -73,7 +73,7 @@ def getUserRole(userID: str) -> str:
     """ 
     Given a user ID returns the role (instructor, student, department chair or school admin).
 
-    attrs: 
+    args: 
         userID (str): ID of user
     return: 
         role (str): returns one of these ('stu', 'ins', 'sca', 'dc')
@@ -117,7 +117,7 @@ def getRoleID(userID: str) -> str:
     """ 
     Given a user ID returns the role specific ID.
 
-    attrs: 
+    args: 
         userID (str): ID of user
     return: 
         roleID (str): ID related to user's specific role (instructorID, adminID, studentID)
@@ -177,7 +177,7 @@ def getDept(userID: str) -> int:
     """
     Function returns a dict with evaluation responses associated with a given department chair.
         
-    attrs: 
+    argss: 
         userID (str): id of instructor (or department chair)
     return: 
         dept (int): dept id for a given instructor.
@@ -217,7 +217,7 @@ def getRoster(secID: int, courseID: int, term: str) -> list[dict]:
     """
     Function returns a dict with students attending a given class.
         
-    attrs: 
+    argss: 
         secID (int): id of section for class
         courseID (int): id of course for class
         term (int): term for class (format: F or S followed by last two digits of year ex: F26)
@@ -271,7 +271,7 @@ def getSubmittedStudents(roster: list[dict], evalID: str) -> list:
     """
     Function gets list of students who have submitted IDs
         
-    attrs: 
+    args: 
         roster (list[dict]): roster of students in a class (from getRoster)
         evalID (str): evaluation ID for the class
     return: 
@@ -312,7 +312,7 @@ def getInstructorByCourse(courseID: int, secID: int, term: str) -> str:
     """
     Function returns userID of an instructor for a given class
        
-    attrs: 
+    argss: 
         secID (int): id of section for class
         courseID (int): id of course for class
         term (int): term for class (format: F or S followed by last two digits of year ex: F26)
@@ -355,7 +355,7 @@ def getEvalListInstructor(instructorID: str) -> list[dict]:
     """ 
     Function returns a dict with evaluation responses associated with a given instructor.
     
-    attrs: 
+    argss: 
         instructorID (str): id of instructor
     return: 
         evalResponses (dict): a dict of evaluation responses associated with a given instructor
@@ -415,7 +415,7 @@ def getEvalListStudent(studentID: str) -> list[dict]:
     """ 
     Function returns a dict with eval responses associated with a given student.
     
-    attrs: 
+    argss: 
         studentID (str): id of student
     return: 
         evalResponses (dict): a dict of evaluation responses associated with a given student
@@ -452,7 +452,7 @@ def getEvalListDeptChair(deptChairID: str) -> list[dict]:
     """ 
     Function returns a dict with evaluation responses associated with a given department chair.
     
-    attrs: 
+    argss: 
         deptChairID (str): id of department chair
     return: 
         evalResponses (dict): a dict of evaluation responses associated with a given dept chair.
@@ -525,7 +525,7 @@ def getEvalByClass(courseID: int, secID: int, term: str) -> list[dict]:
     """ 
     Function returns a dict with evaluation responses associated with a given class.
     
-    attrs: 
+    argss: 
         secID (int): id of section for class
         courseID (int): id of course for class
         term (int): term for class (format: F or S followed by last two digits of year ex: F26)
@@ -573,7 +573,7 @@ def getSpecEval(evalID: str, studentID: str) -> list[dict]:
     """ 
     Returns eval response of based on evalID.
 
-    attrs: 
+    argss: 
         evalID (str): id of evaluation
     return: 
         evalResponses (dict): a dict of evaluation responses of a given evaluation.
@@ -616,7 +616,7 @@ def getCourseName(courseID: int) -> str:
     """
     Function returns a information about an given class
        
-    attrs: 
+    argss: 
         courseID (int): id of course for class
     return: 
         courseName (str): name of course
@@ -654,7 +654,7 @@ def getCourseDept(courseID: int) -> str:
     """
     Function returns a course's department
         
-    attrs: 
+    argss: 
         courseID (int): id of course for class
     return: 
         dept (str): name of dept
@@ -694,7 +694,7 @@ def getCourseListStudent(userID: str) -> list[dict]:
     """
     Function returns a list of course information for a given student.
         
-    attrs: 
+    argss: 
         userID (str): id of user
     return: 
         courses (list[dict]): course information (name, course, sec, term) for courses of a student 
@@ -744,7 +744,7 @@ def getCourseListInstructor(userID: str) -> list[dict]:
     """
     Function returns a list of course information for a given instructor.
         
-    attrs: 
+    argss: 
         userID (str): id of user
     return: 
         courses (list[dict]): course information (name, course, sec, term) for courses of an instructor 
@@ -793,7 +793,7 @@ def getCourseListDeptChair(userID: str) -> list[dict]:
     """
     Function returns a list of course information for a given instructor.
         
-    attrs: 
+    argss: 
         userID (str): id of user
     return: 
         courses (list[dict]): course information (name, course, sec, term) for courses of an instructor 
