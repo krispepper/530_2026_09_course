@@ -6,6 +6,8 @@ from flask import Flask, redirect, render_template, request, send_file, url_for
 
 from constants import ROLE
 from database import (
+    canViewRoster,
+    getCourseDept,
     getCourseListDeptChair,
     getCourseListInstructor,
     getCourseListStudent,
@@ -18,17 +20,11 @@ from database import (
     getEvaluationFormInfo,
     getInstructorByCourse,
     getRoster,
-    getSubmittedStudents,
     getSpecEval,
+    getSubmittedStudents,
     getUserNameFromId,
     getUserRole,
     getUsersInfo,
-    getEvaluationFormInfo,
-    getInstructorByCourse,
-    getCourseName,
-    getEnrollmentId,
-    submitEvaluation,
-    getCourseDept,
     submitEvaluation,
 )
 from evaluation import getUniqueEvalList
@@ -235,6 +231,26 @@ def viewEvaluation(studentID, evalID, userID):
 @app.route("/<userID>/view-roster/<courseID>/<secID>/<term>")
 def viewRoster(userID, courseID, secID, term):
     """Route for viewing class roster."""
+    # check if user can view roster
+    if userID not in canViewRoster(userID, courseID, secID, term):
+        msg = (
+            "Sorry looks like you do not have access to this roster.<br>"
+            "Please try looking at a roster you have access to.<br>"
+            "You can find rosters you have access to in "
+            '"'
+            f'<a href="{url_for("viewCourseList", userID=userID)}">'
+            "VIEW COURSE LIST</a>"
+            '"'
+        )
+        return render_template(
+            "viewRoster.html", 
+            userID = userID,
+            msg = msg,
+            courseID = courseID,
+            secID = secID,
+            term = term
+            )
+
     # get the roster
     roster = getRoster(secID, courseID, term)
 
