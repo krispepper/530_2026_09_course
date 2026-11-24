@@ -910,6 +910,6 @@ def submitEvaluation(studentID, response, created_at, last_modified, enrollID, f
         userDB.close()
 
         return "Your course evaluation form was submitted successfully! :D"
-    except Exception as e: # If ANYTHING goes wrong, roll back the changes & return error message.
+    except Exception: # If ANYTHING goes wrong, roll back the changes & return error message.
         userDB.rollback()
         return "An error occured while submitting your course evaluation form. :'("

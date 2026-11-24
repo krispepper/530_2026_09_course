@@ -1,18 +1,22 @@
 import os
+from datetime import datetime
 
 from dotenv import load_dotenv
 from flask import Flask, redirect, render_template, request, send_file, url_for
-from datetime import datetime
 
 from constants import ROLE
 from database import (
     getCourseListDeptChair,
     getCourseListInstructor,
     getCourseListStudent,
+    getCourseName,
     getDB,
+    getEnrollmentId,
     getEvalListDeptChair,
     getEvalListInstructor,
     getEvalListStudent,
+    getEvaluationFormInfo,
+    getInstructorByCourse,
     getRoster,
     getSubmittedStudents,
     getSpecEval,
@@ -25,6 +29,7 @@ from database import (
     getEnrollmentId,
     submitEvaluation,
     getCourseDept
+    submitEvaluation,
 )
 from evaluation import getUniqueEvalList
 from export import exportCSVCourse, exportXlsxCourse
