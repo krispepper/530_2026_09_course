@@ -4,8 +4,17 @@ Test functions related to evaluations.
 
 import datetime
 
-from database import getEvalListStudent, getEvalListInstructor, getEvalListDeptChair, getSpecEval
-from evaluation import getUniqueEvalList
+import pandas as pd
+
+from database import (
+    getEvalByClass,
+    getEvalListDeptChair,
+    getEvalListInstructor,
+    getEvalListStudent,
+    getSpecEval,
+)
+from evaluation import getAvgCourseRating, getUniqueEvalList, organizeEval
+
 
 class Test_getEvalListStudent:
     """
@@ -16,7 +25,7 @@ class Test_getEvalListStudent:
     # variables for mutliple tests
     # IDs for userID (DB ID)
     testStudentID = "STU001"
-    testNonexistentD = "DNE000"
+    testNonexistentID = "DNE000"
     testStudentIDNone = "STU002"
     testEmptyID = ""
 
@@ -34,7 +43,7 @@ class Test_getEvalListStudent:
     def test_studentEval(self):
         """Check that function returns evaluation responses for a specific student."""
         # get keys from first returned dict
-        keys = [key for key in getEvalListStudent(self.testStudentID)[0].keys()]
+        keys = [key for key in getEvalListStudent(self.testStudentID)[0]]
         assert keys == self.expectedKeys
 
     def test_studentNoEval(self):
@@ -43,7 +52,7 @@ class Test_getEvalListStudent:
 
     def test_NonexistentEval(self):
         """Check that function returns error message for a nonesistant ID."""
-        assert getEvalListStudent(self.testNonexistentD) == "No evaluation responses found."
+        assert getEvalListStudent(self.testNonexistentID) == "No evaluation responses found."
 
     def test_EmptyEval(self):
         """Check that function returns error message for empty string ID."""
@@ -59,7 +68,7 @@ class Test_getEvalListInstructor:
     # variables for mutliple tests
     # IDs for userID (DB ID)
     testInstructorID = "INS001"
-    testNonexistentD = "DNE000"
+    testNonexistentID = "DNE000"
     testInstructorIDNone = "INS002"
     testEmptyID = ""
 
@@ -77,7 +86,9 @@ class Test_getEvalListInstructor:
     def test_instructorEval(self):
         """Check that function returns evaluation responses for a specific instructor."""
         # get keys from first returned dict
-        keys = [key for key in getEvalListInstructor(self.testInstructorID)[0].keys()]
+
+        print(getEvalListInstructor(self.testInstructorID))
+        keys = [key for key in getEvalListInstructor(self.testInstructorID)[0]]
         assert keys == self.expectedKeys
 
     def test_instructorNoEval(self):
@@ -86,7 +97,7 @@ class Test_getEvalListInstructor:
 
     def test_NonexistentEval(self):
         """Check that function returns error message for a nonesistant ID."""
-        assert getEvalListInstructor(self.testNonexistentD) == "No evaluation responses found."
+        assert getEvalListInstructor(self.testNonexistentID) == "No evaluation responses found."
 
     def test_EmptyEval(self):
         """Check that function returns error message for empty string ID."""
@@ -101,7 +112,7 @@ class Test_getEvalListDeptChair:
     # variables for mutliple tests
     # IDs for userID (DB ID)
     testDeptChairID = "DEP001"
-    testNonexistentD = "DNE000"
+    testNonexistentID = "DNE000"
     testDeptChairIDNone = "DEP002"
     testEmptyID = ""
 
@@ -119,7 +130,7 @@ class Test_getEvalListDeptChair:
     def test_deptChairEval(self):
         """Check that function returns evaluation responses for a specific dept Chair."""
         # get keys from first returned dict
-        keys = [key for key in getEvalListDeptChair(self.testDeptChairID)[0].keys()]
+        keys = [key for key in getEvalListDeptChair(self.testDeptChairID)[0]]
         assert keys == self.expectedKeys
 
     def test_instructorNoEval(self):
@@ -128,7 +139,7 @@ class Test_getEvalListDeptChair:
 
     def test_NonexistentEval(self):
         """Check that function returns error message for a nonesistant ID."""
-        assert getEvalListDeptChair(self.testNonexistentD) == "No evaluation responses found."
+        assert getEvalListDeptChair(self.testNonexistentID) == "No evaluation responses found."
 
     def test_EmptyEval(self):
         """Check that function returns error message for empty string ID."""
@@ -146,7 +157,7 @@ class Test_getSpecEval:
     testEvalID = "CSC-530-050-f26"
     testStudentID = "STU001"
     testStudentIDNone = "STU002"
-    testNonexistentD = "DNE000"
+    testNonexistentID = "DNE000"
     testEmptyID = ""
 
     expectedKeys = [
@@ -160,7 +171,7 @@ class Test_getSpecEval:
     def test_studentEval(self):
         """Check that function returns evaluation responses for a specific student."""
         # get keys from first returned dict
-        keys = [key for key in getSpecEval(self.testEvalID, self.testStudentID)[0].keys()]
+        keys = [key for key in getSpecEval(self.testEvalID, self.testStudentID)[0]]
         print (keys)
         assert keys == self.expectedKeys
 
@@ -170,7 +181,7 @@ class Test_getSpecEval:
 
     def test_NonexistentEval(self):
         """Check that function returns error message for a nonesistant ID."""
-        assert getEvalListDeptChair(self.testNonexistentD) == "No evaluation responses found."
+        assert getEvalListDeptChair(self.testNonexistentID) == "No evaluation responses found."
 
     def test_EmptyEval(self):
         """Check that function returns error message for empty string ID."""
@@ -217,4 +228,119 @@ class Test_getUniqueEvalList:
     def test_studentNoEval(self):
         """Check that function returns error message for empty eval."""
         assert getUniqueEvalList(self.testEmptyEval) == "No evaluations found."
+
+class Test_getAvgCourseRating:
+    """
+    Tests for function getAvgCourseRating.
+    
+    written by Carrie.
+    """
+    evalResponses = [
+    {'evalResponseID': '5', 'studentID': 'STU003', 'response': '0.9', 'created_at': '2026-11-12 22:46:23', 'last_modified': '2026-11-12 22:46:23', 'enrollID': '3', 'fieldID': '1', 'evalID': 'CSC-530-050-f26', 'title': 'Rate this course out of 10', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'}, 
+    {'evalResponseID': '6', 'studentID': 'STU003', 'response': 'nothing', 'created_at': '2026-11-12 22:48:02', 'last_modified': '2026-11-21 22:47:38', 'enrollID': '3', 'fieldID': '2', 'evalID': 'CSC-530-050-f26', 'title': 'What did you like about this course?', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'},
+    {'evalResponseID': '3', 'studentID': 'STU002', 'response': '5.1', 'created_at': '2026-10-12 22:46:23', 'last_modified': '2026-11-12 22:46:23', 'enrollID': '2', 'fieldID': '1', 'evalID': 'CSC-530-050-f26', 'title': 'Rate this course out of 10', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'}, 
+    {'evalResponseID': '4', 'studentID': 'STU002', 'response': 'something', 'created_at': '2026-10-12 22:48:02', 'last_modified': '2026-11-30 22:47:38', 'enrollID': '2', 'fieldID': '2', 'evalID': 'CSC-530-050-f26', 'title': 'What did you like about this course?', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'},
+    {'evalResponseID': '1', 'studentID': 'STU001', 'response': '9.8', 'created_at': '2026-11-12 22:46:23', 'last_modified': '2026-11-12 22:46:23', 'enrollID': '1', 'fieldID': '1', 'evalID': 'CSC-530-050-f26', 'title': 'Rate this course out of 10', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'}, 
+    {'evalResponseID': '2', 'studentID': 'STU001', 'response': 'everything', 'created_at': '2026-11-12 22:48:02', 'last_modified': '2026-11-21 22:47:38', 'enrollID': '1', 'fieldID': '2', 'evalID': 'CSC-530-050-f26', 'title': 'What did you like about this course?', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'}
+    ]
+
+    evalResponses2 = [
+    {'evalResponseID': '1', 'studentID': 'STU003', 'response': '0.9', 'created_at': '2026-11-12 22:46:23', 'last_modified': '2026-11-12 22:46:23', 'enrollID': '3', 'fieldID': '1', 'evalID': 'CSC-530-050-f26', 'title': 'Rate this course out of 10', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'}, 
+    {'evalResponseID': '2', 'studentID': 'STU003', 'response': '2.1', 'created_at': '2026-11-12 22:48:02', 'last_modified': '2026-11-21 22:47:38', 'enrollID': '3', 'fieldID': '2', 'evalID': 'CSC-530-050-f26', 'title': 'Rate this course out of 10', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'},
+    {'evalResponseID': '3', 'studentID': 'STU002', 'response': '5.1', 'created_at': '2026-10-12 22:46:23', 'last_modified': '2026-11-12 22:46:23', 'enrollID': '2', 'fieldID': '1', 'evalID': 'CSC-530-050-f26', 'title': 'Rate this course out of 10', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'}, 
+    {'evalResponseID': '4', 'studentID': 'STU002', 'response': '9.0', 'created_at': '2026-10-12 22:48:02', 'last_modified': '2026-11-30 22:47:38', 'enrollID': '2', 'fieldID': '2', 'evalID': 'CSC-530-050-f26', 'title': 'Rate this course out of 10', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'},
+   ]
+    rating_col = "Rate this course out of 10"
+    bad_rating_col = "course rating"
+
+    def test_ratingColExists(self):
+        """Check a course average is returned when the given column is found."""
+        assert getAvgCourseRating(self.evalResponses, self.rating_col) == 5.27
+
+    def test_ratingColNotExists(self):
+        """Check a error msg is returned when the given column is not found."""
+        assert getAvgCourseRating(self.evalResponses, self.bad_rating_col) == 'There are 0 evaluation fields named "course rating."'
+
+    def test_ratingColExistsMultiple(self):
+        """Check a error msg is returned when the given column is found multiple times."""
+        assert getAvgCourseRating(self.evalResponses2, self.rating_col) == 'There are 2 evaluation fields named "Rate this course out of 10."'
+
+class Test_organizeEval:
+    """
+    Tests for function organizeEval.
+    
+    written by Carrie.
+    """
+    evalResponses = [
+    {'evalResponseID': '5', 'studentID': 'STU003', 'response': '0.9', 'created_at': '2026-11-12 22:46:23', 'last_modified': '2026-11-12 22:46:23', 'enrollID': '3', 'fieldID': '1', 'evalID': 'CSC-530-050-f26', 'title': 'Rate this course out of 10', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'}, 
+    {'evalResponseID': '6', 'studentID': 'STU003', 'response': 'nothing', 'created_at': '2026-11-12 22:48:02', 'last_modified': '2026-11-21 22:47:38', 'enrollID': '3', 'fieldID': '2', 'evalID': 'CSC-530-050-f26', 'title': 'What did you like about this course?', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'},
+    {'evalResponseID': '3', 'studentID': 'STU002', 'response': '5.1', 'created_at': '2026-10-12 22:46:23', 'last_modified': '2026-11-12 22:46:23', 'enrollID': '2', 'fieldID': '1', 'evalID': 'CSC-530-050-f26', 'title': 'Rate this course out of 10', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'}, 
+    {'evalResponseID': '4', 'studentID': 'STU002', 'response': 'something', 'created_at': '2026-10-12 22:48:02', 'last_modified': '2026-11-30 22:47:38', 'enrollID': '2', 'fieldID': '2', 'evalID': 'CSC-530-050-f26', 'title': 'What did you like about this course?', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'},
+    {'evalResponseID': '1', 'studentID': 'STU001', 'response': '9.8', 'created_at': '2026-11-12 22:46:23', 'last_modified': '2026-11-12 22:46:23', 'enrollID': '1', 'fieldID': '1', 'evalID': 'CSC-530-050-f26', 'title': 'Rate this course out of 10', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'}, 
+    {'evalResponseID': '2', 'studentID': 'STU001', 'response': 'everything', 'created_at': '2026-11-12 22:48:02', 'last_modified': '2026-11-21 22:47:38', 'enrollID': '1', 'fieldID': '2', 'evalID': 'CSC-530-050-f26', 'title': 'What did you like about this course?', 'fieldSubject': 'misc', 'courseID': '530', 'secID': '50', 'term': 'F26'}
+    ]
+
+    orgEvalDict = {
+        'studentID': {0: 'STU001', 1: 'STU002', 2: 'STU003'},
+        'Rate this course out of 10': {0: '9.8', 1: '5.1', 2: '0.9'},
+        'What did you like about this course?': {0: 'everything',
+        1: 'something',
+        2: 'nothing'},
+        'Initial Submission': {0: '2026-11-12 22:46:23',
+        1: '2026-10-12 22:46:23',
+        2: '2026-11-12 22:46:23'},
+        'last Modified': {0: '2026-11-21 22:47:38',
+        1: '2026-11-30 22:47:38',
+        2: '2026-11-21 22:47:38'}
+    }
+
+
+    def test_organizeEval(self):
+        """Check evaluations are reformatted with one row per student."""
+        organized_df= organizeEval(self.evalResponses)
+        # test values are correct (comparing df is not as reliable)
+        assert organized_df.to_dict() == self.orgEvalDict
+        # test returns pandas dataframe 
+        assert isinstance(organized_df, pd.DataFrame)
+
+    
+class Test_getEvalByClass:
+    """
+    Tests for function getEvalByClass.
+
+    written by Carrie.
+    """
+    # variables for test
+    testCourseID = 530
+    testSecID = 50
+    testTerm = 'F26'
+
+    expectedKeys = [
+        'evalResponseID',
+        'studentID', 
+        'response', 
+        'created_at', 
+        'last_modified', 
+        'enrollID', 
+        'fieldID', 
+        'evalID', 
+        'title', 
+        'fieldSubject', 
+        'courseID', 
+        'secID', 
+        'term'
+    ]
+
+
+    def test_evalsExist(self):
+        """Check function returns evaluations of a given course."""
+        # get keys from returned evalResponses
+        keys = [key for key in getEvalByClass(self.testCourseID, 
+            self.testSecID, 
+            self.testTerm)[0]]
+        # check keys are the same
+        assert keys == self.expectedKeys
+
+        
+
         

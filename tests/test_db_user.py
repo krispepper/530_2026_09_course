@@ -2,8 +2,9 @@
 Test functions related to users.
 """
 
-from database import getUserRole, getRoleID, getDept
 from constants import ROLE
+from database import getDept, getInstructorByCourse, getRoleID, getUserRole
+
 
 class Test_getUserRole:
     """
@@ -17,7 +18,7 @@ class Test_getUserRole:
     testInstructorID = "INS001"
     testDeptChairID = "DEP001"
     testAdminID = "ADM001"
-    testNonexistentD = "DNE000"
+    testNonexistentID = "DNE000"
     testEmptyID = ""
 
     def test_studentRole(self):
@@ -38,7 +39,7 @@ class Test_getUserRole:
 
     def test_NonexistentID(self):
         """Check that function returns error msg for userID that does not exist."""
-        assert getUserRole(self.testNonexistentD) == f"No role found for userID '{self.testNonexistentD}'."
+        assert getUserRole(self.testNonexistentID) == f"No role found for userID '{self.testNonexistentID}'."
 
     def test_blankID(self):
         """Check that function returns error msg for empty userID."""
@@ -56,7 +57,7 @@ class Test_getRoleID:
     testInstructorID = "INS001"
     testDeptChairID = "DEP001"
     testAdminID = "ADM001"
-    testNonexistentD = "DNE000"
+    testNonexistentID = "DNE000"
     testEmptyID = ""
 
     # IDs for user roles (school related IDs)
@@ -83,7 +84,7 @@ class Test_getRoleID:
 
     def test_NonexistentID(self):
         """Check that function returns error msg for userID that does not exist."""
-        assert getRoleID(self.testNonexistentD) == f"No specialized role ID for userID '{self.testNonexistentD}'."
+        assert getRoleID(self.testNonexistentID) == f"No specialized role ID for userID '{self.testNonexistentID}'."
 
     def test_blankID(self):
         """Check that function returns error msg for empty userID."""
@@ -98,7 +99,7 @@ class Test_getDept:
     # variables for tests
     testInstructorID = "INS001"
     testDeptChairID = "DEP001"
-    testNonexistentD = "DNE000"
+    testNonexistentID = "DNE000"
     testEmptyID = ""
 
     dept = 145
@@ -113,8 +114,36 @@ class Test_getDept:
 
     def test_getNonexistentIDDept(self):
         """Check that function returns error message for Nonexistent ID."""
-        assert getDept(self.testNonexistentDt) == f"No dept found for userID '{self.testNonexistentD}'."
+        assert getDept(self.testNonexistentID) == f"No dept found for userID '{self.testNonexistentID}'."
 
-    def test_getNonexistentIDDept(self):
+    def test_getEmptyIDDept(self):
         """Check that function returns error message for empty ID."""
         assert getDept(self.testEmptyID) == f"No dept found for userID '{self.testEmptyID}'."
+
+
+class Test_getInstructorByCourse:
+    """
+    Tests for functionget InstructorByCourse
+
+    written by Carrie.
+    """
+    # variables for tests
+    testCourseID = 530
+    testSecID = 50
+    testNoInstructorSecID = 51
+    testTerm = 'F26'
+    testInstructorID = "INS001"
+
+    def test_InstructorExists(self):
+        """Check that function returns instructor given a course."""
+        assert getInstructorByCourse(self.testCourseID, self.testSecID, self.testTerm) == self.testInstructorID
+
+    def test_NoInstructorExists(self):
+        """Check that function returns error message if no instructor exists for given a course."""
+        result = getInstructorByCourse(
+            self.testCourseID, 
+            self.testNoInstructorSecID, 
+            self.testTerm
+            )
+        expected = f"No instructor found for {self.testCourseID}-{self.testNoInstructorSecID}-{self.testTerm}."
+        assert result == expected

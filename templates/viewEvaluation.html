@@ -10,17 +10,27 @@
 {% else %}
 {% for field in eval %}
 <div class="d-flex justify-content-center align-items-center">
-    <div class="card mb-2" style="max-width: 320px;">
+    <div class="card mb-2 col-6" style="max-width: 320px;">
         <div class="card-header">
             {{ field.title }}
         </div>
-    <div class="card-body">
-        <p class="card-text">{{ field.response }}</p>
+        <div class="card-body">
+            <p class="card-text {% if field.created_at != field.last_modified and field.last_modified is not none %}edited-eval{% endif %}">
+                {{ field.response }}
+            </p>
+        </div>
     </div>
+    {% if created_at != last_modified %}
+    <div class="col-2">
+        {% if field.created_at != field.last_modified and field.last_modified is not none %}
+        <span class="edited-pill">edited</span><br>
+        <p class="card-text m-1">{{ field.last_modified }}</p>
+        {% endif %}
     </div>
+    {% endif %}
 </div>
 {% endfor %}
 
-<div class="mt-5"><b>created</b>: {{ created_at }} || <b>last_modified</b>: {{ last_modified }}</div>
+<div class="mt-5"><b>created</b>: {{ created_at }} {% if created_at != last_modified %} || <b>last modified</b>: {{ last_modified }}{% endif %}</div>
 {% endif %}
 {% endblock %}

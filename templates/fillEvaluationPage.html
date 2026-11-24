@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %} Homepage {% endblock %}
+
+{% block content %}
+
+<h1>Evaluations Page</h1>
+<br>
+<div class="d-flex justify-content-center align-items-center">
+    <div class="card mb-2" style="max-width: 320px;">
+        <div class="card-body">
+            <h2>{{courseName}}</h2>
+            <h3>Evaluation ID: {{evaluationID}}</h3>
+            <h4>Instructor: {{instructorName["firstName"]}} {{instructorName["lastName"]}}</h4>
+            <form action="{{ url_for('evaluationSubmissionHandler',userID = userID) }}" method="POST">
+                <input type="hidden" name="userID" value="{{userID}}">
+                <input type="hidden" name="enrollID" value="{{enrollID}}">
+                <input type="hidden" name="evalID" value="{{evalID}}">
+                {% for entry in evaluationFormData %}
+                <hr>
+                <p>{{ entry["title"] }}</p>
+                <input name = "field{{entry['fieldID']}}" type = "text" placeholder = "Field Subject: {{entry['fieldSubject']}}">
+                <input type="hidden" name="field{{entry['fieldID']}}Type" value="{{entry['fieldType']}}">
+                {%endfor%}
+                <input type="hidden" name="fieldAmount" value="{{fieldAmount}}">
+                <br><br>
+                <button type = "submit">Submit</button>
+                <br><br>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

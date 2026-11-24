@@ -1,21 +1,31 @@
 import os
+from datetime import datetime
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, session, request, redirect, url_for
+from flask import Flask, redirect, render_template, request, send_file, url_for
 
-from database import (
-        getDB, 
-        getUsersInfo, 
-        getUserNameFromId, 
-        getEvalListInstructor, 
-        getEvalListStudent, 
-        getEvalListDeptChair,  
-        getUserRole,
-        getSpecEval,
-        getRoster
-    )
-from evaluation import getUniqueEvalList
 from constants import ROLE
+from database import (
+    getCourseListDeptChair,
+    getCourseListInstructor,
+    getCourseListStudent,
+    getCourseName,
+    getDB,
+    getEnrollmentId,
+    getEvalListDeptChair,
+    getEvalListInstructor,
+    getEvalListStudent,
+    getEvaluationFormInfo,
+    getInstructorByCourse,
+    getRoster,
+    getSpecEval,
+    getUserNameFromId,
+    getUserRole,
+    getUsersInfo,
+    submitEvaluation,
+)
+from evaluation import getUniqueEvalList
+from export import exportCSVCourse, exportXlsxCourse
 
 app = Flask(__name__) 
 
@@ -50,6 +60,9 @@ def home(userID):
     # get all of the valid IDs
     userData = getUsersInfo()
     validUserIDS = [userData[i]["userID"] for i in range(len(userData))]
+
+    # Gets the role of the user.
+    userRole = getUserRole(userID)
     
     # checks if userID specified is valid
     if userID in validUserIDS:
@@ -58,14 +71,56 @@ def home(userID):
         userName = getUserNameFromId(userID)
         firstName = userName["firstName"]
         lastName = userName["lastName"]
-        return render_template('homepage.html', userID = userID, firstName = firstName, lastName = lastName)
+        return render_template('homepage.html', userID = userID, firstName = firstName, lastName = lastName, userRole = userRole)
     else:
         # return error message; will appear if user attempts to type in url with an invalid userID
         return render_template("error.html", msg = "Error reaching homepage. User ID specified does not exist.")
 
-@app.route("/student")
-def student(): 
-    return "Time to evaluate your Professor 0.o"
+# Student view for courses with evaluations to complete.
+@app.route("/student/<userID>")
+def student(userID):
+    funny = "Time to evaluate your Professor 0.o" # I am laughter
+    courseInfo = getCourseListStudent(userID) # gathers courses a student is in
+    return render_template("studentEvalsToDo.html", msg = funny, userID = userID, courseInfo = courseInfo)
+
+# Where students fill out an evaluation form for a selected class.
+@app.route("/student/<userID>/eval-<courseID>-<secID>-<term>")
+def evaluationPage(userID, courseID, secID, term):
+    evaluationFormData = getEvaluationFormInfo(courseID, secID, term) # Get all the data associated with the evaluation & the fields
+
+    # Gather additional information to prepare for form insertion into the database & for student viewing purposes
+    evalID = evaluationFormData[0]["evalID"]
+    instructorID = getInstructorByCourse(courseID, secID, term)
+    instructorName = getUserNameFromId(instructorID)
+    courseName = getCourseName(courseID)
+    enrollID = getEnrollmentId(userID, courseID, secID, term)["enrollID"]
+    fieldAmount = len(evaluationFormData) # The amount of fields an evaluation has
+
+    return render_template("fillEvaluationPage.html", evaluationFormData = evaluationFormData, evalID = evalID, userID = userID, instructorName = instructorName, courseName = courseName, enrollID = enrollID, fieldAmount = fieldAmount)
+
+# Evaluation submission page, regardless of whether insertion was successful or not
+@app.route("/student/<userID>/evaluation-submission-handler", strict_slashes = False, methods=['POST'])
+def evaluationSubmissionHandler(userID):
+    # Gather the form data from the form submission
+    formData = request.form.to_dict()
+
+    # Splice the form data into easier-to-manage chunks. Will be used when adding form data to database.
+    enrollID = formData["enrollID"]
+    evalID = formData["evalID"]
+    dateAndTime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    fieldAmount = int(formData["fieldAmount"]) # The amount of fields an evaluation has
+
+    submissionStatus = "" # Will display to user whether form data was successfully submitted and added to the database
+    for i in range(1, fieldAmount+1): # We look at each field in an evaluation
+        fieldID = i
+        currentField = f"field{fieldID}" # Will become "field1" for example; used to index the formData dict obtained from the form submission
+        response = formData[currentField]
+        submissionStatus = submitEvaluation(userID, response, dateAndTime, dateAndTime, enrollID, fieldID, evalID)
+        if submissionStatus != "Your course evaluation form was submitted successfully! :D": # If something went wrong, we stop immediately and return an error message
+            return render_template("studentEvalSubmission.html", formData = formData, userID = userID, submissionStatus = submissionStatus)
+
+    # If nothing went wrong, we return a success message
+    return render_template("studentEvalSubmission.html", formData = formData, userID = userID, submissionStatus = submissionStatus)
 
 @app.route("/instructor")
 def instructor(): 
@@ -111,7 +166,8 @@ def viewEvaluationsList(userID):
             "error.html", 
             msg = ("That's weird. You have no role. " 
             "OR you're a school admin and that access "
-            "is under construction.")
+            "is under construction."),
+            userID = userID
             )
 
     # check if evals returned error message 
@@ -150,10 +206,13 @@ def viewEvaluation(studentID, evalID, userID):
             userID=userID
             )
     
-    # get lastest modified timestamp
-    last_modified=max([field["last_modified"] for field in eval])
     # get created timestamp
     created_at=eval[0]["created_at"]
+
+    # get latest modified timestamp
+    if [field["last_modified"] for field in eval if field["last_modified"]]:
+        last_modified=max([field["last_modified"] for field in eval if field["last_modified"] is not None])
+    else: last_modified = created_at
 
     # render view for viewEvaluations
     return render_template(
@@ -181,6 +240,76 @@ def viewRoster(courseID, secID, term):
         term = term
     )
 
+@app.route("/<userID>/view-courses", strict_slashes=False)
+def viewCourseList(userID):
+    """Route for viewing courses associated with a specific user."""
+
+    # get user name
+    name = getUserNameFromId(userID)
+
+    # check user type
+    role = getUserRole(userID)
+
+    if role == ROLE.instructor.value:
+        # get course list info
+        courses = getCourseListInstructor(userID)
+    elif role == ROLE.student.value:
+        # get course list info
+        courses = getCourseListStudent(userID)
+    elif role == ROLE.deptChair.value:
+        # get course list info
+        courses = getCourseListDeptChair(userID)
+    else:
+        # render view for error
+        return render_template(
+            "error.html", 
+            msg = ("That's weird. You have no role. " 
+            "OR you're a school admin and that access "
+            "is under construction."),
+            userID = userID
+            )
+
+    # check if courses returned error message 
+    if isinstance(courses, str):
+        # render view for courseList with error msg
+        return render_template(
+            "courseList.html",  
+            userID=userID,
+            msg=courses,
+            name=name
+            )
+    
+    return render_template(
+        "courseList.html", 
+        courses=courses,
+        name=name, 
+        userID=userID,
+        role=role
+    )
+
+@app.route("/<userID>/export/csv/<courseID>-<secID>-<term>/", strict_slashes=False)
+def exportCSV(userID, courseID, secID, term):
+    """export evaluation information to zip file with CSVs."""
+    output, filename = exportCSVCourse(courseID, secID, term)
+
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name=filename,
+        mimetype='application/zip'
+    )
+
+@app.route("/<userID>/export/xlsx/<courseID>-<secID>-<term>/", strict_slashes=False)
+def exportXlsx(userID, courseID, secID, term):
+    """export evaluation information to an excel file."""
+    output, filename = exportXlsxCourse(courseID, secID, term)
+
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name=filename,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
 
 if __name__ == "__main__": 
     app.run(debug=True, use_reloader=False, port=PORT)

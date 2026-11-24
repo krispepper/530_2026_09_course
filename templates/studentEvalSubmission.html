@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %} submission page {% endblock %}
+
+{% block content %}
+
+<h1>Submission Page</h1>
+<br>
+<div class="d-flex justify-content-center align-items-center">
+    <div class="card mb-2" style="max-width: 320px;">
+        <h2>{{submissionStatus}}</h2>
+    </div>
+</div>
+<br><br>
+<a href = "{{url_for('student', userID=userID)}}">Return to Evaluations Page</a>
+
+{% endblock %}
