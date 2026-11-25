@@ -2,7 +2,7 @@
 Test functions related to roster.
 """
 
-from database import getRoster, canViewRoster
+from database import canViewRoster, getRoster
 
 
 class Test_getRoster:
