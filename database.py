@@ -213,6 +213,24 @@ def getDept(userID: str) -> int:
         # return error message
         return f"No dept found for userID '{userID}'."
 
+# so that course info is properly formatted
+def getDeptAbbreviation(deptID: int) -> str:
+    db = getDB()
+    cursor = db.cursor(dictionary=True)
+
+    query = "SELECT code FROM dept WHERE ID = %s"
+    cursor.execute(query, (deptID,))
+    result = cursor.fetchone()
+
+    cursor.close()
+    db.close()
+
+    if result is not None:
+        return result["code"]
+    else:
+        return f"No department abbreviation found for deptID '{deptID}'."
+
+
 def getRoster(secID: int, courseID: int, term: str) -> list[dict]:
     """
     Function returns a dict with students attending a given class.
@@ -546,13 +564,13 @@ def getSpecEval(evalID: str, studentID: str) -> list[dict]:
     # query for db
     query = (
         "SELECT f.fieldID, f.title, e.response, e.created_at, e.last_modified "
-        "FROM evalResponse AS e "
-        "JOIN formField AS f "
-        "ON e.evalID = f.evalID "
-        "AND e.fieldID = f.fieldID "
-        "WHERE e.studentID = %s " 
-        "AND e.evalID = %s "
-        "ORDER BY fieldID"
+        "FROM formField AS f "
+        "LEFT JOIN evalResponse AS e "
+        "ON f.evalID = e.evalID "
+        "AND f.fieldID = e.fieldID "
+        "AND e.studentID = %s " 
+        "WHERE f.evalID = %s "
+        "ORDER BY f.fieldID"
     )
     # run query using section IDs
     evalcursor.execute(query, (studentID, evalID,))
