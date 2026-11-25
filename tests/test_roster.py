@@ -2,7 +2,7 @@
 Test functions related to roster.
 """
 
-from database import getRoster
+from database import getRoster, canViewRoster
 
 
 class Test_getRoster:
@@ -38,3 +38,25 @@ class Test_getRoster:
         assert getRoster(self.testSecID, self.testCourseID, self.testNonexistentTerm) == (
             f"No enrollment found for course '{self.testCourseID}-{self.testSecID}-{self.testNonexistentTerm}'."
             )
+
+
+class Test_canViewRoster:
+    """
+    Tests function canViewRoster.
+    """
+    testCourseID = 530
+    testSecID = 50
+    testTerm = 'F26'
+    returnedIDs = ['INS001', 'DEP001']
+    testBadCourseID = 0
+    testBadSecID = 0
+    testBadTerm = 'F20'
+
+
+    def test_accessAccepted(self):
+        """checks expected userIDs are returned by function."""
+        assert set(self.returnedIDs) == set(canViewRoster(self.testCourseID, self.testSecID, self.testTerm))
+
+    def test_noOneWithAccess(self):
+        """checks empty list is returned for a class with no dept chair or instructor assigned."""
+        assert [] == canViewRoster(self.testBadCourseID, self.testBadSecID, self.testBadTerm)
