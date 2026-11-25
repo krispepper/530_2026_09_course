@@ -231,18 +231,19 @@ def getRoster(secID: int, courseID: int, term: str) -> list[dict]:
 
     # query to get list of student information for a specific class
     query = (
-        'With enrollStudents as ('
-        'SELECT u.userID, u.firstName, u.lastName, u.email '
-        'FROM user AS u '
-        'JOIN enrollment AS e '
-        'ON e.studentID = u.userID '
-        'WHERE secID = %s '
-        'AND courseID = %s '
-        'AND term = %s) '
-        'SELECT s.userID, s.studentID, es.firstName, es.lastName, es.email '
-        'FROM enrollStudents as es '
-        'JOIN student as s '
-        'ON es.userID = s.userID'
+        "WITH enrollStudents AS ("
+            "SELECT u.userID, u.firstName, u.lastName, u.email, e.enrollID "
+            "FROM user AS u "
+            "JOIN enrollment AS e "
+            "ON e.studentID = u.userID "
+            "WHERE e.secID = %s "
+            "AND e.courseID = %s AND e.term = %s" \
+        ") SELECT s.userID, s.studentID, es.firstName, es.lastName, es.email, IFNULL(ev.status, 'Not Started') AS status "
+        "FROM enrollStudents AS es "
+        "JOIN student AS s "
+        "ON es.userID = s.userID "
+        "LEFT JOIN evaluationStatus AS ev "
+        "ON es.enrollID = ev.enrollID;"
         )
     # run query
     usercursor.execute(query, (secID, courseID, term))

@@ -2,7 +2,7 @@
 Test functions related to roster.
 """
 
-from database import canViewRoster, getRoster
+from database import canViewRoster, getRoster, getSubmittedStudents
 
 
 class Test_getRoster:
@@ -13,7 +13,7 @@ class Test_getRoster:
     testNonexistentSec = 69
     testNonexistentCourse = 420
     testNonexistentTerm = "S23"
-    expectedKeys = ["userID", "studentID", "firstName", "lastName", "email"]
+    expectedKeys = ["userID", "studentID", "firstName", "lastName", "email", "status"]
 
     def test_getRoster(self): # written by Carrie
         """Checks function returns correct data based on retrieved dict keys."""
