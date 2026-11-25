@@ -109,3 +109,16 @@ __Show edited evaluation__
 - Click the evaluation "PHY-428-001-S27"
     - [ ] confirm it has nio indicators of edit occuring (no last modified dates, no red text, no badge)
 
+__Students submit evaluation forms__
+- Open the application.
+- Login as "Test Student".
+    - [] Ensure that you are sent to a webpage that says "Hello, Test Student".
+- Click "students, see ur evals here!!" at the navbar at the top of the screen.
+    - [] Ensure you are brought to a page that displays all of the courses a student is in.
+- Click on a course you would like to make an evaluation for.
+    - [] Ensure you are brought to a new page with fields to fill out for the selected course.
+- Fill in the form fields.
+- Click the submit button.
+    - [] Ensure you are brought to a new screen that displays if your submission was successful.
+- On the screen, there should be a message displaying if the submission was successful or not.
+- Regardless of success or failure of form submission, there is a link to click that will take the user back to the page with their courses that they can evaluate.
