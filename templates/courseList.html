@@ -16,7 +16,10 @@
             <th scope="col">Course</th>
             <th scope="col">Section</th>
             <th scope="col">Term</th>
-            {% if role != "stu" %}<th scope="col">Export options</th>{% endif %}
+            {% if role != "stu" %}
+                <th scope="col">Export options</th>
+                <th scope="col">View Roster</th>
+            {% endif %}
         </tr>
     </thead>  
     <tbody>
@@ -38,9 +41,10 @@
                 Export to csv
             </a>
             {% else %}
-            no evaluations submitted
+                No evaluations submitted
             {% endif %}
         </td>
+        <td><a href="{{ url_for('viewRoster', courseID=c.courseID, secID=c.secID, term=c.term) }}">ROSTER</a></td>
         {% endif %}
     </tr>
     {% endfor %}
