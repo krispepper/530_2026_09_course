@@ -17,6 +17,7 @@
           <th scope="col">Name</th>
           <th scope="col">Email</th>
           <th scope="col">View Evaluation</th>
+          <th scope="col">Evaluation Status</th>
       </tr>
     </thead>  
     <tbody>
@@ -29,9 +30,10 @@
         {% if student.userID in submittedStudents %}
           <a href="{{ url_for ('viewEvaluation', studentID=student.userID, evalID=evalID, userID=userID) }}">View feedback</a>
         {% else %}
-          Not submitted
+          NOT VIEWABLE YET
         {% endif %}
       </td>
+      <td>{{ student.status }}</td>
     </tr>
     {% endfor %}
     </tbody>
