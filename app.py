@@ -232,7 +232,7 @@ def viewEvaluation(studentID, evalID, userID):
 def viewRoster(userID, courseID, secID, term):
     """Route for viewing class roster."""
     # check if user can view roster
-    if userID not in canViewRoster(userID, courseID, secID, term):
+    if userID not in canViewRoster(courseID, secID, term):
         msg = (
             "Sorry looks like you do not have access to this roster.<br>"
             "Please try looking at a roster you have access to.<br>"

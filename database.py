@@ -267,12 +267,11 @@ def getRoster(secID: int, courseID: int, term: str) -> list[dict]:
     # return role
     return DBresult_dict
 
-def canViewRoster(userID: str, courseID: int, secID: int, term: str) -> tuple:
+def canViewRoster(courseID: int, secID: int, term: str) -> tuple:
     """
     Function returns a list with the userIDs of the class instructor and dept chair
         
     args: 
-        userID (str): id in app of user who wants to view roster
         secID (int): id of section for class
         courseID (int): id of course for class
         term (int): term for class (format: F or S followed by last two digits of year ex: F26)
