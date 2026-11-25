@@ -322,34 +322,40 @@ def getSubmittedStudents(roster: list[dict], evalID: str) -> list:
         evalID (str): evaluation ID for the class
     return: 
         submittedStudents (list): list of students in a class who have submitted an evaluation.
-
-    TODO: get eval status in order to only link to complete evals 
     """
     # open database connection
     userDB = getDB()
     # cursor fetch will return as dict
     usercursor = userDB.cursor()
-    
-    # get list of studentIDs
-    studentIDs = [s["userID"] for s in roster]
-    # make placeholders
-    placeholders = ", ".join(["%s"]*len(roster))
 
-    # query
-    query = (
-        "SELECT studentID "
-        "FROM evalResponse "
-        f"WHERE evalID = '{evalID}' "
-        f"AND studentID in ({placeholders})"
-    )
-    # run query using instructorID
-    usercursor.execute(query, tuple(studentIDs))
+    # check if roster is empty
+    if roster == [{}]:
+        submittedStudents = []
+    else:
+        # get list of studentIDs
+        studentIDs = [s["userID"] for s in roster]
+        # make placeholders
+        placeholders = ", ".join(["%s"]*len(roster))
 
-    # get results as dict
-    subEvals = usercursor.fetchall()
+        # query
+        query = (
+            "SELECT DISTINCT (er.studentID)"
+            "FROM evalResponse AS er "
+            "JOIN evaluationStatus AS es "
+            "ON er.enrollID = es.enrollID "
+            "AND er.evalID = es.evalID "
+            f"WHERE er.evalID = '{evalID}' "
+            f"AND er.studentID in ({placeholders})"
+            "AND es.status = 'Completed'"
+        )
+        # run query using instructorID
+        usercursor.execute(query, tuple(studentIDs))
 
-    # turn into list
-    submittedStudents = [s[0] for s in subEvals] 
+        # get results as dict
+        subEvals = usercursor.fetchall()
+
+        # turn into list
+        submittedStudents = [s[0] for s in subEvals] 
 
     # list of students userIDs that have submitted evals
     return submittedStudents
