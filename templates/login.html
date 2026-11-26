@@ -13,7 +13,9 @@
                 <label for = "login">Choose Account</label><br>
                 <select name = "userID" id = "userID">
                     {% for user in userData %}
-                    <option value = "{{user['userID']}}">{{user["firstName"]}} {{user["lastName"]}}</option>
+                    <option class = "dropdownOption" value = "{{user['userID']}}">
+                        {{user["userID"]}}: {{user["firstName"]}} {{user["lastName"]}}
+                    </option>
                     {% endfor %}
                 </select>
                 <button type = "submit">Login</button>
