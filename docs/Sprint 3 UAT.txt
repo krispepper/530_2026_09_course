@@ -21,3 +21,16 @@ Once app is running, conduct the below User Acceptance Tests:
 
 **Sprint 3 Tests**
 
+__Evaluation from Roster__
+- start app if not already running
+- login as "Test instructor" 
+- click on "VIEW COURSE LIST" then select "Software Engineering Methodology" sec = 050 and term = "F26" 
+- confirm students with status of "Completed" have a link to their evaluation
+- click on the link to a students evaluation and confirm it bring you to the evaluation
+
+__Blocked from Roster__
+- start app if not already running
+- login as "Test instructor" 
+- click on "VIEW COURSE LIST" then select "Software Engineering Methodology" sec = 050 and term = "F26" 
+- edit the url, change "F26" to "S27"
+- confirm a message is shown letting you know you don't have access to the roster
