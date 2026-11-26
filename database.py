@@ -73,7 +73,7 @@ def getUserRole(userID: str) -> str:
     """ 
     Given a user ID returns the role (instructor, student, department chair or school admin).
 
-    attrs: 
+    args: 
         userID (str): ID of user
     return: 
         role (str): returns one of these ('stu', 'ins', 'sca', 'dc')
@@ -117,7 +117,7 @@ def getRoleID(userID: str) -> str:
     """ 
     Given a user ID returns the role specific ID.
 
-    attrs: 
+    args: 
         userID (str): ID of user
     return: 
         roleID (str): ID related to user's specific role (instructorID, adminID, studentID)
@@ -177,7 +177,7 @@ def getDept(userID: str) -> int:
     """
     Function returns a dict with evaluation responses associated with a given department chair.
         
-    attrs: 
+    argss: 
         userID (str): id of instructor (or department chair)
     return: 
         dept (int): dept id for a given instructor.
@@ -217,7 +217,7 @@ def getRoster(secID: int, courseID: int, term: str) -> list[dict]:
     """
     Function returns a dict with students attending a given class.
         
-    attrs: 
+    argss: 
         secID (int): id of section for class
         courseID (int): id of course for class
         term (int): term for class (format: F or S followed by last two digits of year ex: F26)
@@ -231,20 +231,21 @@ def getRoster(secID: int, courseID: int, term: str) -> list[dict]:
 
     # query to get list of student information for a specific class
     query = (
-        'With enrollStudents as ('
-        'SELECT u.userID, u.firstName, u.lastName, u.email '
-        'FROM user AS u '
-        'JOIN enrollment AS e '
-        'ON e.studentID = u.userID '
-        'WHERE secID = %s '
-        'AND courseID = %s '
-        'AND term = %s) '
-        'SELECT s.studentID, es.firstName, es.lastName, es.email '
-        'FROM enrollStudents as es '
-        'JOIN student as s '
-        'ON es.userID = s.userID'
+        "WITH enrollStudents AS ("
+            "SELECT u.userID, u.firstName, u.lastName, u.email, e.enrollID "
+            "FROM user AS u "
+            "JOIN enrollment AS e "
+            "ON e.studentID = u.userID "
+            "WHERE e.secID = %s "
+            "AND e.courseID = %s AND e.term = %s" \
+        ") SELECT s.userID, s.studentID, es.firstName, es.lastName, es.email, IFNULL(ev.status, 'Not Started') AS status "
+        "FROM enrollStudents AS es "
+        "JOIN student AS s "
+        "ON es.userID = s.userID "
+        "LEFT JOIN evaluationStatus AS ev "
+        "ON es.enrollID = ev.enrollID;"
         )
-    # run query using instructorID
+    # run query
     usercursor.execute(query, (secID, courseID, term))
     # get results as dict
     DBresult_dict = usercursor.fetchall()
@@ -267,11 +268,57 @@ def getRoster(secID: int, courseID: int, term: str) -> list[dict]:
     # return role
     return DBresult_dict
 
+def canViewRoster(courseID: int, secID: int, term: str) -> tuple:
+    """
+    Function returns a list with the userIDs of the class instructor and dept chair
+        
+    args: 
+        secID (int): id of section for class
+        courseID (int): id of course for class
+        term (int): term for class (format: F or S followed by last two digits of year ex: F26)
+    return: 
+        allowedAccess(tuple): list of userID of instructor of course and dept chair 
+    """
+    # open database connection
+    userDB = getDB()
+    # cursor fetch will return as dict
+    usercursor = userDB.cursor()
+
+    # query for instructor and dept chair related to a class
+    query = (
+        "WITH courseSec AS ("
+        "SELECT s.instructorID, s.courseID, s.secID, s.term, c.deptID "
+        "FROM sections AS s "
+        "JOIN courses AS c "
+        "ON c.courseID = s.courseID" 
+        ") "
+        "SELECT d.chair, cs.instructorID "
+        "FROM courseSec AS cs "
+        "JOIN dept AS d "
+        "ON d.ID = cs.deptID "
+        "WHERE cs.courseID = %s " 
+        "AND cs.secID = %s " 
+        "AND cs.term = %s"
+    )
+    # run query using userID
+    usercursor.execute(query, (courseID, secID, term))
+
+    # get results as dict
+    allowedAccess_DB= usercursor.fetchone()
+
+    # check if none returned
+    if not allowedAccess_DB:
+        # return empty list if no instructors found
+        return []
+
+    # tuple of instructor and dept chair userIDs what can view roster
+    return allowedAccess_DB
+
 def getInstructorByCourse(courseID: int, secID: int, term: str) -> str:
     """
     Function returns userID of an instructor for a given class
        
-    attrs: 
+    argss: 
         secID (int): id of section for class
         courseID (int): id of course for class
         term (int): term for class (format: F or S followed by last two digits of year ex: F26)
@@ -314,7 +361,7 @@ def getEvalListInstructor(instructorID: str) -> list[dict]:
     """ 
     Function returns a dict with evaluation responses associated with a given instructor.
     
-    attrs: 
+    argss: 
         instructorID (str): id of instructor
     return: 
         evalResponses (dict): a dict of evaluation responses associated with a given instructor
@@ -374,7 +421,7 @@ def getEvalListStudent(studentID: str) -> list[dict]:
     """ 
     Function returns a dict with eval responses associated with a given student.
     
-    attrs: 
+    argss: 
         studentID (str): id of student
     return: 
         evalResponses (dict): a dict of evaluation responses associated with a given student
@@ -411,7 +458,7 @@ def getEvalListDeptChair(deptChairID: str) -> list[dict]:
     """ 
     Function returns a dict with evaluation responses associated with a given department chair.
     
-    attrs: 
+    argss: 
         deptChairID (str): id of department chair
     return: 
         evalResponses (dict): a dict of evaluation responses associated with a given dept chair.
@@ -484,7 +531,7 @@ def getEvalByClass(courseID: int, secID: int, term: str) -> list[dict]:
     """ 
     Function returns a dict with evaluation responses associated with a given class.
     
-    attrs: 
+    argss: 
         secID (int): id of section for class
         courseID (int): id of course for class
         term (int): term for class (format: F or S followed by last two digits of year ex: F26)
@@ -532,7 +579,7 @@ def getSpecEval(evalID: str, studentID: str) -> list[dict]:
     """ 
     Returns eval response of based on evalID.
 
-    attrs: 
+    argss: 
         evalID (str): id of evaluation
     return: 
         evalResponses (dict): a dict of evaluation responses of a given evaluation.
@@ -575,7 +622,7 @@ def getCourseName(courseID: int) -> str:
     """
     Function returns a information about an given class
        
-    attrs: 
+    argss: 
         courseID (int): id of course for class
     return: 
         courseName (str): name of course
@@ -613,7 +660,7 @@ def getCourseDept(courseID: int) -> str:
     """
     Function returns a course's department
         
-    attrs: 
+    argss: 
         courseID (int): id of course for class
     return: 
         dept (str): name of dept
@@ -653,7 +700,7 @@ def getCourseListStudent(userID: str) -> list[dict]:
     """
     Function returns a list of course information for a given student.
         
-    attrs: 
+    argss: 
         userID (str): id of user
     return: 
         courses (list[dict]): course information (name, course, sec, term) for courses of a student 
@@ -703,7 +750,7 @@ def getCourseListInstructor(userID: str) -> list[dict]:
     """
     Function returns a list of course information for a given instructor.
         
-    attrs: 
+    argss: 
         userID (str): id of user
     return: 
         courses (list[dict]): course information (name, course, sec, term) for courses of an instructor 
@@ -752,7 +799,7 @@ def getCourseListDeptChair(userID: str) -> list[dict]:
     """
     Function returns a list of course information for a given instructor.
         
-    attrs: 
+    argss: 
         userID (str): id of user
     return: 
         courses (list[dict]): course information (name, course, sec, term) for courses of an instructor 

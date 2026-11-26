@@ -33,3 +33,19 @@ __Roster from course list__
 - login as "Test Student"
 - click "VIEW COURSE LIST"
 - confirm there is no roster link
+
+__Evaluation from Roster__
+(access to roster)
+- start app if not already running
+- login as "Test instructor" 
+- click on "VIEW COURSE LIST" then select "Software Engineering Methodology" sec = 050 and term = "F26" 
+- confirm students with status of "Completed" have a link to their evaluation
+- click on the link to a students evaluation and confirm it bring you to the evaluation
+
+__Blocked from Roster__
+(no access to roster)
+- start app if not already running
+- login as "Test instructor" 
+- click on "VIEW COURSE LIST" then select "Software Engineering Methodology" sec = 050 and term = "F26" 
+- edit the url, change "F26" to "S27"
+- confirm a message is shown letting you know you don't have access to the roster

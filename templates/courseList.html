@@ -32,11 +32,11 @@
         {% if role != "stu"%}
         <td>
             {% if c.hasEval  %}
-            <a href="{{ url_for('exportXlsx', userID=userID, courseID=c.courseID, secID=c.secID, term=c.term) }}">
+            <a href="{{ url_for('exportXlsx', userID=userID, courseID=c.courseID, secID='%03d' | format(c.secID), term=c.term) }}">
                 <i class="fa-solid fa-file-arrow-down"></i>
                 Export to xlsx 
             </a> 
-            | <a href="{{ url_for('exportCSV', userID=userID, courseID=c.courseID, secID=c.secID, term=c.term) }}">
+            | <a href="{{ url_for('exportCSV', userID=userID, courseID=c.courseID, secID='%03d' | format(c.secID), term=c.term) }}">
                 <i class="fa-solid fa-file-arrow-down"></i>
                 Export to csv
             </a>
