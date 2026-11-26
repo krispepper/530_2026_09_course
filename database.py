@@ -314,53 +314,6 @@ def canViewRoster(courseID: int, secID: int, term: str) -> tuple:
     # tuple of instructor and dept chair userIDs what can view roster
     return allowedAccess_DB
 
-def getSubmittedStudents(roster: list[dict], evalID: str) -> list:
-    """
-    Function gets list of students who have submitted IDs
-        
-    args: 
-        roster (list[dict]): roster of students in a class (from getRoster)
-        evalID (str): evaluation ID for the class
-    return: 
-        submittedStudents (list): list of students in a class who have submitted an evaluation.
-    """
-    # open database connection
-    userDB = getDB()
-    # cursor fetch will return as dict
-    usercursor = userDB.cursor()
-
-    # check if roster is empty
-    if roster == [{}]:
-        submittedStudents = []
-    else:
-        # get list of studentIDs
-        studentIDs = [s["userID"] for s in roster]
-        # make placeholders
-        placeholders = ", ".join(["%s"]*len(roster))
-
-        # query
-        query = (
-            "SELECT DISTINCT (er.studentID)"
-            "FROM evalResponse AS er "
-            "JOIN evaluationStatus AS es "
-            "ON er.enrollID = es.enrollID "
-            "AND er.evalID = es.evalID "
-            f"WHERE er.evalID = '{evalID}' "
-            f"AND er.studentID in ({placeholders})"
-            "AND es.status = 'Completed'"
-        )
-        # run query using instructorID
-        usercursor.execute(query, tuple(studentIDs))
-
-        # get results as dict
-        subEvals = usercursor.fetchall()
-
-        # turn into list
-        submittedStudents = [s[0] for s in subEvals] 
-
-    # list of students userIDs that have submitted evals
-    return submittedStudents
-
 def getInstructorByCourse(courseID: int, secID: int, term: str) -> str:
     """
     Function returns userID of an instructor for a given class

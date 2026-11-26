@@ -21,7 +21,6 @@ from database import (
     getInstructorByCourse,
     getRoster,
     getSpecEval,
-    getSubmittedStudents,
     getUserNameFromId,
     getUserRole,
     getUsersInfo,
@@ -231,6 +230,12 @@ def viewEvaluation(studentID, evalID, userID):
 @app.route("/<userID>/view-roster/<courseID>/<secID>/<term>")
 def viewRoster(userID, courseID, secID, term):
     """Route for viewing class roster."""
+    # get course name
+    course = getCourseName(courseID)
+    courseDept = getCourseDept(courseID)
+    secID = f"{int(secID):03d}"
+    courseID = f"{int(courseID):03d}"
+
     # check if user can view roster
     if userID not in canViewRoster(courseID, secID, term):
         msg = (
@@ -248,7 +253,9 @@ def viewRoster(userID, courseID, secID, term):
             msg = msg,
             courseID = courseID,
             secID = secID,
-            term = term
+            term = term,
+            course = course,
+            courseDept = courseDept
             )
 
     # get the roster
@@ -262,11 +269,11 @@ def viewRoster(userID, courseID, secID, term):
             msg = roster,
             courseID = courseID,
             secID = secID,
-            term = term
+            term = term,
+            course = course,
         )
-    
-    evalID = f"{getCourseDept(courseID)}-{courseID}-{secID}-{term}"
-    submittedStudents = getSubmittedStudents(roster, evalID)
+    # 03d will make it so the secID is 3 digits: ex- 50 to 050
+    evalID = f"{getCourseDept(courseID)}-{int(courseID):03d}-{int(secID):03d}-{term}"
 
     # render view of class roster
     return render_template(
@@ -275,9 +282,10 @@ def viewRoster(userID, courseID, secID, term):
         courseID = courseID,
         secID = secID,
         term = term,
-        submittedStudents = submittedStudents,
         evalID = evalID,
-        userID = userID
+        userID = userID,
+        course = course,
+        courseDept = courseDept
     )
 
 @app.route("/<userID>/view-courses", strict_slashes=False)

@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
 
-{% block title %} Class Roster {% endblock %}
+{% block title %} Roster {% endblock %}
 
 {% block content %}
 
-<h1> Roster for {{ courseID }} {{ secID }} {{ term }}</h1>
+<h1> Roster for {{ course }}</h1>
+<h4>{{ courseDept }}-{{ courseID }}-{{ secID }}-{{ term }}</h4>
 <div class="d-flex justify-content-center">
 {% if msg %}
   <p class="alert alert-info" role="alert">{{ msg | safe }}</p>
@@ -27,7 +28,7 @@
       <td>{{ student.firstName }} {{ student.lastName }}</td>
       <td>{{ student.email }}</td>
       <td>
-        {% if student.userID in submittedStudents %}
+        {% if student.status == "Completed" %}
           <a href="{{ url_for ('viewEvaluation', studentID=student.userID, evalID=evalID, userID=userID) }}">View feedback</a>
         {% else %}
           NOT VIEWABLE YET
