@@ -21,3 +21,15 @@ Once app is running, conduct the below User Acceptance Tests:
 
 **Sprint 3 Tests**
 
+__Roster from course list__
+(instructor)
+- login as "Test instructor"
+- click "VIEW COURSE LIST"
+- click on one of the rosters
+- confirm it brings you to a roster
+* can repeat for Dept chair signing in as "Test DeptChair", but it is not needed
+
+(student)
+- login as "Test Student"
+- click "VIEW COURSE LIST"
+- confirm there is no roster link
