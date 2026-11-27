@@ -8,6 +8,8 @@ import re
 
 from constants import ROLE
 from database import (
+    canViewRoster,
+    getCourseDept,
     getCourseListDeptChair,
     getCourseListInstructor,
     getCourseListStudent,
@@ -327,114 +329,53 @@ def viewEvaluation(studentID, evalID, userID):
         userID=userID
         )
 
-# Open an evaluation 
-@app.route("/<userID>/evaluate/<enrollID>/<evalID>", methods=["GET"])
-def completeEvaluation(userID, enrollID, evalID):
-
-    # Get enrollment information
-    enrollment = getEnrollmentByID(enrollID)
-
-    if not enrollment:
-        return render_template( "completeEvaluation.html", msg="Enrollment not found.")
-
-    courseID = enrollment["courseID"]
-    studentID = enrollment["studentID"]
-
-    # Get current evaluation status
-    status = getEvalStatus(enrollID, evalID)
-    pastDue = isEvaluationPastDue(evalID) # Check whether the evaluation deadline has passed
-
-    # Update status if evaluation has not been completed
-    if status == "Not Started" and not pastDue:
-        saveEvalStatus(enrollID, evalID, "In Progress")
-        status = "In Progress"
-
-    # Get evaluation questions and saved responses
-    questions = getEvalQuestions(evalID)
-    responses = getEvalResponses(enrollID, evalID)
-
-    return render_template(
-        "completeEvaluation.html",
-        courseID=courseID,
-        studentID=studentID,
-        status=status,
-        pastDue=pastDue,
-        msg=None,
-        questions=questions,
-        responses=responses,
-        userID=userID,
-        enrollID=enrollID,
-        evalID=evalID
-    )
-
-# Save progress of evaluation 
-@app.route("/<userID>/evaluate/<enrollID>/<evalID>/save",methods=["POST"])
-def saveProgress(userID, enrollID, evalID):
-
-    if isEvaluationPastDue(evalID):
-        return redirect(url_for("viewEvaluationsList", userID=userID))
-
-    if getEvalStatus(enrollID, evalID) == "Completed":
-        return redirect(url_for("viewEvaluationsList", userID=userID))
-
-    # Get enrollment information to retrieve studentID
-    enrollment = getEnrollmentByID(enrollID)
-    if not enrollment:
-        return redirect(url_for("viewEvaluationsList", userID=userID))
-
-    studentID = enrollment["studentID"]
-
-    # Check current status before updating
-    current_status = getEvalStatus(enrollID, evalID)
-
-    # Iterate through submitted answers
-    for fieldID, response in request.form.items():
-        # Skip the action button so "save"/"submit" is not stored as an answer
-        if fieldID == "action":
-            continue
-
-        # Save each answer
-        saveEvalResponse(studentID, enrollID, evalID, fieldID, response)
-
-    # Only update status if not already completed
-    if current_status != "Completed":
-        saveEvalStatus(enrollID, evalID, "In Progress")
-
-    return redirect( url_for("completeEvaluation", userID=userID, enrollID=enrollID, evalID=evalID) )
-
-# Submit an application (marks it as complete)
-@app.route("/<userID>/evaluate/<enrollID>/<evalID>/submit",methods=["POST"])
-def submitEvaluationForm(userID, enrollID, evalID):
-    if isEvaluationPastDue(evalID):
-        return redirect(url_for("viewEvaluationsList", userID=userID))
-
-    if getEvalStatus(enrollID, evalID) == "Completed":
-        return redirect(url_for("viewEvaluationsList", userID=userID))
-
-    # Get enrollment information to retrieve studentID
-    enrollment = getEnrollmentByID(enrollID)
-    if not enrollment:
-        return redirect(url_for("viewEvaluationsList", userID=userID))
-
-    studentID = enrollment["studentID"]
-
-    # Save the latest answers
-    for fieldID, response in request.form.items():
-        # Skip the action button so "save"/"submit" is not stored as an answer
-        if fieldID == "action":
-            continue
-        saveEvalResponse(studentID, enrollID, evalID, fieldID, response)
-
-    # Mark evaluation as completed
-    saveEvalStatus(enrollID, evalID, "Completed")
-
-    return redirect( url_for("viewEvaluationsList",userID=userID) )
-
-@app.route("/view-roster/<courseID>/<secID>/<term>")
-def viewRoster(courseID, secID, term):
+@app.route("/<userID>/view-roster/<courseID>/<secID>/<term>")
+def viewRoster(userID, courseID, secID, term):
     """Route for viewing class roster."""
+    # get course name
+    course = getCourseName(courseID)
+    courseDept = getCourseDept(courseID)
+    secID = f"{int(secID):03d}"
+    courseID = f"{int(courseID):03d}"
+
+    # check if user can view roster
+    if userID not in canViewRoster(courseID, secID, term):
+        msg = (
+            "Sorry looks like you do not have access to this roster.<br>"
+            "Please try looking at a roster you have access to.<br>"
+            "You can find rosters you have access to in "
+            '"'
+            f'<a href="{url_for("viewCourseList", userID=userID)}">'
+            "VIEW COURSE LIST</a>"
+            '"'
+        )
+        return render_template(
+            "viewRoster.html", 
+            userID = userID,
+            msg = msg,
+            courseID = courseID,
+            secID = secID,
+            term = term,
+            course = course,
+            courseDept = courseDept
+            )
+
     # get the roster
     roster = getRoster(secID, courseID, term)
+
+    # check if roster returned error message
+    if isinstance(roster, str):
+        return render_template(
+            "viewRoster.html",
+            userID = userID,
+            msg = roster,
+            courseID = courseID,
+            secID = secID,
+            term = term,
+            course = course,
+        )
+    # 03d will make it so the secID is 3 digits: ex- 50 to 050
+    evalID = f"{getCourseDept(courseID)}-{int(courseID):03d}-{int(secID):03d}-{term}"
 
     # render view of class roster
     return render_template(
@@ -442,7 +383,11 @@ def viewRoster(courseID, secID, term):
         roster = roster,
         courseID = courseID,
         secID = secID,
-        term = term
+        term = term,
+        evalID = evalID,
+        userID = userID,
+        course = course,
+        courseDept = courseDept
     )
 
 @app.route("/<userID>/view-courses", strict_slashes=False)
