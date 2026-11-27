@@ -2,9 +2,8 @@ import os
 from datetime import datetime
 
 from dotenv import load_dotenv
-from flask import Flask, redirect, render_template, request, send_file, url_for, jsonify
+from flask import Flask, redirect, render_template, request, send_file, url_for
 import os
-import re
 
 from constants import ROLE
 from database import (
@@ -27,17 +26,6 @@ from database import (
     getUserRole,
     getUsersInfo,
     submitEvaluation,
-    getEnrollmentByID,
-    getEvalQuestions,
-    getEvalResponses,
-    getEvalStatus,
-    saveEvalResponse,
-    saveEvalStatus,
-    createEvaluation,
-    getDept,
-    getDeptAbbreviation, 
-    isEvaluationPastDue,
-    createUser,
     )
 
 from evaluation import getUniqueEvalList
@@ -159,7 +147,6 @@ def instructor():
 def admin(): 
     return "Who's doing well ಠ_ಠ"
 
-
 # just to test if app can connect to DBs
 @app.route("/database-check")
 def dbCheck(): 
@@ -173,31 +160,6 @@ def dbCheck():
     testdb.close()
 
     return f"DB: {DBresult_dict[0][0]}"
-
-# Using jsonify so there is a meaningful HTTP response
-@app.route("/users", methods=["POST"])
-def add_user():
-    data = request.get_json()
-
-    userID = data.get("userID")
-    firstName = data.get("firstName")
-    lastName = data.get("lastName")
-    email = data.get("email")
-    role = data.get("role")
-
-    if not all([userID, firstName, lastName, email, role]): 
-        return jsonify({"error":"All fields must be completed"}), 400 
-
-    if role not in ["stu", "ins", "sca", "dc"]:
-        return jsonify({"error": "Invalid role"}), 400
-
-    # Using regular expression so that we are checking for the pattern of @
-    if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
-        return jsonify({"error": "Invalid email"}), 400
-
-    createUser(userID, firstName, lastName, email, role)
-
-    return jsonify({"message": "User was successfully created"}), 201
 
 @app.route("/view-evals-list/<userID>", strict_slashes=False)
 def viewEvaluationsList(userID):
@@ -243,55 +205,6 @@ def viewEvaluationsList(userID):
         evals=evals, 
         userID=userID
         )
-
-@app.route("/<userID>/create-evaluation", methods=["GET", "POST"])
-def createEvaluationForm(userID):
-
-    # check if user is a department chair
-    if getUserRole(userID) != ROLE.deptChair.value:
-        return render_template("error.html", msg="Access denied.")
-
-    # get courses for the department chair
-    courses = getCourseListDeptChair(userID)
-
-    if request.method == "POST":
-        creator = userID
-
-        # get selected course information
-        selectedSection = request.form["section"]
-        courseID, secID, term = selectedSection.split("|")
-
-        # generate evaluation ID + get department abbreviation
-        dept = getDept(userID)
-        deptAbbrev = getDeptAbbreviation(dept)
-
-        evalID = f"{deptAbbrev}-{courseID}-{secID}-{term}"
-
-        customName = request.form["customName"]
-        deadline = request.form["deadline"]
-
-        if deadline == "":
-            deadline = None
-
-        result = createEvaluation(evalID, creator, secID, courseID, term, customName, deadline)
-
-        if result != evalID:
-            return render_template(
-            "createEvaluation.html",
-            userID=userID,
-            courses=courses,
-            msg=result,
-            selectedSection=selectedSection,
-            customName=customName,
-            deadline=deadline, )
-
-        return redirect(url_for("home", userID=userID))
-
-    # handle GET requests 
-    return render_template(
-        "createEvaluation.html",
-        userID=userID,
-        courses=courses,)
 
 @app.route("/view-evals/<userID>/<studentID>/<evalID>", strict_slashes=False)
 def viewEvaluation(studentID, evalID, userID):
