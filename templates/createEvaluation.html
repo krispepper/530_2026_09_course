@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %} Create Evaluation {% endblock %}
+
+{% block content %}
+
+<h1>Create Evaluation</h1>
+
+<div class="container mt-4">
+
+        {% if msg %}
+            <div class="alert alert-danger" role="alert"> {{ msg }} </div>
+        {% endif %}
+
+        <form method="POST">
+
+        <div class="mb-3">
+            <label for="section" class="form-label">Course and Section</label>
+            <select class="form-select" id="section" name="section" required>
+                <option value="">Select a course</option>
+                {% for course in courses %}
+                    <option value="{{ course.courseID }}|{{ course.secID }}|{{ course.term }}">
+                        {% if selectedSection == course.courseID|string + '|' + course.secID|string + '|' + course.term %}selected{% endif %}>
+                        {{ course.name }} - Section {{ course.secID }} ({{ course.term }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="customName" class="form-label">Custom Evaluation Name (Optional)</label>
+            <input type="text" class="form-control" id="customName" name="customName" value="{{ customName or '' }}">>
+        </div>
+
+        <div class="mb-3">
+            <label for="deadline" class="form-label">Evaluation Deadline</label>
+            <input type="datetime-local" class="form-control" id="deadline" name="deadline" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create Evaluation</button>
+        <a href="{{ url_for('home', userID=userID) }}" class="btn btn-secondary">Cancel</a>
+
+    </form>
+</div>
+
+{% endblock %}

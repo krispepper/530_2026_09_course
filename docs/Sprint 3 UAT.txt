@@ -1,0 +1,51 @@
+USER ACCEPTANCE TESTING MANUAL
+
+Folder: on compsci server home\groupprojects\fall2026_530_course
+
+RUN APPLICATION:
+- Create venv if not already created:
+    - Follow steps in read me to do so 
+- Install requirements if needed 
+    - In CLI enter the following:
+        - cd home\groupprojects\fall2026_530_course 
+        - pip install -r requirements.txt
+- If not alreay in the correct directory run the following in CLI:
+    - cd home\groupprojects\fall2026_530_course
+- Start application run the following in the CLI:
+    - python app.py
+        - Can now ctrl+click on link in terminal window or type link into URL input on webpage
+
+Branch: Sprint3 (will edit to main when Sprint3 is merged)
+
+Once app is running, conduct the below User Acceptance Tests: 
+
+**Sprint 3 Tests**
+
+__Roster from course list__
+(instructor)
+- login as "Test instructor"
+- click "VIEW COURSE LIST"
+- click on one of the rosters
+- confirm it brings you to a roster
+* can repeat for Dept chair signing in as "Test DeptChair", but it is not needed
+
+(student)
+- login as "Test Student"
+- click "VIEW COURSE LIST"
+- confirm there is no roster link
+
+__Evaluation from Roster__
+(access to roster)
+- start app if not already running
+- login as "Test instructor" 
+- click on "VIEW COURSE LIST" then select "Software Engineering Methodology" sec = 050 and term = "F26" 
+- confirm students with status of "Completed" have a link to their evaluation
+- click on the link to a students evaluation and confirm it bring you to the evaluation
+
+__Blocked from Roster__
+(no access to roster)
+- start app if not already running
+- login as "Test instructor" 
+- click on "VIEW COURSE LIST" then select "Software Engineering Methodology" sec = 050 and term = "F26" 
+- edit the url, change "F26" to "S27"
+- confirm a message is shown letting you know you don't have access to the roster

@@ -3,9 +3,12 @@ from datetime import datetime
 
 from dotenv import load_dotenv
 from flask import Flask, redirect, render_template, request, send_file, url_for
+import os
 
 from constants import ROLE
 from database import (
+    canViewRoster,
+    getCourseDept,
     getCourseListDeptChair,
     getCourseListInstructor,
     getCourseListStudent,
@@ -23,7 +26,8 @@ from database import (
     getUserRole,
     getUsersInfo,
     submitEvaluation,
-)
+    )
+
 from evaluation import getUniqueEvalList
 from export import exportCSVCourse, exportXlsxCourse
 
@@ -71,7 +75,20 @@ def home(userID):
         userName = getUserNameFromId(userID)
         firstName = userName["firstName"]
         lastName = userName["lastName"]
-        return render_template('homepage.html', userID = userID, firstName = firstName, lastName = lastName, userRole = userRole)
+        if userRole == ROLE.deptChair.value:
+          isDeptChair = True
+        else:
+          isDeptChair = False
+  
+
+        return render_template(
+          'homepage.html', 
+          userID = userID, 
+          firstName = firstName, 
+          lastName = lastName, 
+          isDeptChair = isDeptChair, 
+          userRole = userRole
+        )
     else:
         # return error message; will appear if user attempts to type in url with an invalid userID
         return render_template("error.html", msg = "Error reaching homepage. User ID specified does not exist.")
@@ -130,7 +147,6 @@ def instructor():
 def admin(): 
     return "Who's doing well ಠ_ಠ"
 
-
 # just to test if app can connect to DBs
 @app.route("/database-check")
 def dbCheck(): 
@@ -176,11 +192,12 @@ def viewEvaluationsList(userID):
         return render_template(
             "viewEvaluationsList.html",  
             userID=userID,
+            role=role,
             msg=evals
             )
     
     # get unique evaluations
-    evals = getUniqueEvalList(evals)
+    #evals = getUniqueEvalList(evals)
 
     # render view for viewEvaluations
     return render_template(
@@ -188,7 +205,6 @@ def viewEvaluationsList(userID):
         evals=evals, 
         userID=userID
         )
-
 
 @app.route("/view-evals/<userID>/<studentID>/<evalID>", strict_slashes=False)
 def viewEvaluation(studentID, evalID, userID):
@@ -206,8 +222,9 @@ def viewEvaluation(studentID, evalID, userID):
             userID=userID
             )
     
-    # get created timestamp
-    created_at=eval[0]["created_at"]
+
+    created_at=next( (field["created_at"] for field in eval if field["created_at"] is not None),
+        None )
 
     # get latest modified timestamp
     if [field["last_modified"] for field in eval if field["last_modified"]]:
@@ -225,11 +242,53 @@ def viewEvaluation(studentID, evalID, userID):
         userID=userID
         )
 
-@app.route("/view-roster/<courseID>/<secID>/<term>")
-def viewRoster(courseID, secID, term):
+@app.route("/<userID>/view-roster/<courseID>/<secID>/<term>")
+def viewRoster(userID, courseID, secID, term):
     """Route for viewing class roster."""
+    # get course name
+    course = getCourseName(courseID)
+    courseDept = getCourseDept(courseID)
+    secID = f"{int(secID):03d}"
+    courseID = f"{int(courseID):03d}"
+
+    # check if user can view roster
+    if userID not in canViewRoster(courseID, secID, term):
+        msg = (
+            "Sorry looks like you do not have access to this roster.<br>"
+            "Please try looking at a roster you have access to.<br>"
+            "You can find rosters you have access to in "
+            '"'
+            f'<a href="{url_for("viewCourseList", userID=userID)}">'
+            "VIEW COURSE LIST</a>"
+            '"'
+        )
+        return render_template(
+            "viewRoster.html", 
+            userID = userID,
+            msg = msg,
+            courseID = courseID,
+            secID = secID,
+            term = term,
+            course = course,
+            courseDept = courseDept
+            )
+
     # get the roster
     roster = getRoster(secID, courseID, term)
+
+    # check if roster returned error message
+    if isinstance(roster, str):
+        return render_template(
+            "viewRoster.html",
+            userID = userID,
+            msg = roster,
+            courseID = courseID,
+            secID = secID,
+            term = term,
+            course = course,
+        )
+    # 03d will make it so the secID is 3 digits: ex- 50 to 050
+    evalID = f"{getCourseDept(courseID)}-{int(courseID):03d}-{int(secID):03d}-{term}"
 
     # render view of class roster
     return render_template(
@@ -237,7 +296,11 @@ def viewRoster(courseID, secID, term):
         roster = roster,
         courseID = courseID,
         secID = secID,
-        term = term
+        term = term,
+        evalID = evalID,
+        userID = userID,
+        course = course,
+        courseDept = courseDept
     )
 
 @app.route("/<userID>/view-courses", strict_slashes=False)

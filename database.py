@@ -73,7 +73,7 @@ def getUserRole(userID: str) -> str:
     """ 
     Given a user ID returns the role (instructor, student, department chair or school admin).
 
-    attrs: 
+    args: 
         userID (str): ID of user
     return: 
         role (str): returns one of these ('stu', 'ins', 'sca', 'dc')
@@ -117,7 +117,7 @@ def getRoleID(userID: str) -> str:
     """ 
     Given a user ID returns the role specific ID.
 
-    attrs: 
+    args: 
         userID (str): ID of user
     return: 
         roleID (str): ID related to user's specific role (instructorID, adminID, studentID)
@@ -177,7 +177,7 @@ def getDept(userID: str) -> int:
     """
     Function returns a dict with evaluation responses associated with a given department chair.
         
-    attrs: 
+    argss: 
         userID (str): id of instructor (or department chair)
     return: 
         dept (int): dept id for a given instructor.
@@ -213,11 +213,29 @@ def getDept(userID: str) -> int:
         # return error message
         return f"No dept found for userID '{userID}'."
 
+# so that course info is properly formatted
+def getDeptAbbreviation(deptID: int) -> str:
+    db = getDB()
+    cursor = db.cursor(dictionary=True)
+
+    query = "SELECT code FROM dept WHERE ID = %s"
+    cursor.execute(query, (deptID,))
+    result = cursor.fetchone()
+
+    cursor.close()
+    db.close()
+
+    if result is not None:
+        return result["code"]
+    else:
+        return f"No department abbreviation found for deptID '{deptID}'."
+
+
 def getRoster(secID: int, courseID: int, term: str) -> list[dict]:
     """
     Function returns a dict with students attending a given class.
         
-    attrs: 
+    argss: 
         secID (int): id of section for class
         courseID (int): id of course for class
         term (int): term for class (format: F or S followed by last two digits of year ex: F26)
@@ -231,20 +249,21 @@ def getRoster(secID: int, courseID: int, term: str) -> list[dict]:
 
     # query to get list of student information for a specific class
     query = (
-        'With enrollStudents as ('
-        'SELECT u.userID, u.firstName, u.lastName, u.email '
-        'FROM user AS u '
-        'JOIN enrollment AS e '
-        'ON e.studentID = u.userID '
-        'WHERE secID = %s '
-        'AND courseID = %s '
-        'AND term = %s) '
-        'SELECT s.studentID, es.firstName, es.lastName, es.email '
-        'FROM enrollStudents as es '
-        'JOIN student as s '
-        'ON es.userID = s.userID'
+        "WITH enrollStudents AS ("
+            "SELECT u.userID, u.firstName, u.lastName, u.email, e.enrollID "
+            "FROM user AS u "
+            "JOIN enrollment AS e "
+            "ON e.studentID = u.userID "
+            "WHERE e.secID = %s "
+            "AND e.courseID = %s AND e.term = %s" \
+        ") SELECT s.userID, s.studentID, es.firstName, es.lastName, es.email, IFNULL(ev.status, 'Not Started') AS status "
+        "FROM enrollStudents AS es "
+        "JOIN student AS s "
+        "ON es.userID = s.userID "
+        "LEFT JOIN evaluationStatus AS ev "
+        "ON es.enrollID = ev.enrollID;"
         )
-    # run query using instructorID
+    # run query
     usercursor.execute(query, (secID, courseID, term))
     # get results as dict
     DBresult_dict = usercursor.fetchall()
@@ -267,11 +286,57 @@ def getRoster(secID: int, courseID: int, term: str) -> list[dict]:
     # return role
     return DBresult_dict
 
+def canViewRoster(courseID: int, secID: int, term: str) -> tuple:
+    """
+    Function returns a list with the userIDs of the class instructor and dept chair
+        
+    args: 
+        secID (int): id of section for class
+        courseID (int): id of course for class
+        term (int): term for class (format: F or S followed by last two digits of year ex: F26)
+    return: 
+        allowedAccess(tuple): list of userID of instructor of course and dept chair 
+    """
+    # open database connection
+    userDB = getDB()
+    # cursor fetch will return as dict
+    usercursor = userDB.cursor()
+
+    # query for instructor and dept chair related to a class
+    query = (
+        "WITH courseSec AS ("
+        "SELECT s.instructorID, s.courseID, s.secID, s.term, c.deptID "
+        "FROM sections AS s "
+        "JOIN courses AS c "
+        "ON c.courseID = s.courseID" 
+        ") "
+        "SELECT d.chair, cs.instructorID "
+        "FROM courseSec AS cs "
+        "JOIN dept AS d "
+        "ON d.ID = cs.deptID "
+        "WHERE cs.courseID = %s " 
+        "AND cs.secID = %s " 
+        "AND cs.term = %s"
+    )
+    # run query using userID
+    usercursor.execute(query, (courseID, secID, term))
+
+    # get results as dict
+    allowedAccess_DB= usercursor.fetchone()
+
+    # check if none returned
+    if not allowedAccess_DB:
+        # return empty list if no instructors found
+        return []
+
+    # tuple of instructor and dept chair userIDs what can view roster
+    return allowedAccess_DB
+
 def getInstructorByCourse(courseID: int, secID: int, term: str) -> str:
     """
     Function returns userID of an instructor for a given class
        
-    attrs: 
+    argss: 
         secID (int): id of section for class
         courseID (int): id of course for class
         term (int): term for class (format: F or S followed by last two digits of year ex: F26)
@@ -314,7 +379,7 @@ def getEvalListInstructor(instructorID: str) -> list[dict]:
     """ 
     Function returns a dict with evaluation responses associated with a given instructor.
     
-    attrs: 
+    argss: 
         instructorID (str): id of instructor
     return: 
         evalResponses (dict): a dict of evaluation responses associated with a given instructor
@@ -367,36 +432,18 @@ def getEvalListInstructor(instructorID: str) -> list[dict]:
     if all(evalResponse == {} for evalResponse in evalResponses):
         return "No evaluation responses found."
 
-    # else return eval responses
-    return evalResponses
+    placeholders = ", ".join(["%s"] * len(evalIDs_list))
 
-def getEvalListStudent(studentID: str) -> list[dict]:
-    """ 
-    Function returns a dict with eval responses associated with a given student.
-    
-    attrs: 
-        studentID (str): id of student
-    return: 
-        evalResponses (dict): a dict of evaluation responses associated with a given student
-    """
-    # open database connection
-    evalDB = getDB()
-    # cursor fetch will return as dict
-    evalcursor = evalDB.cursor(dictionary=True)
+    queryResponses = (
+            "SELECT * "
+            "FROM evalResponse "
+            f"WHERE evalID IN ({placeholders}) "
+            "ORDER BY evalID"
+        )
 
-    # query for db
-    query = (
-        "SELECT * "
-        "FROM evalResponse "
-        "WHERE studentID = %s "
-        "ORDER BY evalID, studentID, fieldID"
-    )
-    # run query using section IDs
-    evalcursor.execute(query, (studentID,))
-    # get results as dict
+    evalcursor.execute(queryResponses, tuple(evalIDs_list))
     evalResponses = evalcursor.fetchall()
 
-    # close DB and cursor
     evalcursor.close() 
     evalDB.close()
 
@@ -404,14 +451,14 @@ def getEvalListStudent(studentID: str) -> list[dict]:
     if all(evalResponse == {} for evalResponse in evalResponses):
             return "No evaluation responses found."
 
-    # else return eval responses
     return evalResponses
+
 
 def getEvalListDeptChair(deptChairID: str) -> list[dict]:
     """ 
     Function returns a dict with evaluation responses associated with a given department chair.
     
-    attrs: 
+    argss: 
         deptChairID (str): id of department chair
     return: 
         evalResponses (dict): a dict of evaluation responses associated with a given dept chair.
@@ -421,7 +468,7 @@ def getEvalListDeptChair(deptChairID: str) -> list[dict]:
     dept = getDept(deptChairID)
 
     # open database connection
-    evalDB = getDB()
+    evalDB = getDB() 
     # cursor fetch will return as dictionary
     evalcursor = evalDB.cursor(dictionary=True)
 
@@ -452,6 +499,7 @@ def getEvalListDeptChair(deptChairID: str) -> list[dict]:
 
     # check if no evalIDs were found
     if not evalIDs_list:
+        # note that Faith had :         evalcursor.close();  evalDB.close() here
         return "No evaluation responses found."
 
     # make placeholders
@@ -469,8 +517,7 @@ def getEvalListDeptChair(deptChairID: str) -> list[dict]:
     # get results from query
     evalResponses = evalcursor.fetchall()
 
-    # close DB and cursor
-    evalcursor.close() 
+    evalcursor.close()
     evalDB.close()
 
     # if empty return error message
@@ -484,7 +531,7 @@ def getEvalByClass(courseID: int, secID: int, term: str) -> list[dict]:
     """ 
     Function returns a dict with evaluation responses associated with a given class.
     
-    attrs: 
+    argss: 
         secID (int): id of section for class
         courseID (int): id of course for class
         term (int): term for class (format: F or S followed by last two digits of year ex: F26)
@@ -532,7 +579,7 @@ def getSpecEval(evalID: str, studentID: str) -> list[dict]:
     """ 
     Returns eval response of based on evalID.
 
-    attrs: 
+    argss: 
         evalID (str): id of evaluation
     return: 
         evalResponses (dict): a dict of evaluation responses of a given evaluation.
@@ -544,15 +591,16 @@ def getSpecEval(evalID: str, studentID: str) -> list[dict]:
     evalcursor = evalDB.cursor(dictionary=True)
 
     # query for db
+    # I swapped the order of formField and evalResponse because we want to ensure all questions are returned.
     query = (
         "SELECT f.fieldID, f.title, e.response, e.created_at, e.last_modified "
-        "FROM evalResponse AS e "
-        "JOIN formField AS f "
-        "ON e.evalID = f.evalID "
-        "AND e.fieldID = f.fieldID "
-        "WHERE e.studentID = %s " 
-        "AND e.evalID = %s "
-        "ORDER BY fieldID"
+        "FROM formField AS f "
+        "LEFT JOIN evalResponse AS e "
+        "ON f.evalID = e.evalID "
+        "AND f.fieldID = e.fieldID "
+        "AND e.studentID = %s " 
+        "WHERE f.evalID = %s "
+        "ORDER BY f.fieldID"
     )
     # run query using section IDs
     evalcursor.execute(query, (studentID, evalID,))
@@ -563,7 +611,7 @@ def getSpecEval(evalID: str, studentID: str) -> list[dict]:
     evalcursor.close() 
     evalDB.close()
     
-    # if empty return error message
+    # if empty return error message # may have to come back and fix this part 
     if all(evalResponse == {} for evalResponse in evalResponses):
             return "No evaluation responses found."
 
@@ -575,7 +623,7 @@ def getCourseName(courseID: int) -> str:
     """
     Function returns a information about an given class
        
-    attrs: 
+    argss: 
         courseID (int): id of course for class
     return: 
         courseName (str): name of course
@@ -613,7 +661,7 @@ def getCourseDept(courseID: int) -> str:
     """
     Function returns a course's department
         
-    attrs: 
+    argss: 
         courseID (int): id of course for class
     return: 
         dept (str): name of dept
@@ -653,7 +701,7 @@ def getCourseListStudent(userID: str) -> list[dict]:
     """
     Function returns a list of course information for a given student.
         
-    attrs: 
+    argss: 
         userID (str): id of user
     return: 
         courses (list[dict]): course information (name, course, sec, term) for courses of a student 
@@ -703,7 +751,7 @@ def getCourseListInstructor(userID: str) -> list[dict]:
     """
     Function returns a list of course information for a given instructor.
         
-    attrs: 
+    argss: 
         userID (str): id of user
     return: 
         courses (list[dict]): course information (name, course, sec, term) for courses of an instructor 
@@ -752,7 +800,7 @@ def getCourseListDeptChair(userID: str) -> list[dict]:
     """
     Function returns a list of course information for a given instructor.
         
-    attrs: 
+    argss: 
         userID (str): id of user
     return: 
         courses (list[dict]): course information (name, course, sec, term) for courses of an instructor 
@@ -872,3 +920,152 @@ def submitEvaluation(studentID, response, created_at, last_modified, enrollID, f
     except Exception: # If ANYTHING goes wrong, roll back the changes & return error message.
         userDB.rollback()
         return "An error occured while submitting your course evaluation form. :'("
+
+def getEvalListStudent(studentID: str) -> list[dict]:
+    """
+    Returns all evaluations assigned to a student, including their current status.
+    attrs:
+        studentID (str): ID of student
+    return:
+        evalList (list[dict]): List of assigned evaluations
+    """
+
+    evalDB = getDB()
+
+    # fetch 
+    evalcursor = evalDB.cursor(dictionary=True)
+
+    query = (
+        "SELECT enrol.studentID, eval.evalID, enrol.courseID, enrol.secID, enrol.term, enrol.enrollID, eval.deadline, "
+        "COALESCE(ev_st.status, 'Not Started') AS status, CASE "
+        "WHEN eval.deadline IS NOT NULL AND eval.deadline < NOW() "
+        "AND COALESCE(ev_st.status, 'Not Started') != 'Completed' "
+        "THEN 'Past Due' "
+        "ELSE COALESCE(ev_st.status, 'Not Started') "
+        "END AS displayStatus "
+        "FROM enrollment AS enrol JOIN evaluation AS eval "
+        "ON enrol.courseID = eval.courseID AND enrol.secID = eval.secID AND enrol.term = eval.term "
+        "LEFT JOIN evaluationStatus AS ev_st ON enrol.enrollID = ev_st.enrollID AND eval.evalID = ev_st.evalID "
+        "WHERE enrol.studentID = %s ORDER BY eval.evalID"
+    )
+
+    evalcursor.execute(query, (studentID,))
+
+    # get results as dict
+    evalList = evalcursor.fetchall()
+
+    evalcursor.close()
+    evalDB.close()
+
+    # if empty return error message
+    if not evalList:
+        return "No evaluation responses found."
+    return evalList
+
+# Edit Evaluation Form 
+def edit_evaluationQuestion(eval_ID, field_ID, title, fieldType, fieldSubject, options):
+    db = getDB() 
+    cursor = db.cursor() 
+
+    query = """UPDATE formField SET title = %s, fieldType = %s, fieldSubject=%s, options = %s 
+    WHERE evalID = %s AND fieldID = %s"""
+    values = (title, fieldType, fieldSubject, options, eval_ID, field_ID)
+
+    cursor.execute(query,values)
+    db.commit()
+
+    updatedQuestion = cursor.rowcount
+
+    cursor.close()
+    db.close()
+
+    return updatedQuestion
+
+
+
+def getEnrollmentByID(enrollID: int) -> dict:
+    """
+    Returns enrollment information for a given enrollment ID.
+    """
+    evalDB = getDB()
+    evalcursor = evalDB.cursor(dictionary=True)
+
+    # query for enrollment
+    query = ( "SELECT studentID, courseID, secID, term " "FROM enrollment " "WHERE enrollID = %s")
+
+    evalcursor.execute(query, (enrollID,))
+    enrollment = evalcursor.fetchone()
+
+    evalcursor.close()
+    evalDB.close()
+
+    return enrollment
+
+def getEvalListInstructor(instructorID: str) -> list[dict]:
+    """
+    Function returns evaluation responses associated with a given instructor.
+    """
+    evalDB = getDB()
+    evalcursor = evalDB.cursor(dictionary=True)
+
+    queryEvalIDs = (
+        "SELECT evalID "
+        "FROM sections AS s JOIN evaluation AS e ON "
+        "s.courseID = e.courseID "
+        "AND s.secID = e.secID "
+        "AND s.term = e.term "
+        "WHERE instructorID = %s"
+    )
+
+    evalcursor.execute(queryEvalIDs, (instructorID,))
+    evalIDs_list = [eval['evalID'] for eval in evalcursor.fetchall()]
+
+    if not evalIDs_list:
+        evalcursor.close()
+        evalDB.close()
+        return "No evaluation responses found."
+
+    placeholders = ", ".join(["%s"] * len(evalIDs_list))
+
+    queryResponses = (
+        "SELECT * "
+        "FROM evalResponse "
+        f"WHERE evalID IN ({placeholders}) "
+        "ORDER BY evalID"
+    )
+
+    evalcursor.execute(queryResponses, tuple(evalIDs_list))
+    evalResponses = evalcursor.fetchall()
+
+    evalcursor.close()
+    evalDB.close()
+
+    if not evalResponses:
+        return "No evaluation responses found."
+
+    return evalResponses
+
+def getEvalListStudent(studentID: str) -> list[dict]:
+    """
+    Function returns evaluation responses associated with a given student.
+    """
+    evalDB = getDB()
+    evalcursor = evalDB.cursor(dictionary=True)
+
+    query = (
+        "SELECT * "
+        "FROM evalResponse "
+        "WHERE studentID = %s "
+        "ORDER BY evalID, studentID, fieldID"
+    )
+
+    evalcursor.execute(query, (studentID,))
+    evalResponses = evalcursor.fetchall()
+
+    evalcursor.close()
+    evalDB.close()
+
+    if not evalResponses:
+        return "No evaluation responses found."
+
+    return evalResponses

@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %} Complete Evaluation {% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Course Evaluation</h1>
+
+    <div class="mb-4">
+        <h4>{{ courseID }} - {{ evalID }}</h4>
+        <p>Student: {{ studentID }}</p>
+        <p>Status: {{ status }}</p>
+
+        {% if pastDue %}
+            <div class="alert alert-warning">
+                This evaluation is past due. You can view your saved responses, but you can no longer edit or submit this evaluation.
+            </div>
+        {% endif %}
+    </div>
+
+    {% if msg %}
+        <div class="alert alert-info"> {{ msg }} </div>
+    {% else %}
+        <form method="POST">
+            {% for field in questions %}
+                <div class="card mb-3">
+                    <div class="card-header"> {{ field.title }} </div>
+                    <div class="card-body">
+                        {% set savedResponse = namespace(value='') %}
+
+                        {% for response in responses %}
+                            {% if response.fieldID == field.fieldID %}
+                                {% set savedResponse.value = response.response %}
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if field.fieldType == "int" %}
+                            <input
+                                type="number"
+                                name="{{ field.fieldID }}"
+                                value="{{ savedResponse.value }}"
+                                class="form-control"
+                                {% if pastDue %}readonly{% endif %}
+                            >
+
+                        {% elif field.fieldType == "shortText" %}
+                            <textarea
+                                name="{{ field.fieldID }}"
+                                class="form-control"
+                                {% if pastDue %}readonly{% endif %}
+                            >{{ savedResponse.value }}</textarea>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+
+            {% if not pastDue %}
+                <div class="mt-4">
+                    <button
+                        type="submit"
+                        name="action"
+                        value="save"
+                        formaction="{{ url_for('saveProgress', userID=userID, enrollID=enrollID, evalID=evalID) }}"
+                        class="btn btn-secondary">
+                        Save Progress
+                    </button>
+
+                    <button
+                        type="submit"
+                        name="action"
+                        value="submit"
+                        formaction="{{ url_for('submitEvaluationForm', userID=userID, enrollID=enrollID, evalID=evalID) }}"
+                        class="btn btn-primary">
+                        Submit Evaluation
+                    </button>
+                </div>
+            {% endif %}
+
+        </form>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
