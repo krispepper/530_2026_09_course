@@ -21,3 +21,9 @@ Once app is running, conduct the below User Acceptance Tests:
 
 **Sprint 3 Tests**
 
+__Issue Fix: User Login Distinguishes Matching Names__
+- Open the application.
+- Navigate to the login page.
+- Open dropdown when selecting a user
+    - [ ] Confirm that userID is visible for each user, which better helps to distinguish users with the same name
+- Example: There are two users with the name "Test Student"; they should have different userIDs that helps distinguish one from the other.
