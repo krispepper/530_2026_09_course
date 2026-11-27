@@ -919,3 +919,80 @@ def submitEvaluation(studentID, response, created_at, last_modified, enrollID, f
     except Exception: # If ANYTHING goes wrong, roll back the changes & return error message.
         userDB.rollback()
         return "An error occured while submitting your course evaluation form. :'("
+
+# Add (like an import) 10 Standard Questions (these are on every form) to the database 
+def add_standardQuestions(eval_ID): 
+    db = getDB()
+    cursor = db.cursor()
+
+    query = """INSERT INTO formField (fieldID,evalID, title, fieldType, fieldSubject, options) 
+    VALUES (%s, %s, %s, %s, %s, %getDept)"""
+
+    questions = [
+        (1, eval_ID, "The instructor presents the subject matter in a clear and understandable way.", "int", "instructor", "1,2,3,4,5,NA"),
+        (2, eval_ID, "The instructor uses class time effectively and efficiently.", "int", "instructor", "1,2,3,4,5,NA"),
+        (3, eval_ID, "The instructor creates an atmosphere that encourages questions and discussion.", "int", "instructor", "1,2,3,4,5,NA"),
+        (4, eval_ID, "The instructor treats students with respect.", "int", "instructor", "1,2,3,4,5,NA"),
+        (5, eval_ID, "Exams and assignments are well connected to course objectives.", "int", "course", "1,2,3,4,5,NA"),
+        (6, eval_ID, "Assigned materials are relevant to class.", "int", "course", "1,2,3,4,5,NA"),
+        (7, eval_ID, "I would recommend this course to other students.", "int", "course", "1,2,3,4,5,NA"),
+        (8, eval_ID, "This course has improved my critical thinking skills.", "int", "learning", "1,2,3,4,5,NA"),
+        (9, eval_ID, "What did you like most about this course?", "shortText", "misc", None),
+        (10, eval_ID, "What suggestions do you have for improving this course?", "shortText", "misc", None)
+                ]
+
+    cursor.executemany(query, questions)
+    db.commit()
+
+    cursor.close()
+    db.close()
+
+def createEvaluation(evalID, creator, secID, courseID, term, customName, deadline):
+    db = getDB()
+    cursor = db.cursor()
+
+    # Check if an evaluation already exists
+    checkQuery = """
+        SELECT evalID
+        FROM evaluation
+        WHERE secID = %s AND courseID = %s AND term = %s
+    """
+    cursor.execute(checkQuery, (secID, courseID, term))
+    existingEvaluation = cursor.fetchone()
+
+    if existingEvaluation:
+        cursor.close()
+        db.close()
+        return "An evaluation already exists for this course section and term."
+
+    query = """INSERT INTO evaluation (evalID, creator, secID, courseID, term, customName, deadline)
+    VALUES (%s, %s, %s, %s, %s, %s, %s)"""
+
+    cursor.execute(query, (evalID, creator, secID, courseID, term, customName, deadline))
+    db.commit()
+
+    add_standardQuestions(evalID)
+
+    cursor.close()
+    db.close()
+
+    return evalID
+
+def getDeptAbbreviation(deptID: int) -> str:
+    """
+    Returns the department abbreviation for a given department ID.
+    """
+    db = getDB()
+    cursor = db.cursor(dictionary=True)
+
+    query = "SELECT code FROM dept WHERE ID = %s"
+    cursor.execute(query, (deptID,))
+    result = cursor.fetchone()
+
+    cursor.close()
+    db.close()
+
+    if result is not None:
+        return result["code"]
+
+    return f"No department abbreviation found for deptID '{deptID}'."

@@ -25,6 +25,9 @@ from database import (
     getUserRole,
     getUsersInfo,
     submitEvaluation,
+    createEvaluation,
+    getDept,
+    getDeptAbbreviation, 
 )
 from evaluation import getUniqueEvalList
 from export import exportCSVCourse, exportXlsxCourse
@@ -358,6 +361,56 @@ def exportXlsx(userID, courseID, secID, term):
         download_name=filename,
         mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
+
+
+@app.route("/<userID>/create-evaluation", methods=["GET", "POST"])
+def createEvaluationForm(userID):
+
+    # check if user is a department chair
+    if getUserRole(userID) != ROLE.deptChair.value:
+        return render_template("error.html", msg="Access denied.")
+
+    # get courses for the department chair
+    courses = getCourseListDeptChair(userID)
+
+    if request.method == "POST":
+        creator = userID
+
+        # get selected course information
+        selectedSection = request.form["section"]
+        courseID, secID, term = selectedSection.split("|")
+
+        # generate evaluation ID + get department abbreviation
+        dept = getDept(userID)
+        deptAbbrev = getDeptAbbreviation(dept)
+
+        evalID = f"{deptAbbrev}-{courseID}-{secID}-{term}"
+
+        customName = request.form["customName"]
+        deadline = request.form["deadline"]
+
+        if deadline == "":
+            deadline = None
+
+        result = createEvaluation(evalID, creator, secID, courseID, term, customName, deadline)
+
+        if result != evalID:
+            return render_template(
+            "createEvaluation.html",
+            userID=userID,
+            courses=courses,
+            msg=result,
+            selectedSection=selectedSection,
+            customName=customName,
+            deadline=deadline, )
+
+        return redirect(url_for("home", userID=userID))
+
+    # handle GET requests 
+    return render_template(
+        "createEvaluation.html",
+        userID=userID,
+        courses=courses,)
 
 if __name__ == "__main__": 
     app.run(debug=True, use_reloader=False, port=PORT)
