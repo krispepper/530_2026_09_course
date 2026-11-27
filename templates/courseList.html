@@ -16,31 +16,35 @@
             <th scope="col">Course</th>
             <th scope="col">Section</th>
             <th scope="col">Term</th>
-            {% if role != "stu" %}<th scope="col">Export options</th>{% endif %}
+            {% if role != "stu" %}
+                <th scope="col">Export options</th>
+                <th scope="col">View Roster</th>
+            {% endif %}
         </tr>
     </thead>  
     <tbody>
     {% for c in courses %}
     <tr>
         <td>{{ c.name }}</td>
-        <td>{{ c.courseID }}</td>
-        <td>{{ c.secID }}</td>
+        <td>{{ '%03d' | format(c.courseID) }}</td>
+        <td>{{ '%03d' | format(c.secID) }}</td>
         <td>{{ c.term }}</td>
         {% if role != "stu"%}
         <td>
             {% if c.hasEval  %}
-            <a href="{{ url_for('exportXlsx', userID=userID, courseID=c.courseID, secID=c.secID, term=c.term) }}">
+            <a href="{{ url_for('exportXlsx', userID=userID, courseID=c.courseID, secID='%03d' | format(c.secID), term=c.term) }}">
                 <i class="fa-solid fa-file-arrow-down"></i>
                 Export to xlsx 
             </a> 
-            | <a href="{{ url_for('exportCSV', userID=userID, courseID=c.courseID, secID=c.secID, term=c.term) }}">
+            | <a href="{{ url_for('exportCSV', userID=userID, courseID=c.courseID, secID='%03d' | format(c.secID), term=c.term) }}">
                 <i class="fa-solid fa-file-arrow-down"></i>
                 Export to csv
             </a>
             {% else %}
-            no evaluations submitted
+                No evaluations submitted
             {% endif %}
         </td>
+        <td><a href="{{ url_for('viewRoster', courseID='%03d' | format(c.courseID), secID='%03d' | format(c.secID), term=c.term) }}">ROSTER</a></td>
         {% endif %}
     </tr>
     {% endfor %}
