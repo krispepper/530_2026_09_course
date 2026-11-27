@@ -44,7 +44,7 @@
                 No evaluations submitted
             {% endif %}
         </td>
-        <td><a href="{{ url_for('viewRoster', courseID='%03d' | format(c.courseID), secID='%03d' | format(c.secID), term=c.term) }}">ROSTER</a></td>
+        <td><a href="{{ url_for('viewRoster', userID= userID, courseID='%03d' | format(c.courseID), secID='%03d' | format(c.secID), term=c.term) }}">ROSTER</a></td>
         {% endif %}
     </tr>
     {% endfor %}
