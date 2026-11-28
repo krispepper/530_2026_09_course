@@ -6,6 +6,8 @@ from flask import Flask, redirect, render_template, request, send_file, url_for
 
 from constants import ROLE
 from database import (
+    canViewRoster,
+    getCourseDept,
     getCourseListDeptChair,
     getCourseListInstructor,
     getCourseListStudent,
@@ -225,11 +227,53 @@ def viewEvaluation(studentID, evalID, userID):
         userID=userID
         )
 
-@app.route("/view-roster/<courseID>/<secID>/<term>")
-def viewRoster(courseID, secID, term):
+@app.route("/<userID>/view-roster/<courseID>/<secID>/<term>")
+def viewRoster(userID, courseID, secID, term):
     """Route for viewing class roster."""
+    # get course name
+    course = getCourseName(courseID)
+    courseDept = getCourseDept(courseID)
+    secID = f"{int(secID):03d}"
+    courseID = f"{int(courseID):03d}"
+
+    # check if user can view roster
+    if userID not in canViewRoster(courseID, secID, term):
+        msg = (
+            "Sorry looks like you do not have access to this roster.<br>"
+            "Please try looking at a roster you have access to.<br>"
+            "You can find rosters you have access to in "
+            '"'
+            f'<a href="{url_for("viewCourseList", userID=userID)}">'
+            "VIEW COURSE LIST</a>"
+            '"'
+        )
+        return render_template(
+            "viewRoster.html", 
+            userID = userID,
+            msg = msg,
+            courseID = courseID,
+            secID = secID,
+            term = term,
+            course = course,
+            courseDept = courseDept
+            )
+
     # get the roster
     roster = getRoster(secID, courseID, term)
+
+    # check if roster returned error message
+    if isinstance(roster, str):
+        return render_template(
+            "viewRoster.html",
+            userID = userID,
+            msg = roster,
+            courseID = courseID,
+            secID = secID,
+            term = term,
+            course = course,
+        )
+    # 03d will make it so the secID is 3 digits: ex- 50 to 050
+    evalID = f"{getCourseDept(courseID)}-{int(courseID):03d}-{int(secID):03d}-{term}"
 
     # render view of class roster
     return render_template(
@@ -237,7 +281,11 @@ def viewRoster(courseID, secID, term):
         roster = roster,
         courseID = courseID,
         secID = secID,
-        term = term
+        term = term,
+        evalID = evalID,
+        userID = userID,
+        course = course,
+        courseDept = courseDept
     )
 
 @app.route("/<userID>/view-courses", strict_slashes=False)
